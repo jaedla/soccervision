@@ -18,16 +18,30 @@ Communication::~Communication() {
 	if (socket != NULL) delete socket; socket = NULL;
 }
 
+void Communication::sendNoQueue(std::string message) {
+	message += "\n";
+
+	memcpy(requestBuffer, message.c_str(), message.size());
+	requestBuffer[message.size()] = 0;
+
+	try {
+		socket->send_to(
+			boost::asio::buffer(requestBuffer, message.length()),
+			remoteEndpoint
+		);
+	} catch (std::exception& e) {
+		std::cout << "- Communication send error: " << e.what() << std::endl;
+	}
+}
+
 void Communication::send(std::string message) {
 	if (message.size() >= MAX_SIZE) {
 		std::cout << "- Too big socket message" << std::endl;
-
 		return;
 	}
 
 	if (!running) {
 		queuedMessages.push(message);
-
 		return;
 	}
 
@@ -37,46 +51,10 @@ void Communication::send(std::string message) {
 		std::string queuedMessage = queuedMessages.front();
 		queuedMessages.pop();
 
-		send(queuedMessage);
+		sendNoQueue(queuedMessage);
 	}
 
-	if (message.substr(0, 6) != "speeds" && message.substr(0, 6) != "charge") {
-		// incoming message
-		//std::cout << "> " << message << std::endl;
-	}
-
-	message += "\n";
-
-	memcpy(requestBuffer, message.c_str(), message.size());
-	requestBuffer[message.size()] = 0;
-
-	//boost::shared_ptr<std::string> requestBuffer(new std::string(message));
-
-	try {
-		/*boost::asio::ip::udp::endpoint remoteEndpoint = boost::asio::ip::udp::endpoint(
-			boost::asio::ip::address::from_string(host),
-			port
-		);*/
-
-		/*socket->async_send_to(
-			boost::asio::buffer(requestBuffer, message.length()),
-			remoteEndpoint,
-			//boost::asio::buffer(*requestBuffer), remoteEndpoint,
-			boost::bind(
-				&Communication::onSend,
-				this,
-				boost::asio::placeholders::error,
-				boost::asio::placeholders::bytes_transferred
-			)
-		);*/
-
-		socket->send_to(
-			boost::asio::buffer(requestBuffer, message.length()),
-			remoteEndpoint
-		);
-	} catch (std::exception& e) {
-		std::cout << "- Communication send error: " << e.what() << std::endl;
-	}
+  sendNoQueue(message);
 }
 
 bool Communication::gotMessages() {
