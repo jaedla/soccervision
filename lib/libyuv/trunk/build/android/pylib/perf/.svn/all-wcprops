@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/253549/trunk/src/build/android/pylib/perf
+END
+setup.py
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/253549/trunk/src/build/android/pylib/perf/setup.py
+END
+thermal_throttle.py
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/253549/trunk/src/build/android/pylib/perf/thermal_throttle.py
+END
+cache_control.py
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/223606/trunk/src/build/android/pylib/perf/cache_control.py
+END
+test_runner.py
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/253549/trunk/src/build/android/pylib/perf/test_runner.py
+END
+test_options.py
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/234493/trunk/src/build/android/pylib/perf/test_options.py
+END
+surface_stats_collector_unittest.py
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/!svn/ver/253549/trunk/src/build/android/pylib/perf/surface_stats_collector_unittest.py
+END
+perf_control.py
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/223606/trunk/src/build/android/pylib/perf/perf_control.py
+END
+surface_stats_collector.py
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/253549/trunk/src/build/android/pylib/perf/surface_stats_collector.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/217550/trunk/src/build/android/pylib/perf/__init__.py
+END

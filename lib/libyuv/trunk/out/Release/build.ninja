@@ -1,0 +1,93 @@
+cc = cc
+cxx = c++
+ld = $cc
+ldxx = $cxx
+ar = ar
+
+pool link_pool
+  depth = 1
+
+rule cc
+  command = $cc -MMD -MF $out.d $defines $includes $cflags $cflags_c $cflags_pch_c -c $in -o $out
+  description = CC $out
+  depfile = $out.d
+  deps = gcc
+rule cc_s
+  command = $cc $defines $includes $cflags $cflags_c $cflags_pch_c -c $in -o $out
+  description = CC $out
+rule cxx
+  command = $cxx -MMD -MF $out.d $defines $includes $cflags $cflags_cc $cflags_pch_cc -c $in -o $out
+  description = CXX $out
+  depfile = $out.d
+  deps = gcc
+rule alink
+  command = rm -f $out && $ar rcs $out $in
+  description = AR $out
+rule alink_thin
+  command = rm -f $out && $ar rcsT $out $in
+  description = AR $out
+rule solink
+  command = if [ ! -e $lib -o ! -e $lib.TOC ]; then $ld -shared $ldflags -o $lib -Wl,-soname=$soname @$link_file_list $
+      && { readelf -d $lib | grep SONAME ; nm -gD -f p $lib | cut -f1-2 -d' '; } > $lib.TOC; else $ld -shared $
+      $ldflags -o $lib -Wl,-soname=$soname @$link_file_list && { readelf -d $lib | grep SONAME ; nm -gD -f p $lib | $
+      cut -f1-2 -d' '; } > $lib.tmp && if ! cmp -s $lib.tmp $lib.TOC; then mv $lib.tmp $lib.TOC ; fi; fi
+  description = SOLINK $lib
+  pool = link_pool
+  restat = 1
+  rspfile = $link_file_list
+  rspfile_content = -Wl,--whole-archive $in $solibs -Wl,--no-whole-archive $libs
+rule solink_module
+  command = if [ ! -e $lib -o ! -e $lib.TOC ]; then $ld -shared $ldflags -o $lib -Wl,-soname=$soname @$link_file_list $
+      && { readelf -d $lib | grep SONAME ; nm -gD -f p $lib | cut -f1-2 -d' '; } > $lib.TOC; else $ld -shared $
+      $ldflags -o $lib -Wl,-soname=$soname @$link_file_list && { readelf -d $lib | grep SONAME ; nm -gD -f p $lib | $
+      cut -f1-2 -d' '; } > $lib.tmp && if ! cmp -s $lib.tmp $lib.TOC; then mv $lib.tmp $lib.TOC ; fi; fi
+  description = SOLINK(module) $lib
+  pool = link_pool
+  restat = 1
+  rspfile = $link_file_list
+  rspfile_content = -Wl,--start-group $in $solibs -Wl,--end-group $libs
+rule link
+  command = $ld $ldflags -o $out -Wl,--start-group $in $solibs -Wl,--end-group $libs
+  description = LINK $out
+  pool = link_pool
+rule stamp
+  command = ${postbuilds}touch $out
+  description = STAMP $out
+rule copy
+  command = ln -f $in $out 2>/dev/null || (rm -rf $out && cp -af $in $out)
+  description = COPY $in $out
+
+subninja obj/third_party/yasm/config_sources.ninja
+subninja obj/third_party/yasm/genmodule.ninja
+subninja obj/third_party/yasm/genstring.ninja
+subninja obj/testing/gtest_prod.ninja
+subninja obj/third_party/yasm/genversion.ninja
+subninja obj/third_party/yasm/re2c.ninja
+subninja obj/third_party/yasm/genperf_libs.ninja
+subninja obj/psnr.ninja
+subninja obj/third_party/yasm/genmacro.ninja
+subninja obj/testing/gtest.ninja
+subninja obj/testing/gtest_main.ninja
+subninja obj/third_party/yasm/genperf.ninja
+subninja obj/third_party/yasm/generate_files.ninja
+subninja obj/third_party/yasm/yasm.ninja
+subninja obj/third_party/libjpeg_turbo/libjpeg.ninja
+subninja obj/libyuv.ninja
+subninja obj/cpuid.ninja
+subninja obj/compare.ninja
+subninja obj/libyuv_unittest.ninja
+subninja obj/convert.ninja
+
+# Short names for targets.
+build libjpeg: phony obj/third_party/libjpeg_turbo/libjpeg_turbo.a
+build generate_files: phony obj/third_party/yasm/generate_files.actions_rules_copies.stamp
+build gtest: phony obj/testing/libgtest.a
+build libyuv: phony libyuv.a
+build gtest_main: phony obj/testing/libgtest_main.a
+build genperf_libs: phony obj/third_party/yasm/libgenperf_libs.a
+
+build all: phony compare psnr cpuid re2c genperf libyuv.a obj/third_party/libjpeg_turbo/libjpeg_turbo.a $
+    obj/testing/libgtest_main.a obj/testing/libgtest.a convert yasm libyuv_unittest genversion $
+    obj/third_party/yasm/libgenperf_libs.a genstring genmacro genmodule $
+    obj/third_party/yasm/generate_files.actions_rules_copies.stamp
+default all

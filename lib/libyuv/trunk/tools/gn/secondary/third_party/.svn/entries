@@ -1,0 +1,70 @@
+10
+
+dir
+260824
+http://src.chromium.org/svn/trunk/src/tools/gn/secondary/third_party
+http://src.chromium.org/svn
+
+
+
+2014-03-27T21:08:35.924318Z
+259983
+brettw@chromium.org
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+4ff67af0-8c30-449e-8e8b-ad334ec8d88c
+
+WebKit
+dir
+
+wtl
+dir
+
+libxml
+dir
+
+mach_override
+dir
+
+libevent
+dir
+
+modp_b64
+dir
+
+snappy
+dir
+
+leveldatabase
+dir
+
+sfntly
+dir
+
+icu
+dir
+
+libusb
+dir
+
+zlib
+dir
+
+expat
+dir
+
+nss
+dir
+
