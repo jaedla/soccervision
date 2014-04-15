@@ -1,5 +1,6 @@
 #include "Util.h"
 #include "Config.h"
+#include <dirent.h>
 #include <iostream>
 #include <ctime>
 #include <stdio.h>
@@ -12,6 +13,7 @@ float Util::cameraCorrectionK = Config::cameraCorrectionK;
 float Util::cameraCorrectionZoom = Config::cameraCorrectionZoom;
 
 int64_t Util::timerStart() {
+  printf("Util::timerStart\n");
 	// TODO
 	/*
 	LARGE_INTEGER li;
@@ -28,6 +30,7 @@ int64_t Util::timerStart() {
 }
 
 double Util::timerEnd(int64_t startTime) {
+  printf("Util::timerEnd\n");
 	// TODO
 	/*
 	LARGE_INTEGER li;
@@ -182,37 +185,20 @@ std::string Util::json(std::string id, std::string payload) {
 	return "{\"id\":\"" + id + "\",\"payload\":" + payload + "}";
 }
 
-std::vector<std::string> Util::getFilesInDir(std::string path){
-	// TODO
-	/*
+std::vector<std::string> Util::getFilesInDir(std::string path) {
 	std::vector<std::string> files;
+  DIR *d;
+  struct dirent *dir;
 
-	TCHAR szDir[MAX_PATH];
-	HANDLE hFind = INVALID_HANDLE_VALUE;
-	WIN32_FIND_DATA ffd;
-	LARGE_INTEGER filesize;
+  d = opendir(path.c_str());
+  if (d) {
+    while ((dir = readdir(d)) != NULL) {
+      std::string file(dir->d_name);
+      if (file != "." && file != "..")
+        files.push_back(file);
+    }
+    closedir(d);
+  }
 
-	StringCchCopy(szDir, MAX_PATH, path.c_str());
-	StringCchCat(szDir, MAX_PATH, TEXT("\\*"));
-
-	hFind = FindFirstFile(szDir, &ffd);
-
-	if (INVALID_HANDLE_VALUE == hFind) {
-		return files;
-	}
-
-	do {
-		if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-			// directory ffd.cFileName
-		} else {
-			filesize.LowPart = ffd.nFileSizeLow;
-			filesize.HighPart = ffd.nFileSizeHigh;
-			
-			files.push_back(ffd.cFileName);
-		}
-	} while (FindNextFile(hFind, &ffd) != 0);
-
-	return files;
-	*/
-	return std::vector<std::string>();
+  return files;
 }
