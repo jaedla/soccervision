@@ -10,7 +10,7 @@ $(OUT)/Soccerbot: $(OBJECTS)
 
 $(OBJECTS): $(OUT)/%.o : %.cpp
 	@mkdir -p $(dir $@)
-	clang++ -fcolor-diagnostics -std=c++11 -c -Iinclude -Idependencies/websocket -Ilib/armadillo/include -Ilib/libyuv/trunk/include -Ilib/jpeg $< -o $@
+	clang++ -fcolor-diagnostics -std=c++11 -g -fno-inline-functions -fno-inline -fno-omit-frame-pointer -fno-optimize-sibling-calls -c -Iinclude -Idependencies/websocket -Ilib/armadillo/include -Ilib/libyuv/trunk/include -Ilib/jpeg $< -o $@
 
 clean:
 	rm -rf $(OUT)

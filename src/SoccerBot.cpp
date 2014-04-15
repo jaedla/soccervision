@@ -464,6 +464,8 @@ void SoccerBot::setupGui() {
 
 void SoccerBot::setupCameras() {
 	std::cout << "! Setting up cameras" << std::endl;
+	frontCamera = new VirtualCamera();
+	rearCamera = new VirtualCamera();
 	/*
 	ximeaFrontCamera = new XimeaCamera();
 	ximeaRearCamera = new XimeaCamera();

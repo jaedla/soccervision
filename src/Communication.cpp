@@ -102,8 +102,6 @@ std::string Communication::dequeueMessage() {
 void* Communication::run() {
 	std::cout << "! Starting communication socket connection to " << host << ":" << port << std::endl;
 
-	running = true;
-
 	socket = new udp::socket(ioService, udp::endpoint(udp::v4(), port));
 
 	remoteEndpoint = boost::asio::ip::udp::endpoint(
@@ -113,9 +111,11 @@ void* Communication::run() {
 
 	//receiveBuffer2 = boost::asio::buffer(receiveBuffer, MAX_SIZE);
 
-	receiveNext();
-
 	ioService.run();
+
+	running = true;
+
+	receiveNext();
 
 	return NULL;
 }

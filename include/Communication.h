@@ -52,7 +52,7 @@ private:
 	boost::asio::ip::udp::endpoint remoteEndpoint;
 	Messages messages;
 	std::queue<std::string> queuedMessages;
-	bool running;
+	volatile bool running;
 	mutable boost::mutex messagesMutex;
 };
 
