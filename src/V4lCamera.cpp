@@ -22,13 +22,15 @@ bool V4lCamera::isOpened() {
 }
 
 bool V4lCamera::isAcquisitioning() {
-  return false;
+  return acquisitioning;
 }
 
 void V4lCamera::startAcquisition() {
+  acquisitioning = true;
 }
 
 void V4lCamera::stopAcquisition() {
+  acquisitioning = false;
 }
 
 void V4lCamera::close() {

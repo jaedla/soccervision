@@ -18,6 +18,7 @@ public:
 	virtual void close();
 private:
   cv::VideoCapture *capture;
+  bool acquisitioning;
 };
 
 #endif
