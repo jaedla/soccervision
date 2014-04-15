@@ -4,6 +4,7 @@
 #include <ctime>
 #include <stdio.h>
 #include <stdio.h>
+#include <sys/time.h>
 
 double Util::queryPerformanceFrequency = 0;
 int64_t Util::timerStartCount = 0;
@@ -84,9 +85,9 @@ std::string Util::base64Encode(const unsigned char* data, unsigned int length) {
 }
 
 double Util::millitime() {
-	// TODO
-	//return (double)timeGetTime() / 1000.0;
-	return 0;
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return (double)tv.tv_sec * 1000.0 + (double)tv.tv_usec / 1000.0;
 }
 
 double Util::duration(double start) {

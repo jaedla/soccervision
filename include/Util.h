@@ -18,7 +18,7 @@ public:
     static float limit(float num, float min, float max);
     static int strpos(const std::string& haystack, const std::string &needle);
     static bool replace(std::string& str, const std::string& from, const std::string& to);
-	static void sleep(int milliseconds) { /* TODO: Sleep(milliseconds); */ }
+	static void sleep(int milliseconds) { printf("Util::sleep() not implemented\n"); }
 	static int64_t timerStart();
 	static double timerEnd(int64_t startTime = -1);
 	//static void correctCameraPoint(int& x, int& y);
