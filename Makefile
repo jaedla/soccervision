@@ -6,7 +6,7 @@ SOURCES += $(JPEG_SOURCES)
 OBJECTS = $(SOURCES:%.cpp=$(OUT)/%.o)
 
 $(OUT)/Soccerbot: $(OBJECTS)
-	clang++ -fcolor-diagnostics -o $(OUT)/Soccerbot $(OBJECTS) lib/libyuv/trunk/out/Debug/libyuv.a -lboost_system -lpthread
+	clang++ -fcolor-diagnostics -o $(OUT)/soccervision $(OBJECTS) lib/libyuv/trunk/out/Debug/libyuv.a -lboost_system -lpthread
 
 $(OBJECTS): $(OUT)/%.o : %.cpp
 	@mkdir -p $(dir $@)
