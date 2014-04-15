@@ -4,3 +4,5 @@
 /*.sdf
 /*.ilk
 /dash/.idea
+/compile_commands.json
+/index
