@@ -501,7 +501,7 @@ Object* TestController::getLastBall(Dir dir) {
 	}
 
 	// make sure the ball is on the right side
-	if (dir != Dir::ANY && (lastBall->behind && dir == Dir::FRONT) || (!lastBall->behind && dir == Dir::REAR)) {
+	if ((dir != Dir::ANY && (lastBall->behind && dir == Dir::FRONT)) || (!lastBall->behind && dir == Dir::REAR)) {
 		return NULL;
 	}
 

@@ -1,9 +1,9 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include <Windows.h>
 #include <string>
 #include <sstream>
+#include <cstdint>
 #include <cstdlib>
 #include <vector>
 #include <iterator>
@@ -18,13 +18,13 @@ public:
     static float limit(float num, float min, float max);
     static int strpos(const std::string& haystack, const std::string &needle);
     static bool replace(std::string& str, const std::string& from, const std::string& to);
-	static void sleep(int milliseconds) { Sleep(milliseconds); }
-	static __int64 timerStart();
-	static double timerEnd(__int64 startTime = -1);
+	static void sleep(int milliseconds) { /* TODO: Sleep(milliseconds); */ }
+	static int64_t timerStart();
+	static double timerEnd(int64_t startTime = -1);
 	//static void correctCameraPoint(int& x, int& y);
 	static void confineField(float& x, float& y);
 	static std::string json(std::string id, std::string payload);
-	static std::vector<std::string> Util::getFilesInDir(std::string path);
+	static std::vector<std::string> getFilesInDir(std::string path);
 
     static inline int rgbToInt(int red, int green, int blue) {
         int rgb = red;
@@ -81,7 +81,7 @@ public:
 private:
     static const std::string base64Chars;
 	static double queryPerformanceFrequency;
-	static __int64 timerStartCount;
+	static int64_t timerStartCount;
 	
 };
 

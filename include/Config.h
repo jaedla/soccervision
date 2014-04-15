@@ -2,6 +2,7 @@
 #define CONFIG_H
 
 #include <string>
+#include <cmath>
 
 namespace Config {
 

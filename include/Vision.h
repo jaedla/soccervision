@@ -122,7 +122,7 @@ private:
 	float getColorDistance(std::string colorName, int x1, int y1, int x2, int y2);
 	ColorDistance getColorDistance(std::string colorName);
 	ColorList getViewColorOrder();
-	Object* Vision::mergeGoals(Object* goal1, Object* goal2);
+	Object* mergeGoals(Object* goal1, Object* goal2);
     bool isValidBall(Object* ball, Dir dir);
     bool isValidGoal(Object* goal, Side side);
 	bool isBallInGoal(Object* ball, Dir dir);

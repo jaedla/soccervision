@@ -19,6 +19,7 @@ public:
 
 	public:
 		State(BaseAI* ai) : ai(ai) {}
+		virtual ~State() {}
 		virtual void onEnter(Robot* robot, Parameters parameters) {}
 		virtual void onExit(Robot* robot) {}
 		virtual void step(float dt, Vision::Results* visionResults, Robot* robot, float totalDuration, float stateDuration, float combinedDuration) = 0;

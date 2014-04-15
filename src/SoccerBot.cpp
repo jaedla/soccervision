@@ -1,12 +1,10 @@
 #include "SoccerBot.h"
-#include "XimeaCamera.h"
 #include "VirtualCamera.h"
 #include "CameraTranslator.h"
 #include "Vision.h"
 #include "DebugRenderer.h"
 #include "Communication.h"
 #include "ProcessThread.h"
-#include "Gui.h"
 #include "FpsCounter.h"
 #include "SignalHandler.h"
 #include "Config.h"
@@ -24,13 +22,13 @@
 
 SoccerBot::SoccerBot() :
 	frontCamera(NULL), rearCamera(NULL),
-	ximeaFrontCamera(NULL), ximeaRearCamera(NULL),
+	//ximeaFrontCamera(NULL), ximeaRearCamera(NULL),
 	virtualFrontCamera(NULL), virtualRearCamera(NULL),
 	frontBlobber(NULL), rearBlobber(NULL),
 	frontVision(NULL), rearVision(NULL),
 	frontProcessor(NULL), rearProcessor(NULL),
 	frontCameraTranslator(NULL), rearCameraTranslator(NULL),
-	gui(NULL), fpsCounter(NULL), visionResults(NULL), robot(NULL), activeController(NULL), server(NULL), com(NULL),
+	fpsCounter(NULL), visionResults(NULL), robot(NULL), activeController(NULL), server(NULL), com(NULL),
 	jpegBuffer(NULL), screenshotBufferFront(NULL), screenshotBufferRear(NULL),
 	running(false), debugVision(false), showGui(false), controllerRequested(false), stateRequested(false), frameRequested(false), useScreenshot(false),
 	dt(0.01666f), lastStepTime(0.0), totalTime(0.0f),
@@ -49,11 +47,10 @@ SoccerBot::~SoccerBot() {
     controllers.clear();
     activeController = NULL;
 
-	if (gui != NULL) delete gui; gui = NULL;
 	if (server != NULL) delete server; server = NULL;
 	if (robot != NULL) delete robot; robot = NULL;
-	if (ximeaFrontCamera != NULL) delete ximeaFrontCamera; ximeaFrontCamera = NULL;
-	if (ximeaRearCamera != NULL) delete ximeaRearCamera; ximeaRearCamera = NULL;
+	//if (ximeaFrontCamera != NULL) delete ximeaFrontCamera; ximeaFrontCamera = NULL;
+	//if (ximeaRearCamera != NULL) delete ximeaRearCamera; ximeaRearCamera = NULL;
 	if (virtualFrontCamera != NULL) delete virtualFrontCamera; virtualFrontCamera = NULL;
 	if (virtualRearCamera != NULL) delete virtualRearCamera; virtualRearCamera = NULL;
 	if (frontCameraTranslator != NULL) delete frontCameraTranslator; frontCameraTranslator = NULL;
@@ -115,7 +112,7 @@ void SoccerBot::run() {
 		std::cout << "! Neither of the cameras was opened, running in test mode" << std::endl;
 
 		while (running) {
-			Sleep(100);
+			sleep(100);
 
 			if (SignalHandler::exitRequested) {
 				running = false;
@@ -218,6 +215,7 @@ void SoccerBot::run() {
 		}
 
 		if (showGui) {
+			/*
 			if (gui == NULL) {
 				setupGui();
 			}
@@ -247,6 +245,7 @@ void SoccerBot::run() {
 			if (gui->isQuitRequested()) {
 				running = false;
 			}
+			*/
 		}
 		
 		/*if (fpsCounter->frameNumber % 60 == 0) {
@@ -452,6 +451,7 @@ void SoccerBot::setupFpsCounter() {
 }
 
 void SoccerBot::setupGui() {
+	/*
 	std::cout << "! Setting up GUI" << std::endl;
 
 	gui = new Gui(
@@ -459,11 +459,12 @@ void SoccerBot::setupGui() {
 		frontBlobber, rearBlobber,
 		Config::cameraWidth, Config::cameraHeight
 	);
+	*/
 }
 
 void SoccerBot::setupCameras() {
 	std::cout << "! Setting up cameras" << std::endl;
-
+	/*
 	ximeaFrontCamera = new XimeaCamera();
 	ximeaRearCamera = new XimeaCamera();
 
@@ -491,6 +492,7 @@ void SoccerBot::setupCameras() {
 
 	frontCamera = ximeaFrontCamera;
 	rearCamera = ximeaRearCamera;
+	*/
 }
 
 void SoccerBot::setupRobot() {
@@ -513,6 +515,7 @@ void SoccerBot::setupControllers() {
 	std::cout << "done!" << std::endl;
 }
 
+/*
 void SoccerBot::setupXimeaCamera(std::string name, XimeaCamera* camera) {
 	camera->setGain(8);
 	//camera->setGain(4);
@@ -532,6 +535,7 @@ void SoccerBot::setupXimeaCamera(std::string name, XimeaCamera* camera) {
 	std::cout << "  > Framerate: " << camera->getFramerate() << std::endl;
 	std::cout << "  > Available bandwidth: " << camera->getAvailableBandwidth() << std::endl;
 }
+*/
 
 void SoccerBot::setupSignalHandler() {
 	SignalHandler::setup();
@@ -691,11 +695,11 @@ void SoccerBot::handleStreamChoiceCommand(Command::Parameters parameters) {
 	if (requestedStream == "") {
 		std::cout << "! Switching to live stream" << std::endl;
 
-		frontProcessor->camera = ximeaFrontCamera;
-		rearProcessor->camera = ximeaRearCamera;
+		//frontProcessor->camera = ximeaFrontCamera;
+		//rearProcessor->camera = ximeaRearCamera;
 
-		frontCamera = ximeaFrontCamera;
-		rearCamera = ximeaRearCamera;
+		//frontCamera = ximeaFrontCamera;
+		//rearCamera = ximeaRearCamera;
 
 		activeStreamName = requestedStream;
 	} else {

@@ -3,17 +3,16 @@
 #include <iostream>
 #include <ctime>
 #include <stdio.h>
-#include <Windows.h>
-#include <tchar.h> 
 #include <stdio.h>
-#include <strsafe.h>
 
 double Util::queryPerformanceFrequency = 0;
-__int64 Util::timerStartCount = 0;
+int64_t Util::timerStartCount = 0;
 float Util::cameraCorrectionK = Config::cameraCorrectionK;
 float Util::cameraCorrectionZoom = Config::cameraCorrectionZoom;
 
-__int64 Util::timerStart() {
+int64_t Util::timerStart() {
+	// TODO
+	/*
 	LARGE_INTEGER li;
     QueryPerformanceFrequency(&li);
 
@@ -23,13 +22,19 @@ __int64 Util::timerStart() {
     timerStartCount = li.QuadPart;
 
 	return li.QuadPart;
+	*/
+	return 0;
 }
 
-double Util::timerEnd(__int64 startTime) {
+double Util::timerEnd(int64_t startTime) {
+	// TODO
+	/*
 	LARGE_INTEGER li;
     QueryPerformanceCounter(&li);
 
     return double(li.QuadPart - (startTime != -1 ? startTime : timerStartCount)) / queryPerformanceFrequency;
+	*/
+	return 0;
 }
 
 const std::string Util::base64Chars =
@@ -79,7 +84,9 @@ std::string Util::base64Encode(const unsigned char* data, unsigned int length) {
 }
 
 double Util::millitime() {
-	return (double)timeGetTime() / 1000.0;
+	// TODO
+	//return (double)timeGetTime() / 1000.0;
+	return 0;
 }
 
 double Util::duration(double start) {
@@ -175,6 +182,8 @@ std::string Util::json(std::string id, std::string payload) {
 }
 
 std::vector<std::string> Util::getFilesInDir(std::string path){
+	// TODO
+	/*
 	std::vector<std::string> files;
 
 	TCHAR szDir[MAX_PATH];
@@ -203,4 +212,6 @@ std::vector<std::string> Util::getFilesInDir(std::string path){
 	} while (FindNextFile(hFind, &ffd) != 0);
 
 	return files;
+	*/
+	return std::vector<std::string>();
 }

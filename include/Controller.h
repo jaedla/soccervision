@@ -16,6 +16,7 @@ class Controller : public Communication::Listener, public Command::Listener {
 
 public:
     Controller(Robot* robot, Communication* com) : robot(robot), com(com) {}
+	virtual ~Controller() {}
 	virtual void onEnter() {}
 	virtual void onExit() {}
 	virtual bool handleRequest(std::string request) { return false; }

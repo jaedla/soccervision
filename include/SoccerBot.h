@@ -12,7 +12,6 @@ class XimeaCamera;
 class VirtualCamera;
 class Blobber;
 class ProcessThread;
-class Gui;
 class FpsCounter;
 class Robot;
 class Communication;
@@ -73,8 +72,8 @@ private:
 
 	BaseCamera* frontCamera;
 	BaseCamera* rearCamera;
-	XimeaCamera* ximeaFrontCamera;
-	XimeaCamera* ximeaRearCamera;
+	//XimeaCamera* ximeaFrontCamera;
+	//XimeaCamera* ximeaRearCamera;
 	VirtualCamera* virtualFrontCamera;
 	VirtualCamera* virtualRearCamera;
 	Blobber* frontBlobber;
@@ -85,7 +84,6 @@ private:
 	CameraTranslator* rearCameraTranslator;
 	ProcessThread* frontProcessor;
 	ProcessThread* rearProcessor;
-	Gui* gui;
 	FpsCounter* fpsCounter;
 	Vision::Results* visionResults;
 	Server* server;
