@@ -462,12 +462,16 @@ void SoccerBot::setupGui() {
 	*/
 }
 
+#include "V4lCamera.h"
+
 void SoccerBot::setupCameras() {
 	std::cout << "! Setting up cameras" << std::endl;
 	virtualFrontCamera = new VirtualCamera();
 	virtualRearCamera = new VirtualCamera();
   frontCamera = virtualFrontCamera;
   rearCamera = virtualRearCamera;
+  V4lCamera v4lCamera;
+  v4lCamera.open();
 	/*
 	ximeaFrontCamera = new XimeaCamera();
 	ximeaRearCamera = new XimeaCamera();

@@ -14,6 +14,14 @@ V4lCamera:: Frame* V4lCamera::getFrame() {
 
 bool V4lCamera::open(int serial) {
   capture = new cv::VideoCapture(0);
+  printf("isOpened: %d\n", capture->isOpened());
+  if (capture->isOpened()) {
+    capture->set(CV_CAP_PROP_FRAME_WIDTH, 1280);
+    capture->set(CV_CAP_PROP_FRAME_HEIGHT, 720);
+    cv::Mat frame;
+    *capture >> frame;
+    printf("dims=%d %dx%d rowsize=%lu elemsize=%lu\n", frame.dims, frame.size[1], frame.size[0], frame.step[0], frame.step[1]);
+  }
   return capture->isOpened();
 }
 
