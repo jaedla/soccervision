@@ -10,7 +10,7 @@
 #include <iostream>
 
 ProcessThread::ProcessThread(BaseCamera* camera, Blobber* blobber, Vision* vision) : Thread(), camera(camera), blobber(blobber), vision(vision), visionResult(NULL), debug(false), gotFrame(false), faulty(false), done(true) {
-	frame = NULL;
+	frameData = NULL;
 	width = blobber->getWidth();
 	height = blobber->getHeight();
 	dataY = new unsigned char[width * height];
@@ -43,7 +43,7 @@ ProcessThread::~ProcessThread() {
 void* ProcessThread::run() {
 	gotFrame = fetchFrame();
 
-	if (!gotFrame || frame == NULL) {
+	if (!gotFrame || frameData == NULL) {
 		if (faulty) {
 			if (visionResult != NULL) {
 				delete visionResult;
@@ -72,7 +72,7 @@ void* ProcessThread::run() {
 	//Util::timerStart();
   /*
 	ImageProcessor::bayerRGGBToI420(
-		frame,
+		frameData,
 		dataY, dataU, dataV,
 		width, height
 	);
@@ -88,7 +88,7 @@ void* ProcessThread::run() {
 	//std::cout << "  - I420 > YUYV: " << Util::timerEnd() << std::endl;
 
 	//Util::timerStart();
-  dataYUYV = frame;
+  dataYUYV = frameData;
 	blobber->processFrame((Blobber::Pixel*)dataYUYV);
 	//std::cout << "  - Process:     " << Util::timerEnd() << " (" << blobber->getBlobCount("ball") << " ball blobs)" << std::endl;
 
@@ -127,6 +127,10 @@ void* ProcessThread::run() {
 		// TODO Show whether a ball is in the way
 	}
 
+  if (frame != NULL) {
+    delete frame;
+    frame = NULL;
+  }
 	done = true;
 
 	return NULL;
@@ -136,7 +140,7 @@ bool ProcessThread::fetchFrame() {
 	if (camera->isAcquisitioning()) {
 		double startTime = Util::millitime();
 		
-		const Frame* cameraFrame = camera->getFrame();
+		frame = camera->getFrame();
 		
 		double timeTaken = Util::duration(startTime);
 
@@ -145,7 +149,7 @@ bool ProcessThread::fetchFrame() {
 
 			faulty = true;
 
-			//frame = NULL;
+			//frameData = NULL;
 
 			// don't use this invalid frame
 			return false;
@@ -164,12 +168,9 @@ bool ProcessThread::fetchFrame() {
 			}*/
 		}
 
-		if (cameraFrame != NULL) {
-			if (cameraFrame->fresh) {
-				frame = cameraFrame->data;
-
-				return true;
-			}
+		if (frame != NULL && frame->fresh) {
+			frameData = frame->data;
+			return true;
 		}
 	}
 

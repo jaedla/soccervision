@@ -61,19 +61,14 @@ Frame* V4lCamera::getFrame() {
   frame->width = width;
   frame->height = height;
   frame->fresh = true;
-  printf("Returning frame\n");
   return frame;
 }
 
 bool V4lCamera::open(int serial) {
   fd = ::open("/dev/video0", O_RDWR | O_NONBLOCK, 0);
-  if (fd != -1) {
-    init();
-    printf("Camera initialized\n");
-  } else {
-    printf("Failed to open v4l device");
-  }
-  return fd != -1;
+  check(fd != -1, "Failed to open /dev/video0");
+  init();
+  return true;
 }
 
 void V4lCamera::initFormat() {

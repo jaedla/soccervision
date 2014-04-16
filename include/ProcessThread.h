@@ -4,6 +4,7 @@
 #include "Thread.h"
 #include "Config.h"
 #include "Vision.h"
+#include "BaseCamera.h"
 
 class BaseCamera;
 class Blobber;
@@ -14,7 +15,6 @@ public:
 	ProcessThread(BaseCamera* camera, Blobber* blobber, Vision* vision);
 	~ProcessThread();
 
-	//void setFrame(unsigned char* data) { frame = data; };
 	bool isDone() { return done; };
 
 	int width;
@@ -30,7 +30,8 @@ public:
 
 	bool gotFrame;
 	bool faulty;
-	unsigned char* frame;
+  Frame *frame;
+	unsigned char* frameData;
 	unsigned char* dataYUYV;
 	unsigned char* dataY;
     unsigned char* dataU;

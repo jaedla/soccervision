@@ -26,7 +26,6 @@ public:
 	virtual void startAcquisition() {}
 	virtual void stopAcquisition() {}
 	virtual void close() {}
-
 };
 
 #endif // CAMERA_H
