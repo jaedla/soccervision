@@ -18,10 +18,15 @@ public:
 	virtual void close();
 private:
   void init();
+  void initFormat();
+  void initMmap();
   int fd;
   bool acquisitioning;
-  uint8_t *frameBuffer;
+  uint32_t width;
+  uint32_t height;
   uint32_t frameSize;
+  uint8_t *frameBuffers[4];
+  uint8_t numFrames;
   Frame frame;
 };
 
