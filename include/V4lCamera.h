@@ -20,6 +20,9 @@ private:
   void init();
   int fd;
   bool acquisitioning;
+  uint8_t *frameBuffer;
+  uint32_t frameSize;
+  Frame frame;
 };
 
 #endif

@@ -10,33 +10,37 @@
 #include "V4lCamera.h"
 
 V4lCamera::V4lCamera() : fd(-1) {
+  memset(&frame, 0x00, sizeof(frame));
 }
 
 V4lCamera::~V4lCamera() {
   close();
 }
 
-V4lCamera:: Frame* V4lCamera::getFrame() {
-  return NULL;
+V4lCamera::Frame* V4lCamera::getFrame() {
+  printf("read(%d, %016lx, %u)\n", fd, (uintptr_t)frameBuffer, frameSize);
+  int ret = ::read(fd, frameBuffer, frameSize);
+  if (ret != frameSize) {
+    printf("Failed to read v4l frame, %d != %u, errno=%d", ret, frameSize, errno);
+    return NULL;
+  }
+  frame.data = frameBuffer;
+  frame.size = frameSize;
+  frame.width = 1280;
+  frame.height = 720;
+  frame.fresh = true;
+  for (uint32_t i = 0; i < frameSize; i++)
+    printf("%02x ", frameBuffer[0]);
+  printf("\n");
+  return &frame;
 }
 
 bool V4lCamera::open(int serial) {
   fd = ::open("/dev/video0", O_RDWR | O_NONBLOCK, 0);
-  if (fd == -1)
-    printf("Failed to open v4l device");
-  else
+  if (fd != -1)
     init();
-  /*
-  capture = new cv::VideoCapture(0);
-  if (capture->isOpened()) {
-    capture->set(CV_CAP_PROP_FRAME_WIDTH, 1280);
-    capture->set(CV_CAP_PROP_FRAME_HEIGHT, 720);
-    cv::Mat frame;
-    *capture >> frame;
-    printf("dims=%d %dx%d rowsize=%lu elemsize=%lu\n", frame.dims, frame.size[1], frame.size[0], frame.step[0], frame.step[1]);
-  }
-  return capture->isOpened();
-  */
+  else
+    printf("Failed to open v4l device");
   return fd != -1;
 }
 
@@ -57,7 +61,8 @@ void V4lCamera::init() {
   fmt.fmt.pix.height = 720;
   fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
   xioctl(fd, VIDIOC_S_FMT, (void *)&fmt);
-  printf("Image size: %u\n", fmt.fmt.pix.sizeimage);
+  frameSize = fmt.fmt.pix.sizeimage;
+  frameBuffer = new uint8_t[frameSize];
 }
 
 bool V4lCamera::isOpened() {
@@ -78,6 +83,7 @@ void V4lCamera::stopAcquisition() {
 
 void V4lCamera::close() {
   if (fd != -1) {
+    delete frameBuffer;
     ::close(fd);
     fd = -1;
   }
