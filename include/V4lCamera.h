@@ -16,13 +16,13 @@ public:
 	virtual void startAcquisition();
 	virtual void stopAcquisition();
 	virtual void close();
+  void queueBuffer(uint8_t index);
 private:
   void init();
   void initFormat();
   void requestMmapBuffers();
   void mapBuffers();
   void queueBuffers();
-  void queueBuffer(uint8_t index);
   int fd;
   bool acquisitioning;
   uint32_t width;
@@ -30,7 +30,13 @@ private:
   uint32_t frameSize;
   uint8_t *frameBuffers[4];
   uint8_t numFrames;
-  Frame frame;
+};
+
+class V4lCameraFrame : public Frame {
+public:
+  virtual ~V4lCameraFrame();
+  V4lCamera *camera;
+  int index;
 };
 
 #endif

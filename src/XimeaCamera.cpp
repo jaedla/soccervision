@@ -8,8 +8,6 @@ XimeaCamera::XimeaCamera() : opened(false), acquisitioning(false) {
     image.bp_size = 0;
     device = NULL;
 	serialNumber = 0;
-
-    frame.data = NULL;
 }
 
 XimeaCamera::~XimeaCamera() {
@@ -87,7 +85,7 @@ bool XimeaCamera::open(int serial) {
     return true;
 }
 
-XimeaCamera::Frame* XimeaCamera::getFrame() {
+Frame* XimeaCamera::getFrame() {
 	if (!opened) {
 		return NULL;
 	}
@@ -99,17 +97,18 @@ XimeaCamera::Frame* XimeaCamera::getFrame() {
         return NULL;
     }
 
-    frame.data = (unsigned char*)image.bp;
-    frame.size = image.bp_size;
-    frame.number = image.nframe;
-    frame.width = image.width;
-    frame.height = image.height;
-    frame.timestamp = (double)image.tsSec + (double)image.tsUSec / 1000000.0;
-    frame.fresh = frame.number != lastFrameNumber;
+    Frame frame = new Frame();
+    frame->data = (unsigned char*)image.bp;
+    frame->size = image.bp_size;
+    frame->number = image.nframe;
+    frame->width = image.width;
+    frame->height = image.height;
+    frame->timestamp = (double)image.tsSec + (double)image.tsUSec / 1000000.0;
+    frame->fresh = frame.number != lastFrameNumber;
 
     lastFrameNumber = frame.number;
 
-    return &frame;
+    return frame;
 }
 
 void XimeaCamera::startAcquisition() {

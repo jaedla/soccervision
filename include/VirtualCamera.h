@@ -15,7 +15,6 @@ public:
 	bool loadImage(std::string filename, int size);
 
 private:
-	Frame frame;
 	unsigned char* data;
 	int bufferSize;
 	int frameNr;

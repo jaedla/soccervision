@@ -41,26 +41,28 @@ static void ioctlHandleEagain(int fd, int request, void *arg, int lineNumber) {
 }
 
 V4lCamera::V4lCamera() : fd(-1) {
-  memset(&frame, 0x00, sizeof(frame));
 }
 
 V4lCamera::~V4lCamera() {
   close();
 }
 
-V4lCamera::Frame* V4lCamera::getFrame() {
+Frame* V4lCamera::getFrame() {
   struct v4l2_buffer buf;
   memset(&buf, 0x00, sizeof(buf));
   buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   buf.memory = V4L2_MEMORY_MMAP;
   ioctlHandleEagain(fd, VIDIOC_DQBUF, &buf, __LINE__);
-  frame.data = frameBuffers[buf.index];
-  frame.size = frameSize;
-  frame.width = width;
-  frame.height = height;
-  frame.fresh = true;
+  V4lCameraFrame *frame = new V4lCameraFrame();
+  frame->camera = this;
+  frame->index = buf.index;
+  frame->data = frameBuffers[buf.index];
+  frame->size = frameSize;
+  frame->width = width;
+  frame->height = height;
+  frame->fresh = true;
   printf("Returning frame\n");
-  return &frame;
+  return frame;
 }
 
 bool V4lCamera::open(int serial) {
@@ -163,5 +165,9 @@ void V4lCamera::close() {
     ::close(fd);
     fd = -1;
   }
+}
+
+V4lCameraFrame::~V4lCameraFrame() {
+  camera->queueBuffer(index);
 }
 

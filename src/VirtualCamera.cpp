@@ -17,14 +17,15 @@ bool VirtualCamera::loadImage(std::string filename, int size) {
 	return ImageProcessor::loadBitmap(filename, data, size);
 }
 
-BaseCamera::Frame* VirtualCamera::getFrame() {
-	frame.data = data;
-    frame.size = bufferSize;
-    frame.number = frameNr++;
-	frame.width = Config::cameraWidth;
-	frame.height = Config::cameraHeight;
-	frame.timestamp = Util::millitime();
-    frame.fresh = true;
+Frame* VirtualCamera::getFrame() {
+  Frame *frame = new Frame();
+	frame->data = data;
+    frame->size = bufferSize;
+    frame->number = frameNr++;
+	frame->width = Config::cameraWidth;
+	frame->height = Config::cameraHeight;
+	frame->timestamp = Util::millitime();
+    frame->fresh = true;
 
-	return &frame;
+	return frame;
 }

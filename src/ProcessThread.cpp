@@ -136,7 +136,7 @@ bool ProcessThread::fetchFrame() {
 	if (camera->isAcquisitioning()) {
 		double startTime = Util::millitime();
 		
-		const BaseCamera::Frame* cameraFrame = camera->getFrame();
+		const Frame* cameraFrame = camera->getFrame();
 		
 		double timeTaken = Util::duration(startTime);
 

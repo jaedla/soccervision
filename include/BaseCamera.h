@@ -1,19 +1,23 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-class BaseCamera {
+#include <stdlib.h>
 
+class Frame {
 public:
-	struct Frame {
-        unsigned char* data;
-        int size;
-        int width;
-        int height;
-        int number;
-		bool fresh;
-        double timestamp;
-    };
+  Frame() : data(NULL), size(0), width(0), height(0), number(0), fresh(false), timestamp(0.0) {}
+  virtual ~Frame() {};
+  unsigned char* data;
+  int size;
+  int width;
+  int height;
+  int number;
+  bool fresh;
+  double timestamp;
+};
 
+class BaseCamera {
+public:
 	virtual Frame* getFrame() = 0;
 	virtual int getSerial() { return -1; }
 	virtual bool open(int serial = 0) { return true; }

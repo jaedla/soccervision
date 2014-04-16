@@ -59,7 +59,6 @@ public:
 
 private:
     XI_IMG image;
-	Frame frame;
     HANDLE device;
     bool opened;
 	bool acquisitioning;
