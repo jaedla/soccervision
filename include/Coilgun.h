@@ -8,19 +8,21 @@ class Communication;
 class Coilgun {
 
 public:
-	Coilgun(Communication* com);
-	~Coilgun();
+  Coilgun(Communication *com);
+  ~Coilgun();
 
-	void kick(int microseconds = Config::robotDefaultKickStrength);
-	void charge();
-	void discharge();
-	bool isReady() { return false; } // TODO New communication
-	void step(float dt);
+  void kick(int microseconds = Config::robotDefaultKickStrength);
+  void charge();
+  void discharge();
+  bool isReady() {
+    return false;  // TODO New communication
+  }
+  void step(float dt);
 
 private:
-	Communication* com;
-	double lastKickTime;
-	double lastChargeRequestTime;
+  Communication *com;
+  double lastKickTime;
+  double lastChargeRequestTime;
 
 };
 

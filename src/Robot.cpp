@@ -12,531 +12,530 @@
 #include <map>
 #include <sstream>
 
-Robot::Robot(Communication* com) : com(com), wheelFL(NULL), wheelFR(NULL), wheelRL(NULL), wheelRR(NULL), coilgun(NULL), robotLocalizer(NULL), odometerLocalizer(NULL), ballLocalizer(NULL), odometer(NULL), visionResults(NULL) {
-    targetOmega = 0;
-    targetDir = Math::Vector(0, 0);
-   
-    x = 0.0f;
-    y = 0.0f;
-    orientation = 0.0f;
-	velocity = 0.0f;
-	lastVelocity = 0.0f;
-	omega = 0.0f;
-	travelledDistance = 0.0f;
-	travelledRotation = 0.0f;
+Robot::Robot(Communication *com) : com(com), wheelFL(NULL), wheelFR(NULL), wheelRL(NULL), wheelRR(NULL), coilgun(NULL), robotLocalizer(NULL), odometerLocalizer(NULL), ballLocalizer(NULL), odometer(NULL), visionResults(NULL) {
+  targetOmega = 0;
+  targetDir = Math::Vector(0, 0);
 
-    lastCommandTime = -1;
-	frameTargetSpeedSet = false;
-	coilgunCharged = false;
+  x = 0.0f;
+  y = 0.0f;
+  orientation = 0.0f;
+  velocity = 0.0f;
+  lastVelocity = 0.0f;
+  omega = 0.0f;
+  travelledDistance = 0.0f;
+  travelledRotation = 0.0f;
 
-	json = "null";
+  lastCommandTime = -1;
+  frameTargetSpeedSet = false;
+  coilgunCharged = false;
+
+  json = "null";
 }
 
 Robot::~Robot() {
-    if (wheelRR != NULL) delete wheelRR; wheelRR = NULL;
-    if (wheelRL != NULL) delete wheelRL; wheelRL = NULL;
-    if (wheelFR != NULL) delete wheelFR; wheelFR = NULL;
-    if (wheelFL != NULL) delete wheelFL; wheelFL = NULL;
-	if (coilgun != NULL) delete coilgun; coilgun = NULL;
-	if (dribbler != NULL) delete dribbler; dribbler = NULL;
-	if (odometer != NULL) delete odometer; odometer = NULL;
-	if (ballLocalizer != NULL) delete ballLocalizer; ballLocalizer = NULL;
-	if (robotLocalizer != NULL) delete robotLocalizer; robotLocalizer = NULL;
-	if (odometerLocalizer != NULL) delete odometerLocalizer; odometerLocalizer = NULL;
+  if (wheelRR != NULL) delete wheelRR;
+  wheelRR = NULL;
+  if (wheelRL != NULL) delete wheelRL;
+  wheelRL = NULL;
+  if (wheelFR != NULL) delete wheelFR;
+  wheelFR = NULL;
+  if (wheelFL != NULL) delete wheelFL;
+  wheelFL = NULL;
+  if (coilgun != NULL) delete coilgun;
+  coilgun = NULL;
+  if (dribbler != NULL) delete dribbler;
+  dribbler = NULL;
+  if (odometer != NULL) delete odometer;
+  odometer = NULL;
+  if (ballLocalizer != NULL) delete ballLocalizer;
+  ballLocalizer = NULL;
+  if (robotLocalizer != NULL) delete robotLocalizer;
+  robotLocalizer = NULL;
+  if (odometerLocalizer != NULL) delete odometerLocalizer;
+  odometerLocalizer = NULL;
 
-    while (tasks.size() > 0) {
-        delete tasks.front();
+  while (tasks.size() > 0) {
+    delete tasks.front();
 
-        tasks.pop_front();
-    }
+    tasks.pop_front();
+  }
 }
 
 void Robot::setup() {
-	setupCameraFOV();
-	setupRobotLocalizer();
-	setupBallLocalizer();
-	setupOdometerLocalizer();
-    setupWheels();
-	setupDribbler();
-	setupCoilgun();
-	setupOdometer();
+  setupCameraFOV();
+  setupRobotLocalizer();
+  setupBallLocalizer();
+  setupOdometerLocalizer();
+  setupWheels();
+  setupDribbler();
+  setupCoilgun();
+  setupOdometer();
 
-	setPosition(Config::fieldWidth / 2.0f, Config::fieldHeight / 2.0f, 0.0f);
+  setPosition(Config::fieldWidth / 2.0f, Config::fieldHeight / 2.0f, 0.0f);
 }
 
 void Robot::setupCameraFOV() {
-	Math::PointList points;
+  Math::PointList points;
 
-	points.push_back(Math::Point(0, 0));
-	points.push_back(Math::Point(Config::cameraFovDistance, -Config::cameraFovWidth / 2.0f));
-	points.push_back(Math::Point(Config::cameraFovDistance, Config::cameraFovWidth / 2.0f));
-	points.push_back(Math::Point(0, 0));
-	points.push_back(Math::Point(-Config::cameraFovDistance, -Config::cameraFovWidth / 2.0f));
-	points.push_back(Math::Point(-Config::cameraFovDistance, Config::cameraFovWidth / 2.0f));
-	points.push_back(Math::Point(0, 0));
+  points.push_back(Math::Point(0, 0));
+  points.push_back(Math::Point(Config::cameraFovDistance, -Config::cameraFovWidth / 2.0f));
+  points.push_back(Math::Point(Config::cameraFovDistance, Config::cameraFovWidth / 2.0f));
+  points.push_back(Math::Point(0, 0));
+  points.push_back(Math::Point(-Config::cameraFovDistance, -Config::cameraFovWidth / 2.0f));
+  points.push_back(Math::Point(-Config::cameraFovDistance, Config::cameraFovWidth / 2.0f));
+  points.push_back(Math::Point(0, 0));
 
-	cameraFOV = Math::Polygon(points);
+  cameraFOV = Math::Polygon(points);
 }
 
 void Robot::setupRobotLocalizer() {
-	robotLocalizer = new ParticleFilterLocalizer();
+  robotLocalizer = new ParticleFilterLocalizer();
 
-	robotLocalizer->addLandmark(
-		"yellow-center",
-		0.0f,
-		Config::fieldHeight / 2.0f
-	);
+  robotLocalizer->addLandmark(
+    "yellow-center",
+    0.0f,
+    Config::fieldHeight / 2.0f
+  );
 
-	robotLocalizer->addLandmark(
-		"blue-center",
-		Config::fieldWidth,
-		Config::fieldHeight / 2.0f
-	);
+  robotLocalizer->addLandmark(
+    "blue-center",
+    Config::fieldWidth,
+    Config::fieldHeight / 2.0f
+  );
 }
 
 void Robot::setupBallLocalizer() {
-	ballLocalizer = new BallLocalizer();
+  ballLocalizer = new BallLocalizer();
 }
 
 void Robot::setupOdometerLocalizer() {
-	odometerLocalizer = new OdometerLocalizer();
+  odometerLocalizer = new OdometerLocalizer();
 }
 
 void Robot::setupWheels() {
-    wheelFL = new Wheel(Config::wheelFLId);
-    wheelFR = new Wheel(Config::wheelFRId);
-    wheelRL = new Wheel(Config::wheelRLId);
-    wheelRR = new Wheel(Config::wheelRRId);
+  wheelFL = new Wheel(Config::wheelFLId);
+  wheelFR = new Wheel(Config::wheelFRId);
+  wheelRL = new Wheel(Config::wheelRLId);
+  wheelRR = new Wheel(Config::wheelRRId);
 }
 
 void Robot::setupDribbler() {
-	dribbler = new Dribbler(Config::dribblerId);
+  dribbler = new Dribbler(Config::dribblerId);
 }
 
 void Robot::setupCoilgun() {
-	coilgun = new Coilgun(com);
+  coilgun = new Coilgun(com);
 }
 
 void Robot::setupOdometer() {
-	odometer = new Odometer(
-		Config::robotWheelAngle1,
-		Config::robotWheelAngle2,
-		Config::robotWheelAngle3,
-		Config::robotWheelAngle4,
-		Config::robotWheelOffset,
-		Config::robotWheelRadius
-	);
+  odometer = new Odometer(
+    Config::robotWheelAngle1,
+    Config::robotWheelAngle2,
+    Config::robotWheelAngle3,
+    Config::robotWheelAngle4,
+    Config::robotWheelOffset,
+    Config::robotWheelRadius
+  );
 }
 
-void Robot::step(float dt, Vision::Results* visionResults) {
-	this->visionResults = visionResults;
+void Robot::step(float dt, Vision::Results *visionResults) {
+  this->visionResults = visionResults;
 
-	lastDt = dt;
-    totalTime += dt;
+  lastDt = dt;
+  totalTime += dt;
 
-	if (!coilgunCharged) {
-		coilgun->charge();
+  if (!coilgunCharged) {
+    coilgun->charge();
 
-		coilgunCharged = true;
-	}
+    coilgunCharged = true;
+  }
 
-    handleTasks(dt);
-    updateWheelSpeeds();
-    updateBallLocalizer(visionResults, dt);
+  handleTasks(dt);
+  updateWheelSpeeds();
+  updateBallLocalizer(visionResults, dt);
 
-    wheelFL->step(dt);
-    wheelFR->step(dt);
-    wheelRL->step(dt);
-    wheelRR->step(dt);
-	coilgun->step(dt);
-	dribbler->step(dt);
+  wheelFL->step(dt);
+  wheelFR->step(dt);
+  wheelRL->step(dt);
+  wheelRR->step(dt);
+  coilgun->step(dt);
+  dribbler->step(dt);
 
-	com->send("speeds:"
-		+ Util::toString((int)Math::round(wheelFL->getTargetSpeed())) + ":"
-		+ Util::toString((int)Math::round(wheelFR->getTargetSpeed())) + ":"
-		+ Util::toString((int)Math::round(wheelRL->getTargetSpeed())) + ":"
-		+ Util::toString((int)Math::round(wheelRR->getTargetSpeed())) + ":"
-		+ Util::toString((int)Math::round(dribbler->getTargetSpeed()))
-	);
+  com->send("speeds:"
+            + Util::toString((int)Math::round(wheelFL->getTargetSpeed())) + ":"
+            + Util::toString((int)Math::round(wheelFR->getTargetSpeed())) + ":"
+            + Util::toString((int)Math::round(wheelRL->getTargetSpeed())) + ":"
+            + Util::toString((int)Math::round(wheelRR->getTargetSpeed())) + ":"
+            + Util::toString((int)Math::round(dribbler->getTargetSpeed()))
+           );
 
-	movement = odometer->calculateMovement(
-		wheelFL->getRealOmega(),
-		wheelFR->getRealOmega(),
-		wheelRL->getRealOmega(),
-		wheelRR->getRealOmega()
-	);
+  movement = odometer->calculateMovement(
+               wheelFL->getRealOmega(),
+               wheelFR->getRealOmega(),
+               wheelRL->getRealOmega(),
+               wheelRR->getRealOmega()
+             );
 
-	Math::Vector velocityVec(movement.velocityX, movement.velocityY);
-	lastVelocity = velocity;
-	velocity = velocityVec.getLength();
+  Math::Vector velocityVec(movement.velocityX, movement.velocityY);
+  lastVelocity = velocity;
+  velocity = velocityVec.getLength();
 
-	omega = movement.omega;
+  omega = movement.omega;
 
-	travelledDistance += velocity * dt;
-	travelledRotation += movement.omega * dt;
+  travelledDistance += velocity * dt;
+  travelledRotation += movement.omega * dt;
 
-	updateMeasurements();
-	updateBallLocalizer(visionResults, dt);
+  updateMeasurements();
+  updateBallLocalizer(visionResults, dt);
 
-	robotLocalizer->update(measurements);
-	robotLocalizer->move(movement.velocityX, movement.velocityY, movement.omega, dt, measurements.size() == 0 ? true : false);
-	odometerLocalizer->move(movement.velocityX, movement.velocityY, movement.omega, dt);
+  robotLocalizer->update(measurements);
+  robotLocalizer->move(movement.velocityX, movement.velocityY, movement.omega, dt, measurements.size() == 0 ? true : false);
+  odometerLocalizer->move(movement.velocityX, movement.velocityY, movement.omega, dt);
 
-	Math::Position localizerPosition = robotLocalizer->getPosition();
-	Math::Position odometerPosition = odometerLocalizer->getPosition();
+  Math::Position localizerPosition = robotLocalizer->getPosition();
+  Math::Position odometerPosition = odometerLocalizer->getPosition();
 
-	x = localizerPosition.x;
-	y = localizerPosition.y;
-	orientation = localizerPosition.orientation;
+  x = localizerPosition.x;
+  y = localizerPosition.y;
+  orientation = localizerPosition.orientation;
 
-	std::stringstream stream;
+  std::stringstream stream;
 
-	stream << "\"localizerX\":" << localizerPosition.x << ",";
-    stream << "\"localizerY\":" << localizerPosition.y << ",";
-    stream << "\"localizerOrientation\":" << localizerPosition.orientation << ",";
-	stream << "\"odometerX\":" << odometerPosition.x << ",";
-    stream << "\"odometerY\":" << odometerPosition.y << ",";
-    stream << "\"odometerOrientation\":" << odometerPosition.orientation << ",";
-    stream << "\"gotBall\":" << (dribbler->gotBall() ? "true" : "false") << ",";
+  stream << "\"localizerX\":" << localizerPosition.x << ",";
+  stream << "\"localizerY\":" << localizerPosition.y << ",";
+  stream << "\"localizerOrientation\":" << localizerPosition.orientation << ",";
+  stream << "\"odometerX\":" << odometerPosition.x << ",";
+  stream << "\"odometerY\":" << odometerPosition.y << ",";
+  stream << "\"odometerOrientation\":" << odometerPosition.orientation << ",";
+  stream << "\"gotBall\":" << (dribbler->gotBall() ? "true" : "false") << ",";
 
-    stream << "\"wheelFL\": {";
-	stream << "\"stalled\":" << (wheelFL->isStalled() ? "true" : "false") << ",";
-    stream << "\"targetOmega\":" << wheelFL->getTargetOmega() << ",";
-    stream << "\"realOmega\":" << wheelFL->getRealOmega();
-    stream << "},";
+  stream << "\"wheelFL\": {";
+  stream << "\"stalled\":" << (wheelFL->isStalled() ? "true" : "false") << ",";
+  stream << "\"targetOmega\":" << wheelFL->getTargetOmega() << ",";
+  stream << "\"realOmega\":" << wheelFL->getRealOmega();
+  stream << "},";
 
-    stream << "\"wheelFR\": {";
-	stream << "\"stalled\":" << (wheelFR->isStalled() ? "true" : "false") << ",";
-    stream << "\"targetOmega\":" << wheelFR->getTargetOmega() << ",";
-    stream << "\"realOmega\":" << wheelFR->getRealOmega();
-    stream << "},";
+  stream << "\"wheelFR\": {";
+  stream << "\"stalled\":" << (wheelFR->isStalled() ? "true" : "false") << ",";
+  stream << "\"targetOmega\":" << wheelFR->getTargetOmega() << ",";
+  stream << "\"realOmega\":" << wheelFR->getRealOmega();
+  stream << "},";
 
-    stream << "\"wheelRL\": {";
-	stream << "\"stalled\":" << (wheelRL->isStalled() ? "true" : "false") << ",";
-    stream << "\"targetOmega\":" << wheelRL->getTargetOmega() << ",";
-    stream << "\"realOmega\":" << wheelRL->getRealOmega();
-    stream << "},";
+  stream << "\"wheelRL\": {";
+  stream << "\"stalled\":" << (wheelRL->isStalled() ? "true" : "false") << ",";
+  stream << "\"targetOmega\":" << wheelRL->getTargetOmega() << ",";
+  stream << "\"realOmega\":" << wheelRL->getRealOmega();
+  stream << "},";
 
-    stream << "\"wheelRR\": {";
-	stream << "\"stalled\":" << (wheelRR->isStalled() ? "true" : "false") << ",";
-    stream << "\"targetOmega\":" << wheelRR->getTargetOmega() << ",";
-    stream << "\"realOmega\":" << wheelRR->getRealOmega();
-    stream << "},";
+  stream << "\"wheelRR\": {";
+  stream << "\"stalled\":" << (wheelRR->isStalled() ? "true" : "false") << ",";
+  stream << "\"targetOmega\":" << wheelRR->getTargetOmega() << ",";
+  stream << "\"realOmega\":" << wheelRR->getRealOmega();
+  stream << "},";
 
-	debugBallList("ballsRaw", stream, visibleBalls);
-	debugBallList("ballsFiltered", stream, ballLocalizer->balls);
+  debugBallList("ballsRaw", stream, visibleBalls);
+  debugBallList("ballsFiltered", stream, ballLocalizer->balls);
 
-	stream << "\"cameraFOV\":" << currentCameraFOV.toJSON() << ",";
+  stream << "\"cameraFOV\":" << currentCameraFOV.toJSON() << ",";
 
-	stream << "\"tasks\": [";
+  stream << "\"tasks\": [";
 
-    bool first = true;
+  bool first = true;
 
-    for (TaskQueueIt it = tasks.begin(); it != tasks.end(); it++) {
-        Task* task = *it;
+  for (TaskQueueIt it = tasks.begin(); it != tasks.end(); it++) {
+    Task *task = *it;
 
-        if (!first) {
-            stream << ",";
-        } else {
-            first = false;
-        }
+    if (!first)
+      stream << ",";
+    else
+      first = false;
 
-        stream << "{";
-        stream << "\"started\": " << (task->isStarted() ? "true" : "false") << ",";
-        stream << "\"percentage\": " << task->getPercentage() << ",";
-        stream << "\"status\": \"" << task->toString() << "\"";
-        stream << "}";
-    }
+    stream << "{";
+    stream << "\"started\": " << (task->isStarted() ? "true" : "false") << ",";
+    stream << "\"percentage\": " << task->getPercentage() << ",";
+    stream << "\"status\": \"" << task->toString() << "\"";
+    stream << "}";
+  }
 
-    stream << "]";
+  stream << "]";
 
-	json = stream.str();
+  json = stream.str();
 
-	frameTargetSpeedSet = false;
+  frameTargetSpeedSet = false;
 }
 
 void Robot::updateWheelSpeeds() {
-	Odometer::WheelSpeeds wheelSpeeds = odometer->calculateWheelSpeeds(targetDir.x, targetDir.y, targetOmega);
+  Odometer::WheelSpeeds wheelSpeeds = odometer->calculateWheelSpeeds(targetDir.x, targetDir.y, targetOmega);
 
-	//std::cout << "! Updating wheel speeds: " << wheelSpeeds.FL << ", " << wheelSpeeds.FR << ", " << wheelSpeeds.RL << ", " << wheelSpeeds.RR << std::endl;
+  //std::cout << "! Updating wheel speeds: " << wheelSpeeds.FL << ", " << wheelSpeeds.FR << ", " << wheelSpeeds.RL << ", " << wheelSpeeds.RR << std::endl;
 
-	wheelFL->setTargetOmega(wheelSpeeds.FL);
-	wheelFR->setTargetOmega(wheelSpeeds.FR);
-    wheelRL->setTargetOmega(wheelSpeeds.RL);
-    wheelRR->setTargetOmega(wheelSpeeds.RR);
+  wheelFL->setTargetOmega(wheelSpeeds.FL);
+  wheelFR->setTargetOmega(wheelSpeeds.FR);
+  wheelRL->setTargetOmega(wheelSpeeds.RL);
+  wheelRR->setTargetOmega(wheelSpeeds.RR);
 }
 
 void Robot::updateMeasurements() {
-	measurements.clear();
+  measurements.clear();
 
-	Object* yellowGoal = visionResults->getLargestGoal(Side::YELLOW);
-	Object* blueGoal = visionResults->getLargestGoal(Side::BLUE);
+  Object *yellowGoal = visionResults->getLargestGoal(Side::YELLOW);
+  Object *blueGoal = visionResults->getLargestGoal(Side::BLUE);
 
-	if (yellowGoal != NULL) {
-		measurements["yellow-center"] = ParticleFilterLocalizer::Measurement(yellowGoal->distance, yellowGoal->angle);
-	}
+  if (yellowGoal != NULL)
+    measurements["yellow-center"] = ParticleFilterLocalizer::Measurement(yellowGoal->distance, yellowGoal->angle);
 
-	if (blueGoal != NULL) {
-		measurements["blue-center"] = ParticleFilterLocalizer::Measurement(blueGoal->distance, blueGoal->angle);
-	}
+  if (blueGoal != NULL)
+    measurements["blue-center"] = ParticleFilterLocalizer::Measurement(blueGoal->distance, blueGoal->angle);
 }
 
-void Robot::updateBallLocalizer(Vision::Results* visionResults, float dt) {
-	// delete balls from previous frame
-	for (BallLocalizer::BallListIt it = visibleBalls.begin(); it != visibleBalls.end(); it++) {
-		delete (*it);
-	}
+void Robot::updateBallLocalizer(Vision::Results *visionResults, float dt) {
+  // delete balls from previous frame
+  for (BallLocalizer::BallListIt it = visibleBalls.begin(); it != visibleBalls.end(); it++)
+    delete (*it);
 
-	visibleBalls.clear();
+  visibleBalls.clear();
 
-	if (visionResults == NULL) {
-		return;
-	}
+  if (visionResults == NULL)
+    return;
 
-	BallLocalizer::BallList frontBalls;
-	BallLocalizer::BallList rearBalls;
-	
-	if (visionResults->front != NULL) {
-		frontBalls = ballLocalizer->extractBalls(
-			visionResults->front->balls,
-			x,
-			y,
-			orientation
-		);
-	}
+  BallLocalizer::BallList frontBalls;
+  BallLocalizer::BallList rearBalls;
 
-	if (visionResults->rear != NULL) {
-		rearBalls = ballLocalizer->extractBalls(
-			visionResults->rear->balls,
-			x,
-			y,
-			orientation
-		);
-	}
-	
-	visibleBalls.reserve(frontBalls.size() + rearBalls.size());
-	visibleBalls.insert(visibleBalls.end(), frontBalls.begin(), frontBalls.end());
-	visibleBalls.insert(visibleBalls.end(), rearBalls.begin(), rearBalls.end());
+  if (visionResults->front != NULL) {
+    frontBalls = ballLocalizer->extractBalls(
+                   visionResults->front->balls,
+                   x,
+                   y,
+                   orientation
+                 );
+  }
 
-	currentCameraFOV = cameraFOV.getRotated(orientation).getTranslated(x, y);
+  if (visionResults->rear != NULL) {
+    rearBalls = ballLocalizer->extractBalls(
+                  visionResults->rear->balls,
+                  x,
+                  y,
+                  orientation
+                );
+  }
 
-	ballLocalizer->update(visibleBalls, currentCameraFOV, dt);
+  visibleBalls.reserve(frontBalls.size() + rearBalls.size());
+  visibleBalls.insert(visibleBalls.end(), frontBalls.begin(), frontBalls.end());
+  visibleBalls.insert(visibleBalls.end(), rearBalls.begin(), rearBalls.end());
 
-	//std::cout << "@ UP front: " << frontBalls.size() << ", rear: " << rearBalls.size() << ", merged: " << visibleBalls.size() << std::endl;
+  currentCameraFOV = cameraFOV.getRotated(orientation).getTranslated(x, y);
+
+  ballLocalizer->update(visibleBalls, currentCameraFOV, dt);
+
+  //std::cout << "@ UP front: " << frontBalls.size() << ", rear: " << rearBalls.size() << ", merged: " << visibleBalls.size() << std::endl;
 }
 
 void Robot::setTargetDir(float x, float y, float omega) {
-	//std::cout << "! Setting robot target direction: " << x << "x" << y << " @ " << omega << std::endl;
+  //std::cout << "! Setting robot target direction: " << x << "x" << y << " @ " << omega << std::endl;
 
-	targetDir = Math::Vector(x, y);
-	targetOmega = omega;
+  targetDir = Math::Vector(x, y);
+  targetOmega = omega;
 
-    lastCommandTime = Util::millitime();
-	frameTargetSpeedSet = true;
+  lastCommandTime = Util::millitime();
+  frameTargetSpeedSet = true;
 }
 
-void Robot::setTargetDir(const Math::Angle& dir, float speed, float omega) {
-    Math::Vector dirVector = Math::Vector::createForwardVec(dir.rad(), speed);
+void Robot::setTargetDir(const Math::Angle &dir, float speed, float omega) {
+  Math::Vector dirVector = Math::Vector::createForwardVec(dir.rad(), speed);
 
-    setTargetDir(dirVector.x, dirVector.y, omega);
+  setTargetDir(dirVector.x, dirVector.y, omega);
 }
 
 void Robot::spinAroundDribbler(bool reverse, float period, float radius, float forwardSpeed) {
-	float speed = (2.0f * Math::PI * radius) / period;
-	float omega = (2.0f * Math::PI) / period;
+  float speed = (2.0f * Math::PI * radius) / period;
+  float omega = (2.0f * Math::PI) / period;
 
-	if (reverse) {
-		speed *= -1.0f;
-		omega *= -1.0f;
-	}
+  if (reverse) {
+    speed *= -1.0f;
+    omega *= -1.0f;
+  }
 
-	setTargetDir(forwardSpeed, -speed, omega);
+  setTargetDir(forwardSpeed, -speed, omega);
 }
 
 bool Robot::isStalled() {
-	return wheelFL->isStalled()
-		|| wheelFR->isStalled()
-		|| wheelRL->isStalled()
-		|| wheelRR->isStalled();
+  return wheelFL->isStalled()
+         || wheelFR->isStalled()
+         || wheelRL->isStalled()
+         || wheelRR->isStalled();
 }
 
 void Robot::stop() {
-	//std::cout << "! Stopping robot" << std::endl;
+  //std::cout << "! Stopping robot" << std::endl;
 
-	setTargetDir(0, 0, 0);
-	dribbler->stop();
+  setTargetDir(0, 0, 0);
+  dribbler->stop();
 }
 
 void Robot::kick(int microseconds) {
-	coilgun->kick(microseconds);
-	dribbler->onKick();
+  coilgun->kick(microseconds);
+  dribbler->onKick();
 
-	// TODO Remove this hack once hardware issue is resolved
-	/*Command::Parameters lostBallParams;
-	lostBallParams.push_back("0");
-	Command lostBallCmd("ball", lostBallParams);
-	dribbler->handleCommand(lostBallCmd);*/
+  // TODO Remove this hack once hardware issue is resolved
+  /*Command::Parameters lostBallParams;
+  lostBallParams.push_back("0");
+  Command lostBallCmd("ball", lostBallParams);
+  dribbler->handleCommand(lostBallCmd);*/
 }
 
 void Robot::setPosition(float x, float y, float orientation) {
-    this->x = x;
-    this->y = y;
-	this->orientation = Math::floatModulus(orientation, Math::TWO_PI);
+  this->x = x;
+  this->y = y;
+  this->orientation = Math::floatModulus(orientation, Math::TWO_PI);
 
-	robotLocalizer->setPosition(x, y, orientation);
-	odometerLocalizer->setPosition(x, y, orientation);
+  robotLocalizer->setPosition(x, y, orientation);
+  odometerLocalizer->setPosition(x, y, orientation);
 }
 
-Task* Robot::getCurrentTask() {
-    if (tasks.size() == 0) {
-        return NULL;
-    }
+Task *Robot::getCurrentTask() {
+  if (tasks.size() == 0)
+    return NULL;
 
-    return tasks.front();
+  return tasks.front();
 }
 
-void Robot::lookAt(Object* object) {
-    if (object == NULL) {
-		return;
-	}
+void Robot::lookAt(Object *object) {
+  if (object == NULL)
+    return;
 
-	lookAt(Math::Rad(object->angle));
+  lookAt(Math::Rad(object->angle));
 }
 
-void Robot::lookAt(const Math::Angle& angle) {
-	setTargetOmega(Math::limit(angle.rad() * Config::lookAtP, Math::degToRad(Config::lookAtMaxSpeedAngle) * Config::lookAtP));
+void Robot::lookAt(const Math::Angle &angle) {
+  setTargetOmega(Math::limit(angle.rad() * Config::lookAtP, Math::degToRad(Config::lookAtMaxSpeedAngle) * Config::lookAtP));
 }
 
-void Robot::lookAtBehind(Object* object) {
-    if (object == NULL) {
-		return;
-	}
+void Robot::lookAtBehind(Object *object) {
+  if (object == NULL)
+    return;
 
-	lookAtBehind(Math::Rad(object->angle));
+  lookAtBehind(Math::Rad(object->angle));
 }
 
-void Robot::lookAtBehind(const Math::Angle& angle) {
-	float targetAngle;
+void Robot::lookAtBehind(const Math::Angle &angle) {
+  float targetAngle;
 
-	if (angle.rad() > 0.0f) {
-		targetAngle = angle.rad() - Math::PI;
-	} else {
-		targetAngle = angle.rad() + Math::PI;
-	}
+  if (angle.rad() > 0.0f)
+    targetAngle = angle.rad() - Math::PI;
+  else
+    targetAngle = angle.rad() + Math::PI;
 
-	lookAt(Math::Rad(targetAngle));
+  lookAt(Math::Rad(targetAngle));
 }
 
 void Robot::turnBy(float angle, float speed) {
-    addTask(new TurnByTask(angle, speed));
+  addTask(new TurnByTask(angle, speed));
 }
 
 void Robot::driveTo(float x, float y, float orientation, float speed) {
-    addTask(new DriveToTask(x, y, orientation, speed));
+  addTask(new DriveToTask(x, y, orientation, speed));
 }
 
 void Robot::driveFacing(float targetX, float targetY, float faceX, float faceY, float speed) {
-    addTask(new DriveFacingTask(targetX, targetY, faceX, faceY, speed));
+  addTask(new DriveFacingTask(targetX, targetY, faceX, faceY, speed));
 }
 
 void Robot::drivePath(const Math::PositionQueue positions, float speed) {
-    addTask(new DrivePathTask(positions, speed));
+  addTask(new DrivePathTask(positions, speed));
 }
 
 void Robot::driveBehindBall(float ballDistance, float targetAngle, float speed, float offsetDistance, float side) {
-	addTask(new DriveBehindBallTask(ballDistance, targetAngle, speed, offsetDistance, side));
+  addTask(new DriveBehindBallTask(ballDistance, targetAngle, speed, offsetDistance, side));
 }
 
 void Robot::stopRotation() {
-    addTask(new StopRotationTask());
+  addTask(new StopRotationTask());
 }
 
 void Robot::jumpAngle(float angle, float speed) {
-	addTask(new JumpAngleTask(angle, speed));
+  addTask(new JumpAngleTask(angle, speed));
 }
 
 void Robot::setTargetDirFor(float x, float y, float omega, float duration) {
-	addTask(new DriveForTask(x, y, omega, duration));
+  addTask(new DriveForTask(x, y, omega, duration));
 }
 
 void Robot::handleTasks(float dt) {
-    Task* task = getCurrentTask();
+  Task *task = getCurrentTask();
 
-    if (task == NULL) {
-        return;
-    }
+  if (task == NULL)
+    return;
 
-    if (!task->isStarted()) {
-        task->onStart(*this, dt);
+  if (!task->isStarted()) {
+    task->onStart(*this, dt);
 
-        task->setStarted(true);
-    }
+    task->setStarted(true);
+  }
 
-    if (task->onStep(*this, dt) == false) {
-        task->onEnd(*this, dt);
+  if (task->onStep(*this, dt) == false) {
+    task->onEnd(*this, dt);
 
-        delete task;
+    delete task;
 
-        tasks.pop_front();
+    tasks.pop_front();
 
-        handleTasks(dt);
-    }
+    handleTasks(dt);
+  }
 }
 
 void Robot::handleCommunicationMessage(std::string message) {
-	if (Command::isValid(message)) {
-        Command command = Command::parse(message);
+  if (Command::isValid(message)) {
+    Command command = Command::parse(message);
 
-		handleCommand(command);
-	}
+    handleCommand(command);
+  }
 }
 
-bool Robot::handleCommand(const Command& cmd) {
-	bool handled = false;
+bool Robot::handleCommand(const Command &cmd) {
+  bool handled = false;
 
-	if (cmd.name == "discharged") {
-		std::cout << "! Received discharged, charging" << std::endl;
+  if (cmd.name == "discharged") {
+    std::cout << "! Received discharged, charging" << std::endl;
 
-		// TODO Add back
-		com->send("charge");
-	}
+    // TODO Add back
+    com->send("charge");
+  }
 
-	if (wheelFL->handleCommand(cmd)) handled = true;
-	if (wheelFR->handleCommand(cmd)) handled = true;
-	if (wheelRL->handleCommand(cmd)) handled = true;
-	if (wheelRR->handleCommand(cmd)) handled = true;
-	if (dribbler->handleCommand(cmd)) handled = true;
+  if (wheelFL->handleCommand(cmd)) handled = true;
+  if (wheelFR->handleCommand(cmd)) handled = true;
+  if (wheelRL->handleCommand(cmd)) handled = true;
+  if (wheelRR->handleCommand(cmd)) handled = true;
+  if (dribbler->handleCommand(cmd)) handled = true;
 
-	return handled;
+  return handled;
 }
 
-void Robot::debugBallList(std::string name, std::stringstream& stream, BallLocalizer::BallList balls) {
-	BallLocalizer::Ball* ball;
-	bool first = true;
+void Robot::debugBallList(std::string name, std::stringstream &stream, BallLocalizer::BallList balls) {
+  BallLocalizer::Ball *ball;
+  bool first = true;
 
-	stream << "\"" << name << "\": [";
+  stream << "\"" << name << "\": [";
 
-	for (BallLocalizer::BallListIt it = balls.begin(); it != balls.end(); it++) {
-		ball = *it;
+  for (BallLocalizer::BallListIt it = balls.begin(); it != balls.end(); it++) {
+    ball = *it;
 
-		if (!first) {
-            stream << ",";
-        } else {
-            first = false;
-        }
+    if (!first)
+      stream << ",";
+    else
+      first = false;
 
-		stream << "{";
-		stream << "\"x\": " << ball->x << ",";
-		stream << "\"y\": " << ball->y << ",";
-		stream << "\"velocityX\": " << ball->velocityX << ",";
-		stream << "\"velocityY\": " << ball->velocityY << ",";
-		stream << "\"createdTime\": " << ball->createdTime << ",";
-		stream << "\"updatedTime\": " << ball->updatedTime << ",";
-		stream << "\"shouldBeRemoved\": " << (ball->shouldBeRemoved() ? "true" : "false") << ",";
-		stream << "\"visible\": " << (ball->visible ? "true" : "false") << ",";
-		stream << "\"inFOV\": " << (ball->inFOV ? "true" : "false");
-		stream << "}";
-	}
+    stream << "{";
+    stream << "\"x\": " << ball->x << ",";
+    stream << "\"y\": " << ball->y << ",";
+    stream << "\"velocityX\": " << ball->velocityX << ",";
+    stream << "\"velocityY\": " << ball->velocityY << ",";
+    stream << "\"createdTime\": " << ball->createdTime << ",";
+    stream << "\"updatedTime\": " << ball->updatedTime << ",";
+    stream << "\"shouldBeRemoved\": " << (ball->shouldBeRemoved() ? "true" : "false") << ",";
+    stream << "\"visible\": " << (ball->visible ? "true" : "false") << ",";
+    stream << "\"inFOV\": " << (ball->inFOV ? "true" : "false");
+    stream << "}";
+  }
 
-    stream << "],";
+  stream << "],";
 }

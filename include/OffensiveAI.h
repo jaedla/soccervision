@@ -12,56 +12,60 @@
 class OffensiveAI : public BaseAI {
 
 public:
-	class State : public BaseAI::State {
+  class State : public BaseAI::State {
 
-	public:
-		State(OffensiveAI* ai) : BaseAI::State(ai), ai(ai) {}
+  public:
+    State(OffensiveAI *ai) : BaseAI::State(ai), ai(ai) {}
 
-	protected:
-		OffensiveAI* ai;
+  protected:
+    OffensiveAI *ai;
 
-	};
+  };
 
-	class IdleState : public State {
+  class IdleState : public State {
 
-	public:
-		IdleState(OffensiveAI* ai) : State(ai) {}
-		void step(float dt, Vision::Results* visionResults, Robot* robot, float totalDuration, float stateDuration, float combinedDuration);
+  public:
+    IdleState(OffensiveAI *ai) : State(ai) {}
+    void step(float dt, Vision::Results *visionResults, Robot *robot, float totalDuration, float stateDuration, float combinedDuration);
 
-	};
+  };
 
-	class FindBallState : public State {
+  class FindBallState : public State {
 
-	public:
-		FindBallState(OffensiveAI* ai) : State(ai) {}
-		void onEnter(Robot* robot, Parameters parameters);
-		void onExit(Robot* robot);
-		void step(float dt, Vision::Results* visionResults, Robot* robot, float totalDuration, float stateDuration, float combinedDuration);
+  public:
+    FindBallState(OffensiveAI *ai) : State(ai) {}
+    void onEnter(Robot *robot, Parameters parameters);
+    void onExit(Robot *robot);
+    void step(float dt, Vision::Results *visionResults, Robot *robot, float totalDuration, float stateDuration, float combinedDuration);
 
-	};
+  };
 
-	OffensiveAI(Robot* robot, Communication* com);
+  OffensiveAI(Robot *robot, Communication *com);
 
-	void onEnter();
-	void onExit();
-    bool handleRequest(std::string request);
-    bool handleCommand(const Command& cmd);
-	void handleToggleSideCommand();
-	void handleToggleGoCommand();
-    void step(float dt, Vision::Results* visionResults);
-	void reset();
-	bool isPlaying() { return running; }
-	Side getTargetSide() { return targetSide; }
-	std::string getJSON();
+  void onEnter();
+  void onExit();
+  bool handleRequest(std::string request);
+  bool handleCommand(const Command &cmd);
+  void handleToggleSideCommand();
+  void handleToggleGoCommand();
+  void step(float dt, Vision::Results *visionResults);
+  void reset();
+  bool isPlaying() {
+    return running;
+  }
+  Side getTargetSide() {
+    return targetSide;
+  }
+  std::string getJSON();
 
 private:
-	void setupStates();
+  void setupStates();
 
-	Side targetSide;
-	std::string startStateName;
-	DebouncedButton toggleSideBtn;
-	DebouncedButton toggleGoBtn;
-	bool running;
+  Side targetSide;
+  std::string startStateName;
+  DebouncedButton toggleSideBtn;
+  DebouncedButton toggleGoBtn;
+  bool running;
 
 };
 

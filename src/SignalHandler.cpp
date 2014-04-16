@@ -6,9 +6,9 @@
 bool SignalHandler::exitRequested = false;
 
 void SignalHandler::handleSignal(int _ignored) {
-    exitRequested = true;
+  exitRequested = true;
 }
 
 void SignalHandler::setup() {
-    signal((int)SIGINT, SignalHandler::handleSignal);
+  signal((int)SIGINT, SignalHandler::handleSignal);
 }

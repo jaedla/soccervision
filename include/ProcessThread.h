@@ -12,39 +12,41 @@ class Blobber;
 class ProcessThread : public Thread {
 
 public:
-	ProcessThread(BaseCamera* camera, Blobber* blobber, Vision* vision);
-	~ProcessThread();
+  ProcessThread(BaseCamera *camera, Blobber *blobber, Vision *vision);
+  ~ProcessThread();
 
-	bool isDone() { return done; };
+  bool isDone() {
+    return done;
+  };
 
-	int width;
-	int height;
-	Dir dir;
+  int width;
+  int height;
+  Dir dir;
 
-	bool debug;
+  bool debug;
 
-	BaseCamera* camera;
-	Blobber* blobber;
-	Vision* vision;
-	Vision::Result* visionResult;
+  BaseCamera *camera;
+  Blobber *blobber;
+  Vision *vision;
+  Vision::Result *visionResult;
 
-	bool gotFrame;
-	bool faulty;
+  bool gotFrame;
+  bool faulty;
   Frame *frame;
-	unsigned char* frameData;
-	unsigned char* dataYUYV;
-	unsigned char* dataY;
-    unsigned char* dataU;
-    unsigned char* dataV;
-	unsigned char* classification;
-	unsigned char* argb;
-	unsigned char* rgb;
+  unsigned char *frameData;
+  unsigned char *dataYUYV;
+  unsigned char *dataY;
+  unsigned char *dataU;
+  unsigned char *dataV;
+  unsigned char *classification;
+  unsigned char *argb;
+  unsigned char *rgb;
 
 private:
-	void* run();
-	bool fetchFrame();
+  void *run();
+  bool fetchFrame();
 
-	bool done;
+  bool done;
 };
 
 #endif // PROCESSTHREAD_H

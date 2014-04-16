@@ -10,57 +10,54 @@ const float Wheel::pidFrequency = 60.0f;
 const float Wheel::ticksPerRevolution = 64.0f * 18.75f;
 
 Wheel::Wheel(int id) : id(id), targetOmega(0), realOmega(0), stallCounter(0) {
-    
+
 }
 
 void Wheel::setTargetOmega(float omega) {
-    targetOmega = omega;
+  targetOmega = omega;
 }
 
 void Wheel::setTargetSpeed(int speed) {
-    setTargetOmega(speedToOmega((float)speed));
+  setTargetOmega(speedToOmega((float)speed));
 }
 
 float Wheel::getTargetOmega() const {
-    return targetOmega;
+  return targetOmega;
 }
 
 float Wheel::getTargetSpeed() const {
-    return omegaToSpeed(targetOmega);
+  return omegaToSpeed(targetOmega);
 }
 
 float Wheel::getRealOmega() const {
-    return realOmega;
+  return realOmega;
 }
 
 bool Wheel::isStalled() {
-	if (stallCounter > Config::robotWheelStalledThreshold) {
-		return true;
-	} else {
-		return false;
-	}
+  if (stallCounter > Config::robotWheelStalledThreshold)
+    return true;
+  else
+    return false;
 }
 
 void Wheel::step(float dt) {
-	if (Math::abs(targetOmega) > Math::PI && Math::abs(targetOmega / realOmega) > 2.0f) {
-		stallCounter++;
-	} else {
-		stallCounter = 0;
-	}
+  if (Math::abs(targetOmega) > Math::PI && Math::abs(targetOmega / realOmega) > 2.0f)
+    stallCounter++;
+  else
+    stallCounter = 0;
 }
 
-bool Wheel::handleCommand(const Command& cmd) {
-	if (cmd.name == "speeds") {
-		if ((int)cmd.parameters.size() > id) {
-			realOmega = speedToOmega((float)Util::toInt(cmd.parameters[id]));
-		} else {
-			std::cout << "- Invalid speeds info: " << cmd.name << " " << Util::toString(cmd.parameters) << std::endl;
-		}
+bool Wheel::handleCommand(const Command &cmd) {
+  if (cmd.name == "speeds") {
+    if ((int)cmd.parameters.size() > id)
+      realOmega = speedToOmega((float)Util::toInt(cmd.parameters[id]));
+    else
+      std::cout << "- Invalid speeds info: " << cmd.name << " " << Util::toString(cmd.parameters) << std::endl;
 
-		return true;
-	}
+    return true;
+  }
 
-	return false;
+  return false;
 }
 
 /*std::string Wheel::getStateJSON() const {
@@ -75,9 +72,9 @@ bool Wheel::handleCommand(const Command& cmd) {
 }*/
 
 float Wheel::omegaToSpeed(float omega) {
-    return Math::limit(omega / Math::TWO_PI * ticksPerRevolution / pidFrequency, 255);
+  return Math::limit(omega / Math::TWO_PI * ticksPerRevolution / pidFrequency, 255);
 }
 
 float Wheel::speedToOmega(float speed) {
-    return speed * pidFrequency / ticksPerRevolution * Math::TWO_PI;
+  return speed * pidFrequency / ticksPerRevolution * Math::TWO_PI;
 }

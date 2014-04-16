@@ -36,157 +36,154 @@ Revision History:
 #define BLOBBER_NONE ((unsigned)(-1))
 #define BLOBBER_VALID_OPTIONS  0x0F
 
-int Blobber::log2modp[] = {0, 1, 2,27, 3,24,28, 0, 4,17,25,31,29,12, 0,14, 5, 8,18, 0,26,23,32,16,30,11,13, 7, 0,22,15,10, 6,21, 9,20,19};
+int Blobber::log2modp[] = {0, 1, 2, 27, 3, 24, 28, 0, 4, 17, 25, 31, 29, 12, 0, 14, 5, 8, 18, 0, 26, 23, 32, 16, 30, 11, 13, 7, 0, 22, 15, 10, 6, 21, 9, 20, 19};
 
 bool Blobber::Color::setThreshold(
-    int yLow, int yHigh,
-    int uLow, int uHigh,
-    int vLow, int vHigh
+  int yLow, int yHigh,
+  int uLow, int uHigh,
+  int vLow, int vHigh
 ) {
-    return blobber->setThreshold(
-        id,
-        yLow, yHigh,
-        uLow, uHigh,
-        vLow, vHigh
-    );
+  return blobber->setThreshold(
+           id,
+           yLow, yHigh,
+           uLow, uHigh,
+           vLow, vHigh
+         );
 }
 
 bool Blobber::Color::addThreshold(
-    int yLow, int yHigh,
-    int uLow, int uHigh,
-    int vLow, int vHigh
+  int yLow, int yHigh,
+  int uLow, int uHigh,
+  int vLow, int vHigh
 ) {
-    return blobber->addThreshold(
-        id,
-        yLow, yHigh,
-        uLow, uHigh,
-        vLow, vHigh
-    );
+  return blobber->addThreshold(
+           id,
+           yLow, yHigh,
+           uLow, uHigh,
+           vLow, vHigh
+         );
 }
 
 bool Blobber::Color::substractThreshold(
-    int yLow, int yHigh,
-    int uLow, int uHigh,
-    int vLow, int vHigh
+  int yLow, int yHigh,
+  int uLow, int uHigh,
+  int vLow, int vHigh
 ) {
-    return blobber->substractThreshold(
-        id,
-        yLow, yHigh,
-        uLow, uHigh,
-        vLow, vHigh
-    );
+  return blobber->substractThreshold(
+           id,
+           yLow, yHigh,
+           uLow, uHigh,
+           vLow, vHigh
+         );
 }
 
 Blobber::Blobber() {
-    clear();
-    mapFilter = NULL;
+  clear();
+  mapFilter = NULL;
 }
 
 Blobber::~Blobber() {
-    close();
+  close();
 }
 
-Blobber::Color* Blobber::getColorAt(int x, int y) {
-	if (
-		x < 0
-		|| x > width - 1
-		|| y < 0
-		|| y > height - 1
-	) {
-		return NULL;
-	}
+Blobber::Color *Blobber::getColorAt(int x, int y) {
+  if (
+    x < 0
+    || x > width - 1
+    || y < 0
+    || y > height - 1
+  )
+    return NULL;
 
-    int colorVal = map[y * width + x];
+  int colorVal = map[y * width + x];
 
-    if (colorVal == 0) {
-        return NULL;
-    }
+  if (colorVal == 0)
+    return NULL;
 
-    int realColor = bottomBit(colorVal) - 1;
+  int realColor = bottomBit(colorVal) - 1;
 
-    return getColor(realColor);
+  return getColor(realColor);
 }
 
-void Blobber::classifyFrame(Pixel* restrict img,unsigned int* restrict map)
+void Blobber::classifyFrame(Pixel *restrict img, unsigned int *restrict map)
 // Classifies an image passed in as img, saving bits in the entries
 // of map representing which thresholds that pixel satisfies.
 {
-    int i,m,s;
-    int m1,m2;
-    Pixel p;
+  int i, m, s;
+  int m1, m2;
+  Pixel p;
 
-    unsigned int* uclas = uClass; // Ahh, the joys of a compiler that
-    unsigned int* vclas = vClass; //   has to consider pointer aliasing
-    unsigned int* yclas = yClass;
+  unsigned int *uclas = uClass; // Ahh, the joys of a compiler that
+  unsigned int *vclas = vClass; //   has to consider pointer aliasing
+  unsigned int *yclas = yClass;
 
-    s = width * height;
+  s = width * height;
 
-    if(options & BLOBBER_DUAL_THRESHOLD) {
-        for(i=0; i<s; i+=2) {
-            p = img[i/2];
-            m = uclas[p.u] & vclas[p.v];
-            m1 = m & yclas[p.y1];
-            m2 = m & yclas[p.y2];
-            map[i + 0] = m1 | (m1 >> 16);
-            map[i + 1] = m2 | (m2 >> 16);
-        }
-    } else {
-        for(i=0; i<s; i+=2) {
-            p = img[i/2];
-            m = uclas[p.u] & vclas[p.v];
-            map[i + 0] = m & yclas[p.y1];
-            map[i + 1] = m & yclas[p.y2];
-        }
+  if (options & BLOBBER_DUAL_THRESHOLD) {
+    for (i = 0; i < s; i += 2) {
+      p = img[i / 2];
+      m = uclas[p.u] & vclas[p.v];
+      m1 = m & yclas[p.y1];
+      m2 = m & yclas[p.y2];
+      map[i + 0] = m1 | (m1 >> 16);
+      map[i + 1] = m2 | (m2 >> 16);
     }
-
-    if (mapFilter != NULL) {
-        mapFilter->filterMap(map);
+  } else {
+    for (i = 0; i < s; i += 2) {
+      p = img[i / 2];
+      m = uclas[p.u] & vclas[p.v];
+      map[i + 0] = m & yclas[p.y1];
+      map[i + 1] = m & yclas[p.y2];
     }
+  }
+
+  if (mapFilter != NULL)
+    mapFilter->filterMap(map);
 }
 
-int Blobber::encodeRuns(ColorRun* restrict out,unsigned int* restrict map)
+int Blobber::encodeRuns(ColorRun *restrict out, unsigned int *restrict map)
 // Changes the flat array version of the threshold satisfaction map
 // into a run length encoded version, which speeds up later processing
 // since we only have to look at the points where values change.
 {
-    int x,y,j,l;
-    unsigned m,save;
-    unsigned int* row;
-    ColorRun r;
+  int x, y, j, l;
+  unsigned m, save;
+  unsigned int *row;
+  ColorRun r;
 
-    // initialize terminator restore
-    save = map[0];
+  // initialize terminator restore
+  save = map[0];
 
-    j = 0;
-    for(y=0; y<height; y++) {
-        row = &map[y * width];
+  j = 0;
+  for (y = 0; y < height; y++) {
+    row = &map[y * width];
 
-        // restore previous terminator and store next
-        // one in the first pixel on the next row
-        row[0] = save;
-        save = row[width];
-        row[width] = BLOBBER_NONE;
+    // restore previous terminator and store next
+    // one in the first pixel on the next row
+    row[0] = save;
+    save = row[width];
+    row[width] = BLOBBER_NONE;
 
-        x = 0;
-        while(x < width) {
-            m = row[x];
-            // m = m & (~m + 1); // get last bit
-            l = x;
-            while(row[x] == m) x++;
-            // x += (row[x] == BLOBBER_NONE); //  && (last & m);
+    x = 0;
+    while (x < width) {
+      m = row[x];
+      // m = m & (~m + 1); // get last bit
+      l = x;
+      while (row[x] == m) x++;
+      // x += (row[x] == BLOBBER_NONE); //  && (last & m);
 
-            r.color  = m;
-            r.length = x - l;
-            r.parent = j;
-            out[j++] = r;
-            if(j >= BLOBBER_MAX_RUNS) return(0);
-        }
+      r.color  = m;
+      r.length = x - l;
+      r.parent = j;
+      out[j++] = r;
+      if (j >= BLOBBER_MAX_RUNS) return (0);
     }
+  }
 
-    return(j);
+  return (j);
 }
 
-void Blobber::connectComponents(ColorRun* restrict map,int num)
+void Blobber::connectComponents(ColorRun *restrict map, int num)
 // Connect components using four-connecteness so that the runs each
 // identify the global parent of the connected blob they are a part
 // of.  It does this by scanning adjacent rows and merging where similar
@@ -198,288 +195,285 @@ void Blobber::connectComponents(ColorRun* restrict map,int num)
 //   big problems.  Read the papers on this library and have a good
 //   understanding of tree-based union find before you touch it
 {
-    int x1,x2;
-    int l1,l2;
-    ColorRun r1,r2;
-    int i,p,s,n;
+  int x1, x2;
+  int l1, l2;
+  ColorRun r1, r2;
+  int i, p, s, n;
 
-    l1 = l2 = 0;
-    x1 = x2 = 0;
+  l1 = l2 = 0;
+  x1 = x2 = 0;
 
-    // Lower scan begins on second line, so skip over first
-    while(x1 < width) {
-        x1 += map[l1++].length;
-    }
-    x1 = 0;
+  // Lower scan begins on second line, so skip over first
+  while (x1 < width)
+    x1 += map[l1++].length;
+  x1 = 0;
 
-    // Do rest in lock step
-    r1 = map[l1];
-    r2 = map[l2];
-    s = l1;
-    while(l1 < num) {
-        if(r1.color==r2.color && r1.color) {
-            if((x1>=x2 && x1<x2+r2.length) || (x2>=x1 && x2<x1+r1.length)) {
-                if(s != l1) {
-                    map[l1].parent = r1.parent = r2.parent;
-                    s = l1;
-                } else {
-                    // find terminal roots of each path
-                    n = r1.parent;
-                    while(n != map[n].parent) n = map[n].parent;
-                    p = r2.parent;
-                    while(p != map[p].parent) p = map[p].parent;
-
-                    // must use smaller of two to preserve DAGness!
-                    if(n < p) {
-                        map[p].parent = n;
-                    } else {
-                        map[n].parent = p;
-                    }
-                }
-            }
-        }
-
-        // Move to next point where values may change
-        if(x1+r1.length < x2+r2.length) {
-            x1 += r1.length;
-            r1 = map[++l1];
+  // Do rest in lock step
+  r1 = map[l1];
+  r2 = map[l2];
+  s = l1;
+  while (l1 < num) {
+    if (r1.color == r2.color && r1.color) {
+      if ((x1 >= x2 && x1 < x2 + r2.length) || (x2 >= x1 && x2 < x1 + r1.length)) {
+        if (s != l1) {
+          map[l1].parent = r1.parent = r2.parent;
+          s = l1;
         } else {
-            x2 += r2.length;
-            r2 = map[++l2];
+          // find terminal roots of each path
+          n = r1.parent;
+          while (n != map[n].parent) n = map[n].parent;
+          p = r2.parent;
+          while (p != map[p].parent) p = map[p].parent;
+
+          // must use smaller of two to preserve DAGness!
+          if (n < p)
+            map[p].parent = n;
+          else
+            map[n].parent = p;
         }
+      }
     }
 
-    // Now we need to compress all parent paths
-    for(i=0; i<num; i++) {
-        p = map[i].parent;
-        if(p > i) {
-            while(p != map[p].parent) p = map[p].parent;
-            map[i].parent = p;
-        } else {
-            map[i].parent = map[p].parent;
-        }
+    // Move to next point where values may change
+    if (x1 + r1.length < x2 + r2.length) {
+      x1 += r1.length;
+      r1 = map[++l1];
+    } else {
+      x2 += r2.length;
+      r2 = map[++l2];
     }
+  }
 
-    // Ouch, my brain hurts.
+  // Now we need to compress all parent paths
+  for (i = 0; i < num; i++) {
+    p = map[i].parent;
+    if (p > i) {
+      while (p != map[p].parent) p = map[p].parent;
+      map[i].parent = p;
+    } else
+      map[i].parent = map[p].parent;
+  }
+
+  // Ouch, my brain hurts.
 }
 
-int Blobber::extractBlobs(Blob* restrict reg,ColorRun* restrict runMap,int num)
+int Blobber::extractBlobs(Blob *restrict reg, ColorRun *restrict runMap, int num)
 // Takes the list of runs and formats them into a blob table,
 // gathering the various statistics we want along the way.
 // num is the number of runs in the runMap array, and the number of
 // unique blobs in reg[] (< BLOBBER_MAX_BLOBS) is returned.
 // Implemented as a single pass over the array of runs.
 {
-    int x,y,i;
-    int b,n,a;
-    ColorRun r;
-    FormatYUV black = {0,0,0};
+  int x, y, i;
+  int b, n, a;
+  ColorRun r;
+  FormatYUV black = {0, 0, 0};
 
-    x = y = n = 0;
-    for(i=0; i<num; i++) {
-        r = runMap[i];
+  x = y = n = 0;
+  for (i = 0; i < num; i++) {
+    r = runMap[i];
 
-        if(r.color) {
-            if(r.parent == i) {
-                // Add new blob if this run is a root (i.e. self parented)
-                runMap[i].parent = b = n;  // renumber to point to blob id
-                reg[b].color = bottomBit(r.color) - 1;
-                reg[b].area = r.length;
-                reg[b].x1 = x;
-                reg[b].y1 = y;
-                reg[b].x2 = x + r.length;
-                reg[b].y2 = y;
-                reg[b].sumX = rangeSum(x,r.length);
-                reg[b].sumY = y * r.length;
-                reg[b].average = black;
-                // reg[b].area_check = 0; // DEBUG ONLY
-                n++;
-                if(n >= BLOBBER_MAX_BLOBS) return(BLOBBER_MAX_BLOBS);
-            } else {
-                // Otherwise update blob stats incrementally
-                b = runMap[r.parent].parent;
-                runMap[i].parent = b; // update to point to blob id
-                reg[b].area += r.length;
-                reg[b].x2 = max(x + r.length,reg[b].x2);
-                reg[b].x1 = min(x,reg[b].x1);
-                reg[b].y2 = y; // last set by lowest run
-                reg[b].sumX += rangeSum(x,r.length);
-                reg[b].sumY += y * r.length;
-            }
-            /* DEBUG
-            if(r.color == 1){
-              printf("{%d,%d,%d} ",i,runMap[i].parent,b);
-            }
-            */
-        }
-
-        // step to next location
-        x = (x + r.length) % width;
-        y += (x == 0);
+    if (r.color) {
+      if (r.parent == i) {
+        // Add new blob if this run is a root (i.e. self parented)
+        runMap[i].parent = b = n;  // renumber to point to blob id
+        reg[b].color = bottomBit(r.color) - 1;
+        reg[b].area = r.length;
+        reg[b].x1 = x;
+        reg[b].y1 = y;
+        reg[b].x2 = x + r.length;
+        reg[b].y2 = y;
+        reg[b].sumX = rangeSum(x, r.length);
+        reg[b].sumY = y * r.length;
+        reg[b].average = black;
+        // reg[b].area_check = 0; // DEBUG ONLY
+        n++;
+        if (n >= BLOBBER_MAX_BLOBS) return (BLOBBER_MAX_BLOBS);
+      } else {
+        // Otherwise update blob stats incrementally
+        b = runMap[r.parent].parent;
+        runMap[i].parent = b; // update to point to blob id
+        reg[b].area += r.length;
+        reg[b].x2 = max(x + r.length, reg[b].x2);
+        reg[b].x1 = min(x, reg[b].x1);
+        reg[b].y2 = y; // last set by lowest run
+        reg[b].sumX += rangeSum(x, r.length);
+        reg[b].sumY += y * r.length;
+      }
+      /* DEBUG
+      if(r.color == 1){
+        printf("{%d,%d,%d} ",i,runMap[i].parent,b);
+      }
+      */
     }
 
-    // printf("\n");
+    // step to next location
+    x = (x + r.length) % width;
+    y += (x == 0);
+  }
 
-    // calculate centroids from stored temporaries
-    for(i=0; i<n; i++) {
-        a = reg[i].area;
-        reg[i].centerX = (float)reg[i].sumX / a;
-        reg[i].centerY = (float)reg[i].sumY / a;
-    }
+  // printf("\n");
 
-    return(n);
+  // calculate centroids from stored temporaries
+  for (i = 0; i < n; i++) {
+    a = reg[i].area;
+    reg[i].centerX = (float)reg[i].sumX / a;
+    reg[i].centerY = (float)reg[i].sumY / a;
+  }
+
+  return (n);
 }
 
-void Blobber::calculateAverageColors(Blob* restrict reg,int blobCount,
-                                Pixel* restrict img,
-                                ColorRun* restrict runMap,int runCount)
+void Blobber::calculateAverageColors(Blob *restrict reg, int blobCount,
+                                     Pixel *restrict img,
+                                     ColorRun *restrict runMap, int runCount)
 // calculates the average color for each blob.
 // num is the number of runs in the runMap array, and the number of
 // unique blobs in reg[] (< BLOBBER_MAX_BLOBS) is returned.
 // Implemented as a single pass over the image, and a second pass over
 // the blobs.
 {
-    int i,j,x,l;
-    Pixel p;
-    ColorRun r;
-    int sumY,sum_u,sum_v;
-    int b,xs;
+  int i, j, x, l;
+  Pixel p;
+  ColorRun r;
+  int sumY, sum_u, sum_v;
+  int b, xs;
 
-    FormatYUV avg;
-    int area;
+  FormatYUV avg;
+  int area;
 
-    // clear out temporaries
-    for(i=0; i<blobCount; i++) {
-        reg[i].sumX = 0;
-        reg[i].sumY = 0;
-        reg[i].sumZ = 0;
+  // clear out temporaries
+  for (i = 0; i < blobCount; i++) {
+    reg[i].sumX = 0;
+    reg[i].sumY = 0;
+    reg[i].sumZ = 0;
+  }
+
+  x = 0;
+
+  // printf("FRAME_START\n");
+
+  // sum up color components for each blob, by traversing image and runs
+  for (i = 0; i < runCount; i++) {
+    r = runMap[i];
+    l = r.length;
+
+    if (!r.color)
+      x += l;
+    else {
+      xs = x;
+      p = img[x / 2];
+
+      if (x & 1) {
+        sumY = p.y2;
+        sum_u = p.u;
+        sum_v = p.v;
+        // area = 1;
+        x++;
+        l--;
+      } else {
+        sumY = sum_u = sum_v = 0;
+        area = 0;
+      }
+
+      for (j = 0; j < l / 2; j++) {
+        p = img[x / 2];
+        sumY += p.y1 + p.y2;
+        sum_u += 2 * p.u;
+        sum_v += 2 * p.v;
+        x += 2;
+        // area += 2;
+      }
+
+      if (l & 1) {
+        x++;
+        p = img[x / 2];
+        sumY += p.y1;
+        sum_u += p.u;
+        sum_v += p.v;
+        // area++;
+      }
+
+      // add sums to blob
+      b = r.parent;
+      reg[b].sumX += sumY;
+      reg[b].sumY += sum_u;
+      reg[b].sumZ += sum_v;
+      // reg[b].area_check += area;
+
+      /*
+      if((r.color & (1 << reg[b].color)) != (1 << reg[b].color)){
+        printf("(%d,%d)",r.color,reg[b].color);
+      }
+
+      if(x != xs + r.length){
+      	printf("Length mismatch %d:%d\n",x,xs + r.length);
+      }
+      */
+
+      x = xs + r.length;
+    }
+  }
+
+  // Divide sums by area to calculate average colors
+  for (i = 0; i < blobCount; i++) {
+    area = reg[i].area;
+    avg.y = reg[i].sumX / area;
+    avg.u = reg[i].sumY / area;
+    avg.v = reg[i].sumZ / area;
+
+    /*
+    if(reg[i].area != reg[i].area_check){
+      printf("Area Mismatch: %d %d\n",reg[i].area,reg[i].area_check);
     }
 
-    x = 0;
-
-    // printf("FRAME_START\n");
-
-    // sum up color components for each blob, by traversing image and runs
-    for(i=0; i<runCount; i++) {
-        r = runMap[i];
-        l = r.length;
-
-        if(!r.color) {
-            x += l;
-        } else {
-            xs = x;
-            p = img[x / 2];
-
-            if(x & 1) {
-                sumY = p.y2;
-                sum_u = p.u;
-                sum_v = p.v;
-                // area = 1;
-                x++;
-                l--;
-            } else {
-                sumY = sum_u = sum_v = 0;
-                area = 0;
-            }
-
-            for(j=0; j<l/2; j++) {
-                p = img[x / 2];
-                sumY += p.y1 + p.y2;
-                sum_u += 2 * p.u;
-                sum_v += 2 * p.v;
-                x+=2;
-                // area += 2;
-            }
-
-            if(l & 1) {
-                x++;
-                p = img[x / 2];
-                sumY += p.y1;
-                sum_u += p.u;
-                sum_v += p.v;
-                // area++;
-            }
-
-            // add sums to blob
-            b = r.parent;
-            reg[b].sumX += sumY;
-            reg[b].sumY += sum_u;
-            reg[b].sumZ += sum_v;
-            // reg[b].area_check += area;
-
-            /*
-            if((r.color & (1 << reg[b].color)) != (1 << reg[b].color)){
-              printf("(%d,%d)",r.color,reg[b].color);
-            }
-
-            if(x != xs + r.length){
-            	printf("Length mismatch %d:%d\n",x,xs + r.length);
-            }
-            */
-
-            x = xs + r.length;
-        }
+    x = (yClass[avg.y] & uClass[avg.u] & vClass[avg.v]);
+    j = reg[i].color;
+    l = (1 << j);
+    if((x & l) != l){
+      printf("Error: c=%d a=%d (%d,%d) (%d,%d,%d)\n",
+         reg[i].color,area,
+         (int)reg[i].centerX,(int)reg[i].centerY,
+             avg.y,avg.u,avg.v);
     }
+    */
 
-    // Divide sums by area to calculate average colors
-    for(i=0; i<blobCount; i++) {
-        area = reg[i].area;
-        avg.y = reg[i].sumX / area;
-        avg.u = reg[i].sumY / area;
-        avg.v = reg[i].sumZ / area;
-
-        /*
-        if(reg[i].area != reg[i].area_check){
-          printf("Area Mismatch: %d %d\n",reg[i].area,reg[i].area_check);
-        }
-
-        x = (yClass[avg.y] & uClass[avg.u] & vClass[avg.v]);
-        j = reg[i].color;
-        l = (1 << j);
-        if((x & l) != l){
-          printf("Error: c=%d a=%d (%d,%d) (%d,%d,%d)\n",
-             reg[i].color,area,
-             (int)reg[i].centerX,(int)reg[i].centerY,
-                 avg.y,avg.u,avg.v);
-        }
-        */
-
-        reg[i].average = avg;
-    }
+    reg[i].average = avg;
+  }
 }
 
-int Blobber::separateBlobs(Blob* restrict reg,int num)
+int Blobber::separateBlobs(Blob *restrict reg, int num)
 // Splits the various blobs in the blob table a separate list
 // for each color.  The lists are threaded through the table using
 // the blob's 'next' field.  Returns the maximal area of the
 // blobs, which we use below to speed up sorting.
 {
-    Blob* p;
-    int i,l;
-    int area,maxArea;
+  Blob *p;
+  int i, l;
+  int area, maxArea;
 
-    // clear out the blob table
-    for(i=0; i<BLOBBER_MAX_COLORS; i++) {
-        blobCount[i] = 0;
-        blobList[i] = NULL;
+  // clear out the blob table
+  for (i = 0; i < BLOBBER_MAX_COLORS; i++) {
+    blobCount[i] = 0;
+    blobList[i] = NULL;
+  }
+
+  // step over the table, adding successive
+  // blobs to the front of each list
+  maxArea = 0;
+  for (i = 0; i < num; i++) {
+    p = &reg[i];
+    area = p->area;
+    if (area >= BLOBBER_MIN_AREA) {
+      if (area > maxArea) maxArea = area;
+      l = p->color;
+      blobCount[l]++;
+      p->next = blobList[l];
+      blobList[l] = p;
     }
+  }
 
-    // step over the table, adding successive
-    // blobs to the front of each list
-    maxArea = 0;
-    for(i=0; i<num; i++) {
-        p = &reg[i];
-        area = p->area;
-        if(area >= BLOBBER_MIN_AREA) {
-            if(area > maxArea) maxArea = area;
-            l = p->color;
-            blobCount[l]++;
-            p->next = blobList[l];
-            blobList[l] = p;
-        }
-    }
-
-    return(maxArea);
+  return (maxArea);
 }
 
 // These are the tweaking values for the radix sort given below
@@ -491,132 +485,131 @@ int Blobber::separateBlobs(Blob* restrict reg,int num)
 #define BLOBBER_RADIX (1 << BLOBBER_RBITS)
 #define BLOBBER_RMASK (BLOBBER_RADIX-1)
 
-Blobber::Blob* Blobber::sortBlobListByArea(Blob* restrict list,int passes)
+Blobber::Blob *Blobber::sortBlobListByArea(Blob *restrict list, int passes)
 // Sorts a list of blobs by their area field.
 // Uses a linked list based radix sort to process the list.
 {
-    Blob* tbl[BLOBBER_RADIX],*p,*pn;
-    int slot,shift;
-    int i,j;
+  Blob *tbl[BLOBBER_RADIX], *p, *pn;
+  int slot, shift;
+  int i, j;
 
-    // Handle trivial cases
-    if(!list || !list->next) return(list);
+  // Handle trivial cases
+  if (!list || !list->next) return (list);
 
-    // Initialize table
-    for(j=0; j<BLOBBER_RADIX; j++) tbl[j] = NULL;
+  // Initialize table
+  for (j = 0; j < BLOBBER_RADIX; j++) tbl[j] = NULL;
 
-    for(i=0; i<passes; i++) {
-        // split list into buckets
-        shift = BLOBBER_RBITS * i;
-        p = list;
-        while(p) {
-            pn = p->next;
-            slot = ((p->area) >> shift) & BLOBBER_RMASK;
-            p->next = tbl[slot];
-            tbl[slot] = p;
-            p = pn;
-        }
-
-        // integrate back into partially ordered list
-        list = NULL;
-        for(j=0; j<BLOBBER_RADIX; j++) {
-            p = tbl[j];
-            tbl[j] = NULL;  // clear out table for next pass
-            while(p) {
-                pn = p->next;
-                p->next = list;
-                list = p;
-                p = pn;
-            }
-        }
+  for (i = 0; i < passes; i++) {
+    // split list into buckets
+    shift = BLOBBER_RBITS * i;
+    p = list;
+    while (p) {
+      pn = p->next;
+      slot = ((p->area) >> shift) & BLOBBER_RMASK;
+      p->next = tbl[slot];
+      tbl[slot] = p;
+      p = pn;
     }
 
-    return(list);
+    // integrate back into partially ordered list
+    list = NULL;
+    for (j = 0; j < BLOBBER_RADIX; j++) {
+      p = tbl[j];
+      tbl[j] = NULL;  // clear out table for next pass
+      while (p) {
+        pn = p->next;
+        p->next = list;
+        list = p;
+        p = pn;
+      }
+    }
+  }
+
+  return (list);
 }
 
 void Blobber::sortBlobs(int maxArea)
 // Sorts entire blob table by area, using the above
 // function to sort each threaded blob list.
 {
-    int i,p;
+  int i, p;
 
-    // do minimal number of passes sufficient to touch all set bits
-    p = topBit((maxArea + BLOBBER_RBITS-1) / BLOBBER_RBITS);
+  // do minimal number of passes sufficient to touch all set bits
+  p = topBit((maxArea + BLOBBER_RBITS - 1) / BLOBBER_RBITS);
 
-    // sort each list
-    for(i=0; i<BLOBBER_MAX_COLORS; i++) {
-        blobList[i] = sortBlobListByArea(blobList[i],p);
-    }
+  // sort each list
+  for (i = 0; i < BLOBBER_MAX_COLORS; i++)
+    blobList[i] = sortBlobListByArea(blobList[i], p);
 }
 
-int Blobber::mergeBlobs(Blob* p,int num,double densityThreshold)
+int Blobber::mergeBlobs(Blob *p, int num, double densityThreshold)
 // Looks through blobs and merges pairs of the same color that would
 // have a high density after combining them (where density is the area
 // in pixels of the blob divided by the bounding box area).  This
 // implementation sucks, and I promise real spatial data structures in
 // the future so n^2 ugliness like this is not necessary.
 {
-    Blob* q,*s;
-    int l,r,t,b;
-    int a;
-    int merged;
+  Blob *q, *s;
+  int l, r, t, b;
+  int a;
+  int merged;
 
-    merged = 0;
+  merged = 0;
 
-    while(p && merged<num) {
-        q = p->next;
-        s = p;
+  while (p && merged < num) {
+    q = p->next;
+    s = p;
 
-        while(q) {
-            // find union box and get its total area
-            l = min(p->x1,q->x1);
-            r = max(p->x2,q->x2);
-            t = min(p->y1,q->y1);
-            b = max(p->y2,q->y2);
-            a = (r-l) * (b-t);
+    while (q) {
+      // find union box and get its total area
+      l = min(p->x1, q->x1);
+      r = max(p->x2, q->x2);
+      t = min(p->y1, q->y1);
+      b = max(p->y2, q->y2);
+      a = (r - l) * (b - t);
 
-            // if density of merged blob is still above threshold
-            if((double)(p->area + q->area) / a > densityThreshold) {
-                // merge them to create a new blob
-                a = p->area + q->area;
-                p->x1 = l;
-                p->x2 = r;
-                p->y1 = t;
-                p->y2 = b;
-                p->centerX = ((p->centerX * p->area) + (q->centerX * q->area)) / a;
-                p->centerY = ((p->centerY * p->area) + (q->centerY * q->area)) / a;
-                p->area = a;
+      // if density of merged blob is still above threshold
+      if ((double)(p->area + q->area) / a > densityThreshold) {
+        // merge them to create a new blob
+        a = p->area + q->area;
+        p->x1 = l;
+        p->x2 = r;
+        p->y1 = t;
+        p->y2 = b;
+        p->centerX = ((p->centerX * p->area) + (q->centerX * q->area)) / a;
+        p->centerY = ((p->centerY * p->area) + (q->centerY * q->area)) / a;
+        p->area = a;
 
-                // remove q from list (old smaller blob)
-                q = q->next;
-                s->next = q;
-                merged++;
-            } else {
-                s = q;
-                q = q->next;
-            }
-        }
-        p = p->next;
+        // remove q from list (old smaller blob)
+        q = q->next;
+        s->next = q;
+        merged++;
+      } else {
+        s = q;
+        q = q->next;
+      }
     }
+    p = p->next;
+  }
 
-    return(merged);
+  return (merged);
 }
 
 int Blobber::mergeBlobs()
 // Apply merge operation to all blobs using the above function.
 {
-    int i,m;
-    int num;
+  int i, m;
+  int num;
 
-    num = 0;
+  num = 0;
 
-    for(i=0; i<BLOBBER_MAX_COLORS; i++) {
-        m = mergeBlobs(blobList[i],colors[i].expectedBlobs,colors[i].mergeThreshold);
-        blobCount[i] -= m;
-        num += m;
-    }
+  for (i = 0; i < BLOBBER_MAX_COLORS; i++) {
+    m = mergeBlobs(blobList[i], colors[i].expectedBlobs, colors[i].mergeThreshold);
+    blobCount[i] -= m;
+    num += m;
+  }
 
-    return(num);
+  return (num);
 }
 
 //==== Interface/Public Functions ==================================//
@@ -624,48 +617,46 @@ int Blobber::mergeBlobs()
 #define ZERO(x) memset(x,0,sizeof(x))
 
 void Blobber::clear() {
-    ZERO(yClass);
-    ZERO(uClass);
-    ZERO(vClass);
+  ZERO(yClass);
+  ZERO(uClass);
+  ZERO(vClass);
 
-    ZERO(blobList);
-    ZERO(blobCount);
+  ZERO(blobList);
+  ZERO(blobCount);
 
-    ZERO(colors);
+  ZERO(colors);
 
-    map = NULL;
+  map = NULL;
 }
 
 bool Blobber::initialize(int width, int height) {
-    this->width = width;
-    this->height = height;
+  this->width = width;
+  this->height = height;
 
-    if (map) {
-        delete map;
+  if (map)
+    delete map;
+
+  // need 1 extra element to store terminator value in encodeRuns()
+  map = new unsigned[width * height + 1];
+
+  options = BLOBBER_THRESHOLD;
+
+  for (int i = 0; i < BLOBBER_COLOR_LEVELS; i++)
+    yClass[i] = uClass[i] = vClass[i] = 0;
+
+  for (int i = 0; i < BLOBBER_MAX_COLORS; i++) {
+    if (colors[i].name) {
+      delete(colors[i].name);
+      colors[i].name = NULL;
     }
 
-    // need 1 extra element to store terminator value in encodeRuns()
-    map = new unsigned[width * height + 1];
+    colors[i].blobber = this;
+    colors[i].id = i;
+  }
 
-    options = BLOBBER_THRESHOLD;
+  colorCount = 0;
 
-    for(int i=0; i<BLOBBER_COLOR_LEVELS; i++) {
-        yClass[i] = uClass[i] = vClass[i] = 0;
-    }
-
-    for(int i=0; i<BLOBBER_MAX_COLORS; i++) {
-        if(colors[i].name) {
-            delete(colors[i].name);
-            colors[i].name = NULL;
-        }
-
-        colors[i].blobber = this;
-        colors[i].id = i;
-    }
-
-    colorCount = 0;
-
-    return map != NULL;
+  return map != NULL;
 }
 
 #define BLOBBER_STATE_SCAN   0
@@ -781,71 +772,69 @@ bool Blobber::loadOptions(std::string filename)
 }*/
 
 bool Blobber::loadOptions(std::string filename) {
-	FILE* file = fopen(filename.c_str(), "rt");
-	Color* color;
+  FILE *file = fopen(filename.c_str(), "rt");
+  Color *color;
 
-	if (!file) {
-		return false;
-	}
+  if (!file)
+    return false;
 
-	colorCount = 0;
+  colorCount = 0;
 
-	for (int i = 0; i < BLOBBER_COLOR_LEVELS; i++) {
-		yClass[i] = uClass[i] = vClass[i] = 0;
-	}
+  for (int i = 0; i < BLOBBER_COLOR_LEVELS; i++)
+    yClass[i] = uClass[i] = vClass[i] = 0;
 
-	for (int i = 0; i < BLOBBER_MAX_COLORS; i++) {
-		if (colors[i].name) {
-			delete(colors[i].name);
+  for (int i = 0; i < BLOBBER_MAX_COLORS; i++) {
+    if (colors[i].name) {
+      delete(colors[i].name);
 
-			colors[i].name = NULL;
-		}
-	}
+      colors[i].name = NULL;
+    }
+  }
 
-	const int bufferSize = 4 * 3 * (BLOBBER_COLOR_LEVELS + 1);
-	char buf[bufferSize], str[256];
-	int line = 0;
-	std::string row;
+  const int bufferSize = 4 * 3 * (BLOBBER_COLOR_LEVELS + 1);
+  char buf[bufferSize], str[256];
+  int line = 0;
+  std::string row;
 
-	int red, green, blue, expectedBlobs;
-	double mergeThreshold;
+  int red, green, blue, expectedBlobs;
+  double mergeThreshold;
 
-	while (fgets(buf, bufferSize, file)) {
-		row = std::string(buf);
+  while (fgets(buf, bufferSize, file)) {
+    row = std::string(buf);
 
-		if (line == 0) {
-			int pos;
-			unsigned y, u, v;
+    if (line == 0) {
+      int pos;
+      unsigned y, u, v;
 
-			for (int i = 0; i < BLOBBER_COLOR_LEVELS; i++) {
-				pos = i * 4 * 3;
+      for (int i = 0; i < BLOBBER_COLOR_LEVELS; i++) {
+        pos = i * 4 * 3;
 
-				y = (unsigned)atoi(row.substr(pos, 3).c_str());
-				u = (unsigned)atoi(row.substr(pos + 4, 3).c_str());
-				v = (unsigned)atoi(row.substr(pos + 8, 3).c_str());
+        y = (unsigned)atoi(row.substr(pos, 3).c_str());
+        u = (unsigned)atoi(row.substr(pos + 4, 3).c_str());
+        v = (unsigned)atoi(row.substr(pos + 8, 3).c_str());
 
-				yClass[i] = y;
-				uClass[i] = u;
-				vClass[i] = v;
-			}
-		} else {
-			sscanf(buf, "%d %d %d %lf %d %s", &red, &green, &blue, &mergeThreshold, &expectedBlobs, str);
+        yClass[i] = y;
+        uClass[i] = u;
+        vClass[i] = v;
+      }
+    } else {
+      sscanf(buf, "%d %d %d %lf %d %s", &red, &green, &blue, &mergeThreshold, &expectedBlobs, str);
 
-			color = &colors[colorCount];
-            color->color.red = red;
-            color->color.green= green;
-            color->color.blue = blue;
-            color->name = strdup(str);
-            color->mergeThreshold = mergeThreshold;
-            color->expectedBlobs = expectedBlobs;
+      color = &colors[colorCount];
+      color->color.red = red;
+      color->color.green = green;
+      color->color.blue = blue;
+      color->name = strdup(str);
+      color->mergeThreshold = mergeThreshold;
+      color->expectedBlobs = expectedBlobs;
 
-            colorCount++;
-		}
+      colorCount++;
+    }
 
-		line++;
-	}
+    line++;
+  }
 
-	return true;
+  return true;
 }
 
 /*bool Blobber::saveOptions(std::string filename) {
@@ -883,323 +872,312 @@ bool Blobber::loadOptions(std::string filename) {
 }*/
 
 bool Blobber::saveOptions(std::string filename) {
-	FILE* file = fopen(filename.c_str(), "wt");
-	Color* color;
+  FILE *file = fopen(filename.c_str(), "wt");
+  Color *color;
 
-	if (!file) {
-		return false;
-	}
+  if (!file)
+    return false;
 
-	for (int i = 0; i < BLOBBER_COLOR_LEVELS; i++) {
-		fprintf(file, "%s%3d %3d %3d", i > 0 ? " " : "", yClass[i], uClass[i], vClass[i]);
-	}
+  for (int i = 0; i < BLOBBER_COLOR_LEVELS; i++)
+    fprintf(file, "%s%3d %3d %3d", i > 0 ? " " : "", yClass[i], uClass[i], vClass[i]);
 
-	fprintf(file, "\n");
+  fprintf(file, "\n");
 
-	for (int i = 0; i < colorCount; i++) {
-		color = &colors[i];
+  for (int i = 0; i < colorCount; i++) {
+    color = &colors[i];
 
-		fprintf(file, "%d %d %d %6.4lf %d %s\n", color->color.red, color->color.green, color->color.blue, color->mergeThreshold, color->expectedBlobs, color->name);
-	}
+    fprintf(file, "%d %d %d %6.4lf %d %s\n", color->color.red, color->color.green, color->color.blue, color->mergeThreshold, color->expectedBlobs, color->name);
+  }
 
-	fclose(file);
+  fclose(file);
 
-	return true;
+  return true;
 }
 
 bool Blobber::enable(unsigned opt) {
-    unsigned valid;
+  unsigned valid;
 
-    valid = opt & BLOBBER_VALID_OPTIONS;
-    options |= valid;
+  valid = opt & BLOBBER_VALID_OPTIONS;
+  options |= valid;
 
-    return(opt == valid);
+  return (opt == valid);
 }
 
 bool Blobber::disable(unsigned opt) {
-    unsigned valid;
+  unsigned valid;
 
-    valid = opt & BLOBBER_VALID_OPTIONS;
-    options &= ~valid;
+  valid = opt & BLOBBER_VALID_OPTIONS;
+  options &= ~valid;
 
-    return(opt == valid);
+  return (opt == valid);
 }
 
 void Blobber::close() {
-    if (map) delete[] map;
-    map = NULL;
+  if (map) delete[] map;
+  map = NULL;
 }
 
 
 //==== Vision Testing Functions ====================================//
 
-bool Blobber::classify(Rgb* restrict out,Pixel* restrict image) {
-    int i,s;
-    Rgb black(0,0,0);
+bool Blobber::classify(Rgb *restrict out, Pixel *restrict image) {
+  int i, s;
+  Rgb black(0, 0, 0);
 
-    if(!image || !out) return(false);
+  if (!image || !out) return (false);
 
-    classifyFrame(image,map);
+  classifyFrame(image, map);
 
-    s = width * height;
+  s = width * height;
 
-    i = 0;
-    while(i < s) {
-        if (map[i] == 0) {
-            out[i] = black;
-        } else {
-            out[i] = colors[bottomBit(map[i])-1].color;
-        }
+  i = 0;
+  while (i < s) {
+    if (map[i] == 0)
+      out[i] = black;
+    else
+      out[i] = colors[bottomBit(map[i]) - 1].color;
 
-        i++;
-        /*
-        while(i<s && !map[i]){
-          out[i] = black;
-          i++;
-        }
-        while(i<s && map[i]){
-          out[i] = colors[bottomBit(map[i])-1].color;
-          i++;
-        }
-        */
+    i++;
+    /*
+    while(i<s && !map[i]){
+      out[i] = black;
+      i++;
     }
+    while(i<s && map[i]){
+      out[i] = colors[bottomBit(map[i])-1].color;
+      i++;
+    }
+    */
+  }
 
-    return(true);
+  return (true);
 }
 
 void Blobber::addColor(
-    std::string name,
-    int red, int green, int blue,
-    int yLow, int yHigh,
-    int uLow, int uHigh,
-    int vLow, int vHigh,
-    double mergeThreshold,
-    int expectedBlobs
+  std::string name,
+  int red, int green, int blue,
+  int yLow, int yHigh,
+  int uLow, int uHigh,
+  int vLow, int vHigh,
+  double mergeThreshold,
+  int expectedBlobs
 ) {
-    unsigned k = (1 << colorCount);
+  unsigned k = (1 << colorCount);
 
-    clearBits(yClass, BLOBBER_COLOR_LEVELS, yLow, yHigh, k);
-    clearBits(uClass, BLOBBER_COLOR_LEVELS, uLow, uHigh, k);
-    clearBits(vClass, BLOBBER_COLOR_LEVELS, vLow, vHigh, k);
+  clearBits(yClass, BLOBBER_COLOR_LEVELS, yLow, yHigh, k);
+  clearBits(uClass, BLOBBER_COLOR_LEVELS, uLow, uHigh, k);
+  clearBits(vClass, BLOBBER_COLOR_LEVELS, vLow, vHigh, k);
 
-    colors[colorCount].color.red = red;
-    colors[colorCount].color.green = green;
-    colors[colorCount].color.blue = blue;
-    colors[colorCount].name = strdup(name.c_str());
-    colors[colorCount].mergeThreshold = mergeThreshold;
-    colors[colorCount].expectedBlobs = expectedBlobs;
-    colors[colorCount].yLow = yLow;
-    colors[colorCount].yHigh = yHigh;
-    colors[colorCount].uLow = uLow;
-    colors[colorCount].uHigh = uHigh;
-    colors[colorCount].vLow = vLow;
-    colors[colorCount].vHigh = vHigh;
+  colors[colorCount].color.red = red;
+  colors[colorCount].color.green = green;
+  colors[colorCount].color.blue = blue;
+  colors[colorCount].name = strdup(name.c_str());
+  colors[colorCount].mergeThreshold = mergeThreshold;
+  colors[colorCount].expectedBlobs = expectedBlobs;
+  colors[colorCount].yLow = yLow;
+  colors[colorCount].yHigh = yHigh;
+  colors[colorCount].uLow = uLow;
+  colors[colorCount].uHigh = uHigh;
+  colors[colorCount].vLow = vLow;
+  colors[colorCount].vHigh = vHigh;
 
-    setBits(yClass, BLOBBER_COLOR_LEVELS, yLow, yHigh, k);
-    setBits(uClass, BLOBBER_COLOR_LEVELS, uLow, uHigh, k);
-    setBits(vClass, BLOBBER_COLOR_LEVELS, vLow, vHigh, k);
+  setBits(yClass, BLOBBER_COLOR_LEVELS, yLow, yHigh, k);
+  setBits(uClass, BLOBBER_COLOR_LEVELS, uLow, uHigh, k);
+  setBits(vClass, BLOBBER_COLOR_LEVELS, vLow, vHigh, k);
 
-    colorCount++;
+  colorCount++;
 }
 
 bool Blobber::getThreshold(int color,
-                           int& yLow,int& yHigh,
-                           int& uLow,int& uHigh,
-                           int& vLow,int& vHigh) {
-    Color* c;
+                           int &yLow, int &yHigh,
+                           int &uLow, int &uHigh,
+                           int &vLow, int &vHigh) {
+  Color *c;
 
-    if(color<0 || color>=BLOBBER_MAX_COLORS) return(false);
+  if (color < 0 || color >= BLOBBER_MAX_COLORS) return (false);
 
-    c = &colors[color];
-    yLow = c->yLow;
-    yHigh = c->yHigh;
-    uLow = c->uLow;
-    uHigh = c->uHigh;
-    vLow = c->vLow;
-    vHigh = c->vHigh;
+  c = &colors[color];
+  yLow = c->yLow;
+  yHigh = c->yHigh;
+  uLow = c->uLow;
+  uHigh = c->uHigh;
+  vLow = c->vLow;
+  vHigh = c->vHigh;
 
-    return(true);
+  return (true);
 }
 
 bool Blobber::setThreshold(
-    int color,
-    int yLow,int yHigh,
-    int uLow,int uHigh,
-    int vLow,int vHigh
+  int color,
+  int yLow, int yHigh,
+  int uLow, int uHigh,
+  int vLow, int vHigh
 ) {
-    Color* c;
-    unsigned k;
+  Color *c;
+  unsigned k;
 
-    if (color < 0 || color >= BLOBBER_MAX_COLORS) {
-		return false;
-	}
+  if (color < 0 || color >= BLOBBER_MAX_COLORS)
+    return false;
 
-    c = &colors[color];
-    k = 1 << color;
+  c = &colors[color];
+  k = 1 << color;
 
-    clearBits(yClass, BLOBBER_COLOR_LEVELS, c->yLow, c->yHigh, k);
-    clearBits(uClass, BLOBBER_COLOR_LEVELS, c->uLow, c->uHigh, k);
-    clearBits(vClass, BLOBBER_COLOR_LEVELS, c->vLow, c->vHigh, k);
+  clearBits(yClass, BLOBBER_COLOR_LEVELS, c->yLow, c->yHigh, k);
+  clearBits(uClass, BLOBBER_COLOR_LEVELS, c->uLow, c->uHigh, k);
+  clearBits(vClass, BLOBBER_COLOR_LEVELS, c->vLow, c->vHigh, k);
 
-    c->yLow = yLow;
-    c->yHigh = yHigh;
-    c->uLow = uLow;
-    c->uHigh = uHigh;
-    c->vLow = vLow;
-    c->vHigh = vHigh;
+  c->yLow = yLow;
+  c->yHigh = yHigh;
+  c->uLow = uLow;
+  c->uHigh = uHigh;
+  c->vLow = vLow;
+  c->vHigh = vHigh;
 
-    setBits(yClass, BLOBBER_COLOR_LEVELS, yLow, yHigh, k);
-    setBits(uClass, BLOBBER_COLOR_LEVELS, uLow, uHigh, k);
-    setBits(vClass, BLOBBER_COLOR_LEVELS, vLow, vHigh, k);
+  setBits(yClass, BLOBBER_COLOR_LEVELS, yLow, yHigh, k);
+  setBits(uClass, BLOBBER_COLOR_LEVELS, uLow, uHigh, k);
+  setBits(vClass, BLOBBER_COLOR_LEVELS, vLow, vHigh, k);
 
-    return true;
+  return true;
 }
 
 bool Blobber::addThreshold(
-    int color,
-    int yLow,int yHigh,
-    int uLow,int uHigh,
-    int vLow,int vHigh
+  int color,
+  int yLow, int yHigh,
+  int uLow, int uHigh,
+  int vLow, int vHigh
 ) {
-    Color* c;
-    unsigned k;
+  Color *c;
+  unsigned k;
 
-    if (color < 0 || color >= BLOBBER_MAX_COLORS) {
-		return false;
-	}
+  if (color < 0 || color >= BLOBBER_MAX_COLORS)
+    return false;
 
-    c = &colors[color];
-    k = 1 << color;
+  c = &colors[color];
+  k = 1 << color;
 
-    c->yLow = yLow;
-    c->yHigh = yHigh;
-    c->uLow = uLow;
-    c->uHigh = uHigh;
-    c->vLow = vLow;
-    c->vHigh = vHigh;
+  c->yLow = yLow;
+  c->yHigh = yHigh;
+  c->uLow = uLow;
+  c->uHigh = uHigh;
+  c->vLow = vLow;
+  c->vHigh = vHigh;
 
-    setBits(yClass, BLOBBER_COLOR_LEVELS, yLow, yHigh, k);
-    setBits(uClass, BLOBBER_COLOR_LEVELS, uLow, uHigh, k);
-    setBits(vClass, BLOBBER_COLOR_LEVELS, vLow, vHigh, k);
+  setBits(yClass, BLOBBER_COLOR_LEVELS, yLow, yHigh, k);
+  setBits(uClass, BLOBBER_COLOR_LEVELS, uLow, uHigh, k);
+  setBits(vClass, BLOBBER_COLOR_LEVELS, vLow, vHigh, k);
 
-    return true;
+  return true;
 }
 
 bool Blobber::substractThreshold(
-    int color,
-    int yLow,int yHigh,
-    int uLow,int uHigh,
-    int vLow,int vHigh
+  int color,
+  int yLow, int yHigh,
+  int uLow, int uHigh,
+  int vLow, int vHigh
 ) {
-    Color* c;
-    unsigned k;
+  Color *c;
+  unsigned k;
 
-    if (color < 0 || color >= BLOBBER_MAX_COLORS) {
-		return false;
-	}
+  if (color < 0 || color >= BLOBBER_MAX_COLORS)
+    return false;
 
-    c = &colors[color];
-    k = 1 << color;
+  c = &colors[color];
+  k = 1 << color;
 
-    clearBits(yClass, BLOBBER_COLOR_LEVELS, c->yLow, c->yHigh, k);
-    clearBits(uClass, BLOBBER_COLOR_LEVELS, c->uLow, c->uHigh, k);
-    clearBits(vClass, BLOBBER_COLOR_LEVELS, c->vLow, c->vHigh, k);
+  clearBits(yClass, BLOBBER_COLOR_LEVELS, c->yLow, c->yHigh, k);
+  clearBits(uClass, BLOBBER_COLOR_LEVELS, c->uLow, c->uHigh, k);
+  clearBits(vClass, BLOBBER_COLOR_LEVELS, c->vLow, c->vHigh, k);
 
-    c->yLow = yLow;
-    c->yHigh = yHigh;
-    c->uLow = uLow;
-    c->uHigh = uHigh;
-    c->vLow = vLow;
-    c->vHigh = vHigh;
+  c->yLow = yLow;
+  c->yHigh = yHigh;
+  c->uLow = uLow;
+  c->uHigh = uHigh;
+  c->vLow = vLow;
+  c->vHigh = vHigh;
 
-    return true;
+  return true;
 }
 
 void Blobber::clearColor(std::string name) {
-	Color* color = getColor(name);
+  Color *color = getColor(name);
 
-	if (color == NULL) {
-		return;
-	}
+  if (color == NULL)
+    return;
 
-	unsigned k = 1 << color->id;
+  unsigned k = 1 << color->id;
 
-    clearBits(yClass, BLOBBER_COLOR_LEVELS, 0, 255, k);
-    clearBits(uClass, BLOBBER_COLOR_LEVELS, 0, 255, k);
-    clearBits(vClass, BLOBBER_COLOR_LEVELS, 0, 255, k);
+  clearBits(yClass, BLOBBER_COLOR_LEVELS, 0, 255, k);
+  clearBits(uClass, BLOBBER_COLOR_LEVELS, 0, 255, k);
+  clearBits(vClass, BLOBBER_COLOR_LEVELS, 0, 255, k);
 }
 
 void Blobber::clearColors() {
-	for (int i = 0; i < BLOBBER_COLOR_LEVELS; i++) {
-		yClass[i] = uClass[i] = vClass[i] = 0;
-	}
+  for (int i = 0; i < BLOBBER_COLOR_LEVELS; i++)
+    yClass[i] = uClass[i] = vClass[i] = 0;
 }
 
 //==== Main Vision Functions =======================================//
 
-bool Blobber::processFrame(Pixel* image) {
-    int runs;
-    int blobs;
-    int maxArea;
+bool Blobber::processFrame(Pixel *image) {
+  int runs;
+  int blobs;
+  int maxArea;
 
-    if(!image) return(false);
+  if (!image) return (false);
 
-    if(options & BLOBBER_THRESHOLD) {
+  if (options & BLOBBER_THRESHOLD) {
 
-        classifyFrame(image,map);
+    classifyFrame(image, map);
 
-        runs = encodeRuns(runMap,map);
-        connectComponents(runMap,runs);
+    runs = encodeRuns(runMap, map);
+    connectComponents(runMap, runs);
 
-        blobs = extractBlobs(blobTable,runMap,runs);
+    blobs = extractBlobs(blobTable, runMap, runs);
 
-        if(options & BLOBBER_COLOR_AVERAGES) {
-            calculateAverageColors(blobTable,blobs,image,runMap,runs);
-        }
+    if (options & BLOBBER_COLOR_AVERAGES)
+      calculateAverageColors(blobTable, blobs, image, runMap, runs);
 
-        maxArea = separateBlobs(blobTable,blobs);
-        sortBlobs(maxArea);
-
-        if(options & BLOBBER_DENSITY_MERGE) {
-            mergeBlobs();
-        }
-    }
-
-    return(true);
-}
-
-bool Blobber::processFrame(unsigned int* map) {
-    int runs;
-    int blobs;
-    int maxArea;
-
-    if(!map) return(false);
-
-    runs = encodeRuns(runMap,map);
-    connectComponents(runMap,runs);
-
-    blobs = extractBlobs(blobTable,runMap,runs);
-
-    // if(options & BLOBBER_COLOR_AVERAGES){
-    //   calculateAverageColors(blobTable,blobs,image,runMap,runs);
-    // }
-
-    maxArea = separateBlobs(blobTable,blobs);
+    maxArea = separateBlobs(blobTable, blobs);
     sortBlobs(maxArea);
 
-    if(options & BLOBBER_DENSITY_MERGE) {
-        mergeBlobs();
-    }
+    if (options & BLOBBER_DENSITY_MERGE)
+      mergeBlobs();
+  }
 
-    return(true);
+  return (true);
+}
+
+bool Blobber::processFrame(unsigned int *map) {
+  int runs;
+  int blobs;
+  int maxArea;
+
+  if (!map) return (false);
+
+  runs = encodeRuns(runMap, map);
+  connectComponents(runMap, runs);
+
+  blobs = extractBlobs(blobTable, runMap, runs);
+
+  // if(options & BLOBBER_COLOR_AVERAGES){
+  //   calculateAverageColors(blobTable,blobs,image,runMap,runs);
+  // }
+
+  maxArea = separateBlobs(blobTable, blobs);
+  sortBlobs(maxArea);
+
+  if (options & BLOBBER_DENSITY_MERGE)
+    mergeBlobs();
+
+  return (true);
 }
 
 int Blobber::getBlobCount(int colorId) {
-    if(colorId<0 || colorId>=BLOBBER_MAX_COLORS) return(BLOBBER_NONE);
-    return(blobCount[colorId]);
+  if (colorId < 0 || colorId >= BLOBBER_MAX_COLORS) return (BLOBBER_NONE);
+  return (blobCount[colorId]);
 }
 
-Blobber::Blob* Blobber::getBlobs(int colorId) {
-    if(colorId<0 || colorId>=BLOBBER_MAX_COLORS) return(NULL);
-    return(blobList[colorId]);
+Blobber::Blob *Blobber::getBlobs(int colorId) {
+  if (colorId < 0 || colorId >= BLOBBER_MAX_COLORS) return (NULL);
+  return (blobList[colorId]);
 }

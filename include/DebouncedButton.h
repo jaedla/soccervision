@@ -4,13 +4,13 @@
 class DebouncedButton {
 
 public:
-	DebouncedButton(float period = 0.1f);
+  DebouncedButton(float period = 0.1f);
 
-	bool toggle();
+  bool toggle();
 
 private:
-	double lastChangeTime;
-	float period;
+  double lastChangeTime;
+  float period;
 
 };
 

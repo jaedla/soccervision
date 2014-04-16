@@ -7,7 +7,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h> 
+#include <unistd.h>
 #include "V4lCamera.h"
 
 void check(bool condition, const char *msg) {
@@ -47,7 +47,7 @@ V4lCamera::~V4lCamera() {
   close();
 }
 
-Frame* V4lCamera::getFrame() {
+Frame *V4lCamera::getFrame() {
   struct v4l2_buffer buf;
   memset(&buf, 0x00, sizeof(buf));
   buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -106,9 +106,9 @@ void V4lCamera::mapBuffers() {
     ioctlNoFail(fd, VIDIOC_QUERYBUF, &buf, __LINE__);
     check(buf.length == frameSize, "Weird buf.length");
     void *map =
-        mmap(NULL, frameSize,
-             PROT_READ | PROT_WRITE, MAP_SHARED,
-             fd, buf.m.offset);
+      mmap(NULL, frameSize,
+           PROT_READ | PROT_WRITE, MAP_SHARED,
+           fd, buf.m.offset);
     check(map != MAP_FAILED, "mmap failed");
     frameBuffers[i] = (uint8_t *)map;
   }

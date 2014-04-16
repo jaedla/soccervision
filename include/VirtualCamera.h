@@ -8,16 +8,18 @@
 class VirtualCamera : public BaseCamera {
 
 public:
-	VirtualCamera();
+  VirtualCamera();
 
-	Frame* getFrame();
-	bool isAcquisitioning() { return data != NULL; }
-	bool loadImage(std::string filename, int size);
+  Frame *getFrame();
+  bool isAcquisitioning() {
+    return data != NULL;
+  }
+  bool loadImage(std::string filename, int size);
 
 private:
-	unsigned char* data;
-	int bufferSize;
-	int frameNr;
+  unsigned char *data;
+  int bufferSize;
+  int frameNr;
 
 };
 

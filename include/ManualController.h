@@ -9,22 +9,26 @@
 class ManualController : public Controller {
 
 public:
-	ManualController(Robot* robot, Communication* com);
+  ManualController(Robot *robot, Communication *com);
 
-	void onEnter() { reset(); }
-	void onExit() { reset(); }
-    bool handleCommand(const Command& cmd);
-    void handleTargetVectorCommand(const Command& cmd);
-    void handleTargetDirCommand(const Command& cmd);
-    void handleSetDribblerCommand(const Command& cmd);
-    void handleKickCommand(const Command& cmd);
-	void handleCommunicationMessage(std::string message);
-    void step(float dt, Vision::Results* visionResults);
-	void reset();
-	std::string getJSON();
+  void onEnter() {
+    reset();
+  }
+  void onExit() {
+    reset();
+  }
+  bool handleCommand(const Command &cmd);
+  void handleTargetVectorCommand(const Command &cmd);
+  void handleTargetDirCommand(const Command &cmd);
+  void handleSetDribblerCommand(const Command &cmd);
+  void handleKickCommand(const Command &cmd);
+  void handleCommunicationMessage(std::string message);
+  void step(float dt, Vision::Results *visionResults);
+  void reset();
+  std::string getJSON();
 
 private:
-	double lastCommandTime;
+  double lastCommandTime;
 
 };
 

@@ -8,24 +8,23 @@ VirtualCamera::VirtualCamera() : data(NULL), bufferSize(0), frameNr(0) {
 }
 
 bool VirtualCamera::loadImage(std::string filename, int size) {
-	if (data == NULL) {
-		data = new unsigned char[size];
-	}
+  if (data == NULL)
+    data = new unsigned char[size];
 
-	bufferSize = size;
+  bufferSize = size;
 
-	return ImageProcessor::loadBitmap(filename, data, size);
+  return ImageProcessor::loadBitmap(filename, data, size);
 }
 
-Frame* VirtualCamera::getFrame() {
+Frame *VirtualCamera::getFrame() {
   Frame *frame = new Frame();
-	frame->data = data;
-    frame->size = bufferSize;
-    frame->number = frameNr++;
-	frame->width = Config::cameraWidth;
-	frame->height = Config::cameraHeight;
-	frame->timestamp = Util::millitime();
-    frame->fresh = true;
+  frame->data = data;
+  frame->size = bufferSize;
+  frame->number = frameNr++;
+  frame->width = Config::cameraWidth;
+  frame->height = Config::cameraHeight;
+  frame->timestamp = Util::millitime();
+  frame->fresh = true;
 
-	return frame;
+  return frame;
 }

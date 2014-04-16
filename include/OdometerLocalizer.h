@@ -6,13 +6,15 @@
 class OdometerLocalizer : public Localizer {
 
 public:
-    OdometerLocalizer();
+  OdometerLocalizer();
 
-	void move(float velocityX, float velocityY, float omega, float dt);
-	std::string getJSON() { return json; }
+  void move(float velocityX, float velocityY, float omega, float dt);
+  std::string getJSON() {
+    return json;
+  }
 
 private:
-	std::string json;
+  std::string json;
 
 };
 

@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-Coilgun::Coilgun(Communication* com) : com(com), lastKickTime(0.0), lastChargeRequestTime(0.0) {
+Coilgun::Coilgun(Communication *com) : com(com), lastKickTime(0.0), lastChargeRequestTime(0.0) {
 
 };
 
@@ -14,27 +14,26 @@ Coilgun::~Coilgun() {
 }
 
 void Coilgun::charge() {
-	com->send("charge");
+  com->send("charge");
 
-	lastChargeRequestTime = Util::millitime();
+  lastChargeRequestTime = Util::millitime();
 }
 
 void Coilgun::discharge() {
-	com->send("discharge");
+  com->send("discharge");
 }
 
 void Coilgun::kick(int microseconds) {
-	if (lastKickTime == 0.0 || Util::duration(lastKickTime) >= Config::minKickInterval) {
-		std::cout << "! Kicking: " << microseconds << std::endl;
+  if (lastKickTime == 0.0 || Util::duration(lastKickTime) >= Config::minKickInterval) {
+    std::cout << "! Kicking: " << microseconds << std::endl;
 
-		com->send("kick:" + Util::toString(microseconds));
-	} else {
-		std::cout << "! Another kick requested too soon" << std::endl;
-	}
+    com->send("kick:" + Util::toString(microseconds));
+  } else
+    std::cout << "! Another kick requested too soon" << std::endl;
 }
 
 void Coilgun::step(float dt) {
-	/*if (Util::duration(lastChargeRequestTime) >= 1.0) {
-		charge();
-	}*/
+  /*if (Util::duration(lastChargeRequestTime) >= 1.0) {
+  	charge();
+  }*/
 }

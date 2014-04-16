@@ -7,22 +7,22 @@
 class Command {
 
 public:
-	class Listener {
+  class Listener {
 
-	public:
-		virtual bool handleCommand(const Command& cmd) = 0;
+  public:
+    virtual bool handleCommand(const Command &cmd) = 0;
 
-	};
+  };
 
-	typedef std::vector<std::string> Parameters;
+  typedef std::vector<std::string> Parameters;
 
-    Command(std::string name, Parameters parameters) : name(name), parameters(parameters) {};
+  Command(std::string name, Parameters parameters) : name(name), parameters(parameters) {};
 
-    static bool isValid(std::string input);
-    static Command parse(std::string input);
+  static bool isValid(std::string input);
+  static Command parse(std::string input);
 
-    std::string name;
-    Parameters parameters;
+  std::string name;
+  Parameters parameters;
 
 };
 

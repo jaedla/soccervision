@@ -9,97 +9,92 @@ Dribbler::Dribbler(int id) : Wheel(id), ballDetected(false), everDetectedBall(fa
 };
 
 void Dribbler::prime() {
-	setTargetSpeed(-Config::robotDribblerSpeed);
-	//setTargetSpeed(-Config::robotDribblerSpeed / 2);
+  setTargetSpeed(-Config::robotDribblerSpeed);
+  //setTargetSpeed(-Config::robotDribblerSpeed / 2);
 
-	stopRequestedTime = -1.0;
+  stopRequestedTime = -1.0;
 }
 
 void Dribbler::start() {
-	setTargetSpeed(-Config::robotDribblerSpeed);
+  setTargetSpeed(-Config::robotDribblerSpeed);
 
-	stopRequestedTime = -1.0;
+  stopRequestedTime = -1.0;
 }
 
 void Dribbler::stop() {
-	if (stopRequestedTime == -1.0) {
-		stopRequestedTime = Util::millitime();
-	}
+  if (stopRequestedTime == -1.0)
+    stopRequestedTime = Util::millitime();
 }
 
 void Dribbler::onKick() {
-	ballLostTime = Config::dribblerBallLostThreshold; // make it large so the ball is not faked after kick
-	ballDetected = false;
+  ballLostTime = Config::dribblerBallLostThreshold; // make it large so the ball is not faked after kick
+  ballDetected = false;
 }
 
 void Dribbler::step(float dt) {
-	Wheel::step(dt);
+  Wheel::step(dt);
 
-	double delayStopPeriod = 0.1;
+  double delayStopPeriod = 0.1;
 
-	if (stopRequestedTime != -1.0 && Util::duration(stopRequestedTime) >= delayStopPeriod) {
-		setTargetOmega(0);
-		//setTargetOmega(-Config::robotDribblerSpeed / 5);
+  if (stopRequestedTime != -1.0 && Util::duration(stopRequestedTime) >= delayStopPeriod) {
+    setTargetOmega(0);
+    //setTargetOmega(-Config::robotDribblerSpeed / 5);
 
-		stopRequestedTime = -1.0;
-	}
+    stopRequestedTime = -1.0;
+  }
 
-	if (ballDetected) {
-		ballInDribblerTime += dt;
+  if (ballDetected) {
+    ballInDribblerTime += dt;
 
-		if (ballInDribblerTime >= Config::ballInDribblerThreshold) {
-			ballLostTime = -1.0f;
-		}
-	} else {
-		if (everDetectedBall) {
-			if (ballLostTime == -1.0f) {
-				ballLostTime = dt;
-			} else {
-				ballLostTime += dt;
-			}
-		}
+    if (ballInDribblerTime >= Config::ballInDribblerThreshold)
+      ballLostTime = -1.0f;
+  } else {
+    if (everDetectedBall) {
+      if (ballLostTime == -1.0f)
+        ballLostTime = dt;
+      else
+        ballLostTime += dt;
+    }
 
-		if (ballLostTime >= Config::dribblerBallLostThreshold) {
-			ballInDribblerTime = 0.0f;
-		}
-	}
+    if (ballLostTime >= Config::dribblerBallLostThreshold)
+      ballInDribblerTime = 0.0f;
+  }
 
-	//std::cout << "ballInDribblerTime: " << ballInDribblerTime << ", ballLostTime: " << ballLostTime << ", got ball: " << (gotBall() ? "yes" : "no") << std::endl;
+  //std::cout << "ballInDribblerTime: " << ballInDribblerTime << ", ballLostTime: " << ballLostTime << ", got ball: " << (gotBall() ? "yes" : "no") << std::endl;
 }
 
 bool Dribbler::gotBall(bool definitive) const {
-	if (!definitive && !ballDetected && ballLostTime != -1.0f && ballLostTime < Config::dribblerBallLostThreshold) {
-		//std::cout << "! Faking got ball, actually lost for: " << ballLostTime << std::endl;
+  if (!definitive && !ballDetected && ballLostTime != -1.0f && ballLostTime < Config::dribblerBallLostThreshold) {
+    //std::cout << "! Faking got ball, actually lost for: " << ballLostTime << std::endl;
 
-		return true;
-	}
+    return true;
+  }
 
-	return ballDetected;
+  return ballDetected;
 
-	/*if (ballDetected && ballInDribblerTime >= Config::ballInDribblerThreshold) {
-		return true;
-	}
+  /*if (ballDetected && ballInDribblerTime >= Config::ballInDribblerThreshold) {
+  	return true;
+  }
 
-	if (!ballDetected && ballLostTime <= Config::dribblerBallLostThreshold) {
-		return true;
-	}
+  if (!ballDetected && ballLostTime <= Config::dribblerBallLostThreshold) {
+  	return true;
+  }
 
-	return false;*/
+  return false;*/
 }
 
-bool Dribbler::handleCommand(const Command& cmd) {
-	Wheel::handleCommand(cmd);
+bool Dribbler::handleCommand(const Command &cmd) {
+  Wheel::handleCommand(cmd);
 
-	if (cmd.name == "ball") {
-		if (cmd.parameters[0] == "1") {
-			ballDetected = true;
-			everDetectedBall = true;
-		} else {
-			ballDetected = false;
-		}
+  if (cmd.name == "ball") {
+    if (cmd.parameters[0] == "1") {
+      ballDetected = true;
+      everDetectedBall = true;
+    } else
+      ballDetected = false;
 
-		return true;
-	}
+    return true;
+  }
 
-	return false;
+  return false;
 }

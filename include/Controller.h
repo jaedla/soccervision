@@ -15,24 +15,34 @@ class Command;
 class Controller : public Communication::Listener, public Command::Listener {
 
 public:
-    Controller(Robot* robot, Communication* com) : robot(robot), com(com) {}
-	virtual ~Controller() {}
-	virtual void onEnter() {}
-	virtual void onExit() {}
-	virtual bool handleRequest(std::string request) { return false; }
-	virtual bool handleCommand(const Command& cmd) { return false; }
-	virtual void handleCommunicationMessage(std::string message) {}
-	virtual Side getTargetSide() { return Side::UNKNOWN; }
-	virtual bool isPlaying() { return false; }
-	virtual void step(float dt, Vision::Results* visionResults) = 0;
-	virtual std::string getJSON() { return "null"; }
+  Controller(Robot *robot, Communication *com) : robot(robot), com(com) {}
+  virtual ~Controller() {}
+  virtual void onEnter() {}
+  virtual void onExit() {}
+  virtual bool handleRequest(std::string request) {
+    return false;
+  }
+  virtual bool handleCommand(const Command &cmd) {
+    return false;
+  }
+  virtual void handleCommunicationMessage(std::string message) {}
+  virtual Side getTargetSide() {
+    return Side::UNKNOWN;
+  }
+  virtual bool isPlaying() {
+    return false;
+  }
+  virtual void step(float dt, Vision::Results *visionResults) = 0;
+  virtual std::string getJSON() {
+    return "null";
+  }
 
 protected:
-    Robot* robot;
-	Communication* com;
+  Robot *robot;
+  Communication *com;
 
 };
 
-typedef std::map<std::string, Controller*> ControllerMap;
+typedef std::map<std::string, Controller *> ControllerMap;
 
 #endif // CONTROLLER_H

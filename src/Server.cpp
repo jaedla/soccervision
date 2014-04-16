@@ -3,148 +3,146 @@
 #include <iostream>
 
 Server::Server() : ws(NULL) {
-	ws = new WebSocketServer();
-	ws->addListener(this);
+  ws = new WebSocketServer();
+  ws->addListener(this);
 
-	port = 8000;
-	clientCounter = 0;
+  port = 8000;
+  clientCounter = 0;
 }
 
 Server::~Server() {
-	std::cout << "! Closing web socket server.. ";
+  std::cout << "! Closing web socket server.. ";
 
-	close();
-	join();
+  close();
+  join();
 
-	std::cout << "done!" << std::endl;
+  std::cout << "done!" << std::endl;
 
-	Client* client;
+  Client *client;
 
-	for (ClientsIt it = clients.begin(); it != clients.end(); it++) {
-		client = it->second;
+  for (ClientsIt it = clients.begin(); it != clients.end(); it++) {
+    client = it->second;
 
-		delete client;
-	}
+    delete client;
+  }
 
-	clients.clear();
+  clients.clear();
 
-	Message* message;
+  Message *message;
 
-	while (messages.size() > 0) {
-		message = messages.front();
-		messages.pop();
+  while (messages.size() > 0) {
+    message = messages.front();
+    messages.pop();
 
-		delete message;
-	}
+    delete message;
+  }
 
-	if (ws != NULL) delete ws; ws = NULL;
+  if (ws != NULL) delete ws;
+  ws = NULL;
 }
 
 void Server::Message::respond(std::string response) {
-	server->send(client->connection, response);
+  server->send(client->connection, response);
 }
 
 void Server::setPort(int port) {
-	this->port = port;
+  this->port = port;
 }
 
 void Server::broadcast(std::string message) {
-	ws->broadcast(message);
+  ws->broadcast(message);
 }
 
 void Server::close() {
-	if (ws != NULL) {
-		ws->stop();
-	}
+  if (ws != NULL)
+    ws->stop();
 }
 
 bool Server::gotMessages() {
-	boost::mutex::scoped_lock lock(messagesMutex);
+  boost::mutex::scoped_lock lock(messagesMutex);
 
-	return messages.size() > 0;
+  return messages.size() > 0;
 }
 
-Server::Message* Server::dequeueMessage() {
-	boost::mutex::scoped_lock lock(messagesMutex);
-	
-	if (messages.size() == 0) {
-		return NULL;
-	}
+Server::Message *Server::dequeueMessage() {
+  boost::mutex::scoped_lock lock(messagesMutex);
 
-	Message* message = messages.front();
+  if (messages.size() == 0)
+    return NULL;
 
-	messages.pop();
+  Message *message = messages.front();
 
-	return message;
+  messages.pop();
+
+  return message;
 }
 
-Server::Client* Server::getClientByConnection(websocketpp::connection_hdl connection) {
-	int id;
-	Client* client;
+Server::Client *Server::getClientByConnection(websocketpp::connection_hdl connection) {
+  int id;
+  Client *client;
 
-	for (ClientsIt it = clients.begin(); it != clients.end(); it++) {
-		id = it->first;
-		client = it->second;
+  for (ClientsIt it = clients.begin(); it != clients.end(); it++) {
+    id = it->first;
+    client = it->second;
 
-		if (client->connection.lock() == connection.lock()) {
-			return client;
-		}
-	}
+    if (client->connection.lock() == connection.lock())
+      return client;
+  }
 
-	return NULL;
+  return NULL;
 }
 
-void* Server::run() {
-	std::cout << "! Starting web socket server on port " << port << std::endl;
+void *Server::run() {
+  std::cout << "! Starting web socket server on port " << port << std::endl;
 
-	try {
-		ws->listen(port);
-	} catch (std::exception& e) {
-		std::cout << "- Web socket server error: " << e.what() << std::endl;
-	}
+  try {
+    ws->listen(port);
+  } catch (std::exception &e) {
+    std::cout << "- Web socket server error: " << e.what() << std::endl;
+  }
 
-	return NULL;
+  return NULL;
 }
 
 void Server::onSocketOpen(websocketpp::connection_hdl connection) {
-	int id = clientCounter++;
+  int id = clientCounter++;
 
-	clients[id] = new Client(id, connection);
+  clients[id] = new Client(id, connection);
 
-	std::cout << "! Server client #" << id << " connected" << std::endl;
+  std::cout << "! Server client #" << id << " connected" << std::endl;
 }
 
 void Server::onSocketClose(websocketpp::connection_hdl connection) {
-	int id;
-	Client* client;
+  int id;
+  Client *client;
 
-	for (ClientsIt it = clients.begin(); it != clients.end(); it++) {
-		id = it->first;
-		client = it->second;
+  for (ClientsIt it = clients.begin(); it != clients.end(); it++) {
+    id = it->first;
+    client = it->second;
 
-		if (client->connection.lock() == connection.lock()) {
-			std::cout << "! Server client #" << id << " disconnected" << std::endl;
+    if (client->connection.lock() == connection.lock()) {
+      std::cout << "! Server client #" << id << " disconnected" << std::endl;
 
-			clients.erase(it);
+      clients.erase(it);
 
-			return;
-		}
-	}
+      return;
+    }
+  }
 
-	std::cout << "- Unknown server client disconnected" << std::endl;
+  std::cout << "- Unknown server client disconnected" << std::endl;
 }
 
 void Server::onSocketMessage(std::string message, websocketpp::connection_hdl connection, websocketpp::server<websocketpp::config::asio>::message_ptr msg) {
-	Client* client = getClientByConnection(connection);
+  Client *client = getClientByConnection(connection);
 
-	if (client == NULL) {
-		std::cout << "- Unknown client sent message: " << message << std::endl;
+  if (client == NULL) {
+    std::cout << "- Unknown client sent message: " << message << std::endl;
 
-		return;
-	}
+    return;
+  }
 
-	boost::mutex::scoped_lock lock(messagesMutex);
-	messages.push(new Message(client, this, message));
-	
-	//std::cout << "! Server client #" << client->id << " sent message: " << message << std::endl;
+  boost::mutex::scoped_lock lock(messagesMutex);
+  messages.push(new Message(client, this, message));
+
+  //std::cout << "! Server client #" << client->id << " sent message: " << message << std::endl;
 }

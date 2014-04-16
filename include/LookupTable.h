@@ -10,17 +10,17 @@ typedef std::map<float, float>::iterator LookupMapIt;
 class LookupTable {
 
 public:
-    inline void addValue(float key, float value) {
-        map[key] = value;
-    }
+  inline void addValue(float key, float value) {
+    map[key] = value;
+  }
 
-    bool load(std::string filename, float valueDiff = 0.0f);
+  bool load(std::string filename, float valueDiff = 0.0f);
 
-    float getValue(float search);
-	float getInverseValue(float search);
+  float getValue(float search);
+  float getInverseValue(float search);
 
 private:
-    LookupMap map;
+  LookupMap map;
 
 };
 
