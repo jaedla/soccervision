@@ -23,7 +23,7 @@ namespace Config {
 
 	// camera resolution
 	const int cameraWidth = 1280;
-	const int cameraHeight = 1024;
+	const int cameraHeight = 720;
 	const float cameraFovDistance = 5.0f;
 	//const float cameraFovAngle = 56.0f * 3.14f / 180.0f;
 	const float cameraFovAngle = 40.0f * 3.14f / 180.0f;

@@ -4,11 +4,9 @@ OUT = out
 SOURCES = $(SRC_SOURCES:%.cpp=src/%.cpp)
 SOURCES += $(JPEG_SOURCES)
 OBJECTS = $(SOURCES:%.cpp=$(OUT)/%.o)
-OPENCV_LIBS = opencv_contrib opencv_legacy opencv_objdetect opencv_calib3d opencv_features2d opencv_video opencv_highgui opencv_ml opencv_imgproc opencv_flann opencv_core
-LIBS = $(OPENCV_LIBS:%=-l%)
 
 $(OUT)/Soccerbot: $(OBJECTS)
-	clang++ -fcolor-diagnostics -o $(OUT)/soccervision $(OBJECTS) lib/libyuv/trunk/out/Debug/libyuv.a $(LIBS) -lboost_system -lpthread
+	clang++ -fcolor-diagnostics -o $(OUT)/soccervision $(OBJECTS) lib/libyuv/trunk/out/Debug/libyuv.a -lboost_system -lpthread
 
 $(OBJECTS): $(OUT)/%.o : %.cpp
 	@mkdir -p $(dir $@)
