@@ -19,7 +19,10 @@ public:
 private:
   void init();
   void initFormat();
-  void initMmap();
+  void requestMmapBuffers();
+  void mapBuffers();
+  void queueBuffers();
+  void queueBuffer(uint8_t index);
   int fd;
   bool acquisitioning;
   uint32_t width;

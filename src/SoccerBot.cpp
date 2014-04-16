@@ -472,6 +472,7 @@ void SoccerBot::setupCameras() {
   rearCamera = virtualRearCamera;
   V4lCamera v4lCamera;
   v4lCamera.open();
+  v4lCamera.startAcquisition();
   v4lCamera.getFrame();
 	/*
 	ximeaFrontCamera = new XimeaCamera();
