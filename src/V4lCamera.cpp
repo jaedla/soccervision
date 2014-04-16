@@ -59,6 +59,7 @@ V4lCamera::Frame* V4lCamera::getFrame() {
   frame.width = width;
   frame.height = height;
   frame.fresh = true;
+  printf("Returning frame\n");
   return &frame;
 }
 

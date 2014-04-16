@@ -16,7 +16,7 @@ ProcessThread::ProcessThread(BaseCamera* camera, Blobber* blobber, Vision* visio
 	dataY = new unsigned char[width * height];
     dataU = new unsigned char[(width / 2) * (height / 2)];
     dataV = new unsigned char[(width / 2) * (height / 2)];
-	dataYUYV = new unsigned char[width * height * 3];
+	//dataYUYV = new unsigned char[width * height * 3];
 	classification = new unsigned char[width * height * 3];
 	argb = new unsigned char[width * height * 4];
 	rgb = new unsigned char[width * height * 3];
@@ -34,7 +34,7 @@ ProcessThread::~ProcessThread() {
 	delete dataY;
 	delete dataU;
 	delete dataV;
-	delete dataYUYV;
+	//delete dataYUYV;
 	delete classification;
 	delete argb;
 	delete rgb;
@@ -70,6 +70,7 @@ void* ProcessThread::run() {
 	done = false;
 	
 	//Util::timerStart();
+  /*
 	ImageProcessor::bayerRGGBToI420(
 		frame,
 		dataY, dataU, dataV,
@@ -83,9 +84,11 @@ void* ProcessThread::run() {
 		dataYUYV,
 		width, height
 	);
+  */
 	//std::cout << "  - I420 > YUYV: " << Util::timerEnd() << std::endl;
 
 	//Util::timerStart();
+  dataYUYV = frame;
 	blobber->processFrame((Blobber::Pixel*)dataYUYV);
 	//std::cout << "  - Process:     " << Util::timerEnd() << " (" << blobber->getBlobCount("ball") << " ball blobs)" << std::endl;
 
@@ -137,7 +140,7 @@ bool ProcessThread::fetchFrame() {
 		
 		double timeTaken = Util::duration(startTime);
 
-		if (timeTaken > 0.03) {
+		if (false) { //timeTaken > 0.03) {
 			std::cout << "- Fetching camera #" << camera->getSerial() << " frame took: " << timeTaken << std::endl;
 
 			faulty = true;
