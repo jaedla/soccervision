@@ -31,13 +31,13 @@ ProcessThread::~ProcessThread() {
 		visionResult = NULL;
 	}
 
-	delete dataY;
-	delete dataU;
-	delete dataV;
+	delete[] dataY;
+	delete[] dataU;
+	delete[] dataV;
 	//delete dataYUYV;
-	delete classification;
-	delete argb;
-	delete rgb;
+	delete[] classification;
+	delete[] argb;
+	delete[] rgb;
 }
 
 void* ProcessThread::run() {

@@ -66,7 +66,7 @@ SoccerBot::~SoccerBot() {
 	if (frontBlobber != NULL) delete frontBlobber; frontBlobber = NULL;
 	if (rearBlobber != NULL) delete rearBlobber; rearBlobber = NULL;
 	if (com != NULL) delete com; com = NULL;
-	if (jpegBuffer != NULL) delete jpegBuffer; jpegBuffer = NULL;
+	if (jpegBuffer != NULL) delete[] jpegBuffer; jpegBuffer = NULL;
 
 	frontCamera = NULL;
 	rearCamera = NULL;

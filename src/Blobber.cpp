@@ -926,7 +926,7 @@ bool Blobber::disable(unsigned opt) {
 }
 
 void Blobber::close() {
-    if(map) delete(map);
+    if (map) delete[] map;
     map = NULL;
 }
 
