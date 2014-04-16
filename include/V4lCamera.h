@@ -17,7 +17,8 @@ public:
 	virtual void stopAcquisition();
 	virtual void close();
 private:
-  cv::VideoCapture *capture;
+  void init();
+  int fd;
   bool acquisitioning;
 };
 
