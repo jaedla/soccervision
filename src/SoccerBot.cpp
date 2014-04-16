@@ -22,6 +22,7 @@
 
 SoccerBot::SoccerBot() :
 	frontCamera(NULL), rearCamera(NULL),
+  laptopCamera(NULL),
 	//ximeaFrontCamera(NULL), ximeaRearCamera(NULL),
 	virtualFrontCamera(NULL), virtualRearCamera(NULL),
 	frontBlobber(NULL), rearBlobber(NULL),
@@ -51,6 +52,7 @@ SoccerBot::~SoccerBot() {
 	if (robot != NULL) delete robot; robot = NULL;
 	//if (ximeaFrontCamera != NULL) delete ximeaFrontCamera; ximeaFrontCamera = NULL;
 	//if (ximeaRearCamera != NULL) delete ximeaRearCamera; ximeaRearCamera = NULL;
+  if (laptopCamera != NULL) delete laptopCamera; laptopCamera = NULL;
 	if (virtualFrontCamera != NULL) delete virtualFrontCamera; virtualFrontCamera = NULL;
 	if (virtualRearCamera != NULL) delete virtualRearCamera; virtualRearCamera = NULL;
 	if (frontCameraTranslator != NULL) delete frontCameraTranslator; frontCameraTranslator = NULL;
@@ -468,41 +470,12 @@ void SoccerBot::setupCameras() {
 	std::cout << "! Setting up cameras" << std::endl;
 	virtualFrontCamera = new VirtualCamera();
 	virtualRearCamera = new VirtualCamera();
-  frontCamera = virtualFrontCamera;
+
+  laptopCamera = new V4lCamera();
+  laptopCamera->open();
+
+  frontCamera = laptopCamera;
   rearCamera = virtualRearCamera;
-  V4lCamera v4lCamera;
-  v4lCamera.open();
-  v4lCamera.startAcquisition();
-  v4lCamera.getFrame();
-	/*
-	ximeaFrontCamera = new XimeaCamera();
-	ximeaRearCamera = new XimeaCamera();
-
-	ximeaFrontCamera->open(Config::frontCameraSerial);
-	ximeaRearCamera->open(Config::rearCameraSerial);
-
-	if (ximeaFrontCamera->isOpened()) {
-		setupXimeaCamera("Front", ximeaFrontCamera);
-	} else {
-		std::cout << "- Opening front camera failed" << std::endl;
-	}
-
-	if (ximeaRearCamera->isOpened()) {
-		setupXimeaCamera("Rear", ximeaRearCamera);
-	} else {
-		std::cout << "- Opening rear camera failed" << std::endl;
-	}
-
-	if (!ximeaFrontCamera->isOpened() && !ximeaRearCamera->isOpened()) {
-		std::cout << "! Neither of the cameras could be opened" << std::endl;
-	}
-
-	virtualFrontCamera = new VirtualCamera();
-	virtualRearCamera = new VirtualCamera();
-
-	frontCamera = ximeaFrontCamera;
-	rearCamera = ximeaRearCamera;
-	*/
 }
 
 void SoccerBot::setupRobot() {
@@ -705,10 +678,10 @@ void SoccerBot::handleStreamChoiceCommand(Command::Parameters parameters) {
 	if (requestedStream == "") {
 		std::cout << "! Switching to live stream" << std::endl;
 
-		//frontProcessor->camera = ximeaFrontCamera;
+		frontProcessor->camera = laptopCamera;
 		//rearProcessor->camera = ximeaRearCamera;
 
-		//frontCamera = ximeaFrontCamera;
+		frontCamera = laptopCamera;
 		//rearCamera = ximeaRearCamera;
 
 		activeStreamName = requestedStream;
