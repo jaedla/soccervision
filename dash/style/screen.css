@@ -155,7 +155,7 @@ A:hover {
 }
 #camera-view {
 	width: 1280px;
-	height: 512px;
+	height: 360px;
 	margin: -256px 0 0 -660px;
 	padding: 0;
 	overflow: visible;
@@ -166,7 +166,7 @@ A:hover {
 	left: 0;
 	top: 0;
 	width: 640px;
-	height: 512px;
+	height: 360px;
 	z-index: 1;
 }
 #frame-classification {
@@ -174,7 +174,7 @@ A:hover {
 	left: 640px;
 	top: 0;
 	width: 640px;
-	height: 512px;
+	height: 360px;
 	z-index: 1;
 }
 #frame-canvas {
@@ -182,7 +182,7 @@ A:hover {
 	left: 0;
 	top: 0;
 	width: 1280px;
-	height: 512px;
+	height: 360px;
 	z-index: 2;
 }
 #camera-view-controls {
@@ -192,7 +192,7 @@ A:hover {
 }
 #blobber-view {
 	width: 1280px;
-	height: 512px;
+	height: 360px;
 	margin: -256px 0 0 -665px;
 	padding: 0;
 	overflow: hidden;
@@ -200,7 +200,7 @@ A:hover {
 }
 #blobber-canvas {
 	width: 1280px;
-	height: 512px;
+	height: 360px;
 }
 #current-state-index {
 	width: 100px;
