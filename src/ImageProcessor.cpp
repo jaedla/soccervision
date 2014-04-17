@@ -106,30 +106,28 @@ ImageProcessor::YUYVRange ImageProcessor::extractColorRange(unsigned char *dataY
 
   for (int x = -brushRadius; x < brushRadius; x++) {
     int height = (int)::sqrt(brushRadius * brushRadius - x * x);
+    int coordX = centerX + x;
+    if (coordX < 0 || coordX >= imageWidth)
+      continue;
 
     for (int y = -height; y < height; y++) {
-      if (
-        x + centerX < 0
-        || x + centerX > imageWidth - 1
-        || y + centerY < 0
-        || y + centerY > imageHeight - 1
-      )
+      int coordY = centerY + y;
+      if (coordY < 0 || coordY >= imageHeight)
         continue;
 
-      YUYV *pixel = getYuyvPixelAt(dataYUYV, imageWidth, imageHeight, x + centerX, y + centerY);
+      YUYV *pixel = getYuyvPixelAt(dataYUYV, imageWidth, imageHeight, coordX, coordY);
 
       if (pixel != NULL) {
-        Y = (pixel->y1 + pixel->y2) / 2;
+        Y = pixel->y1;
         U = pixel->u;
         V = pixel->v;
-
         delete pixel;
 
         yValues.push_back((float)Y);
         uValues.push_back((float)U);
         vValues.push_back((float)V);
       } else
-        std::cout << "- Didn't get pixel at " << (x + centerX) << "x" << (y + centerY) << std::endl;
+        std::cout << "- Didn't get pixel at " << coordX << "x" << coordY << std::endl;
     }
   }
 
