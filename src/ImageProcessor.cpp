@@ -79,7 +79,7 @@ bool ImageProcessor::rgbToJpeg(unsigned char *input, unsigned char *output, int 
   return jpge::compress_image_to_jpeg_file_in_memory(output, bufferSize, width, height, channels, input);
 }
 
-ImageProcessor::YUYV *ImageProcessor::getYuyvPixelAt(unsigned char *dataY, unsigned char *dataU, unsigned char *dataV, int width, int height, int x, int y) {
+ImageProcessor::YUYV *ImageProcessor::getYuyvPixelAt(unsigned char *dataYUYV, int width, int height, int x, int y) {
   if (
     x < 0
     || x > width - 1
@@ -88,26 +88,17 @@ ImageProcessor::YUYV *ImageProcessor::getYuyvPixelAt(unsigned char *dataY, unsig
   )
     return NULL;
 
+  unsigned yOffset = (y * width + x) * 2;
+  unsigned char *yuyv = dataYUYV + (yOffset & ~3u);
   YUYV *pixel = new YUYV();
-
-  int strideY = width;
-  int strideU = (width + 1) / 2;
-  int strideV = (width + 1) / 2;
-
-  int yPos = strideY * y + x;
-  int uvPos = strideU * (y / 2) + (x / 2);
-
-  int stride = width * 1;
-
-  pixel->y1 = dataY[yPos];
-  pixel->u = dataU[uvPos];
-  pixel->y2 = dataY[yPos];
-  pixel->v = dataV[uvPos];
+  pixel->y1 = pixel->y2 = dataYUYV[yOffset];
+  pixel->u = yuyv[1];
+  pixel->v = yuyv[3];
 
   return pixel;
 }
 
-ImageProcessor::YUYVRange ImageProcessor::extractColorRange(unsigned char *dataY, unsigned char *dataU, unsigned char *dataV, int imageWidth, int imageHeight, int centerX, int centerY, int brushRadius, float stdDev) {
+ImageProcessor::YUYVRange ImageProcessor::extractColorRange(unsigned char *dataYUYV, int imageWidth, int imageHeight, int centerX, int centerY, int brushRadius, float stdDev) {
   int Y, U, V;
   std::vector<float> yValues;
   std::vector<float> uValues;
@@ -125,7 +116,7 @@ ImageProcessor::YUYVRange ImageProcessor::extractColorRange(unsigned char *dataY
       )
         continue;
 
-      YUYV *pixel = getYuyvPixelAt(dataY, dataU, dataV, imageWidth, imageHeight, x + centerX, y + centerY);
+      YUYV *pixel = getYuyvPixelAt(dataYUYV, imageWidth, imageHeight, x + centerX, y + centerY);
 
       if (pixel != NULL) {
         Y = (pixel->y1 + pixel->y2) / 2;

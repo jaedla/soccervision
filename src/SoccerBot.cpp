@@ -719,11 +719,9 @@ void SoccerBot::handleBlobberThresholdCommand(Command::Parameters parameters) {
   int brushRadius = Util::toInt(parameters[4]);
   float stdDev = Util::toFloat(parameters[5]);
 
-  unsigned char *dataY = debugCameraDir == Dir::FRONT ? frontProcessor->dataY : rearProcessor->dataY;
-  unsigned char *dataU = debugCameraDir == Dir::FRONT ? frontProcessor->dataU : rearProcessor->dataU;
-  unsigned char *dataV = debugCameraDir == Dir::FRONT ? frontProcessor->dataV : rearProcessor->dataV;
+  unsigned char *dataYUYV = debugCameraDir == Dir::FRONT ? frontProcessor->dataYUYV : rearProcessor->dataYUYV;
 
-  ImageProcessor::YUYVRange yuyvRange = ImageProcessor::extractColorRange(dataY, dataU, dataV, Config::cameraWidth, Config::cameraHeight, centerX, centerY, brushRadius, stdDev);
+  ImageProcessor::YUYVRange yuyvRange = ImageProcessor::extractColorRange(dataYUYV, Config::cameraWidth, Config::cameraHeight, centerX, centerY, brushRadius, stdDev);
 
   frontBlobber->getColor(selectedColorName)->addThreshold(
     yuyvRange.minY, yuyvRange.maxY,
