@@ -1,3 +1,0 @@
-Builders switching from make to ninja will clobber on this.
-Need to clobber everything due to an IDL change in r154579 (blink)
-Clobber to get rid of obselete test plugin after r248358

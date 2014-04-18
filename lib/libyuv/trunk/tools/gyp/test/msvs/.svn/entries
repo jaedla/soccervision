@@ -1,61 +1,0 @@
-10
-
-dir
-1880
-http://gyp.googlecode.com/svn/trunk/test/msvs
-http://gyp.googlecode.com/svn
-
-
-
-2014-02-27T21:55:20.936974Z
-1859
-scottmg@chromium.org
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-78cadc50-ecff-11dd-a971-7dbc132099af
-
-missing_sources
-dir
-
-uldi2010
-dir
-
-config_attrs
-dir
-
-precompiled
-dir
-
-props
-dir
-
-buildevents
-dir
-
-shared_output
-dir
-
-filters
-dir
-
-external_builder
-dir
-
-list_excluded
-dir
-
-express
-dir
-
