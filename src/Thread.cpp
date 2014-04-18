@@ -1,4 +1,5 @@
 #include "Thread.h"
+#include <stdio.h>
 
 static void *runThread(void *arg) {
   return ((Thread *)arg)->run();
@@ -10,8 +11,8 @@ Thread::~Thread() {
   if (running) {
     if (!detached)
       pthread_detach(handle);
-
-    pthread_cancel(handle);
+    printf("Warning: pthread_cancel not implemented\n");
+    //pthread_cancel(handle);
   }
 }
 

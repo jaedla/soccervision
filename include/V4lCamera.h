@@ -2,7 +2,6 @@
 #define V4LCAMERA_H
 
 #include "BaseCamera.h"
-#include <opencv2/opencv.hpp>
 
 class V4lCamera : public BaseCamera {
 public:

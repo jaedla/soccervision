@@ -1,0 +1,24 @@
+#!/bin/bash
+
+ndk=${src}/android-ndk-r9d
+ndk_clang=${ndk}/toolchains/llvm-3.4/prebuilt/linux-x86_64/bin
+ndk_gcc=${ndk}/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64
+ndk_system=${ndk}/platforms/android-19/arch-arm
+ndk_libstdcpp=${ndk}/sources/cxx-stl/gnu-libstdc++/4.6
+common_flags="-gcc-toolchain ${ndk_gcc} -target armv5te-none-linux-androideabi --sysroot=${ndk_system}"
+appended_flags=
+
+if [ ${1} = compile ] ; then
+  flags="${common_flags} -march=armv5te -mtune=xscale -msoft-float -mthumb -I${ndk_system}/usr/include -I${ndk_libstdcpp}/include -I${ndk_libstdcpp}/libs/armeabi/include -I${ndk_libstdcpp}/include/backward"
+elif [ ${1} = link ] ; then
+  flags="${common_flags} -Wl,-rpath-link=${ndk_system}/usr/lib"
+  appended_flags="${ndk_libstdcpp}/libs/armeabi/libgnustl_static.a -lgcc -lc -lm"
+else
+  echo "${0}: specify compile or link"
+  exit 1
+fi
+
+shift
+
+exec ${ndk_clang}/clang++ ${flags} ${@} ${appended_flags}
+
