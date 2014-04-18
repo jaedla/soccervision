@@ -6,10 +6,11 @@ obj=test.o
 bin=test
 
 ndk=${src}/android-ndk-r9d
-ndk_bin=${ndk}/toolchains/arm-linux-androideabi-4.6/prebuilt/linux-x86_64/bin
+ndk_clang=${ndk}/toolchains/llvm-3.4/prebuilt/linux-x86_64/bin
+ndk_gcc=${ndk}/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64
 ndk_system=${ndk}/platforms/android-19/arch-arm
+common_flags="-gcc-toolchain ${ndk_gcc} -target armv5te-none-linux-androideabi"
 
-${ndk_bin}/arm-linux-androideabi-gcc -MMD -MP -MF ${dependencies} -fpic -ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes -march=armv5te -mtune=xscale -msoft-float -mthumb -Os -g -DNDEBUG -fomit-frame-pointer -fno-strict-aliasing -finline-limit=64 -Ijni -DANDROID -Wa,--noexecstack -Wformat -Werror=format-security -I${ndk_system}/usr/include -c ${source} -o ${obj}
-
-${ndk_bin}/arm-linux-androideabi-g++ -Wl,--gc-sections -Wl,-z,nocopyreloc --sysroot=${ndk_system} -Wl,-rpath-link=${ndk_system}/usr/lib -Wl,-rpath-link=./obj/local/armeabi ${obj} -lgcc -no-canonical-prefixes -Wl,--no-undefined -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now -lc -lm -o ${bin}
+${ndk_clang}/clang++ ${common_flags} -I${ndk_system}/usr/include -march=armv5te -mtune=xscale -msoft-float -mthumb -g -c ${source} -o ${obj}
+${ndk_clang}/clang++ ${common_flags} --sysroot=${ndk_system} -Wl,-rpath-link=${ndk_system}/usr/lib -o ${bin} ${obj} -lgcc -lc -lm
 
