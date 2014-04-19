@@ -7,25 +7,28 @@ libjpeg_objects = $(libjpeg_sources:%.cpp=$(out)/%.o)
 boost_sources = lib/boost/error_code.cpp
 boost_objects = $(boost_sources:%.cpp=$(out)/%.o)
 objects = $(soccervision_objects) $(libjpeg_objects) $(boost_objects)
+include_deps = $(objects:%.o=%.d)
 
 debug_flags = -g -fno-inline-functions -fno-inline -fno-omit-frame-pointer -fno-optimize-sibling-calls
 includes = include $(src)/boost_1_55_0 $(src)/websocketpp lib/armadillo/include $(src)/libyuv/trunk/include lib/jpeg
 include_flags = $(includes:%=-I%)
 
-$(OUT)/Soccerbot: $(objects)
+$(out)/soccervision: $(objects)
 	./android-compiler link -o $(out)/soccervision $(objects) $(src)/libyuv/trunk/out/Debug/libyuv.a $(src)/libyuv/trunk/out/Debug/libyuv_neon.a -lgcc -lc -lm
 
 $(soccervision_objects): $(out)/%.o : %.cpp
 	@mkdir -p $(dir $@)
-	./android-compiler compile $(debug_flags) $(include_flags) -std=c++11 -c $< -o $@
+	./android-compiler compile $(debug_flags) $(include_flags) -std=c++11 -MMD -c $< -o $@
 
 $(libjpeg_objects): $(out)/%.o : %.cpp
 	@mkdir -p $(dir $@)
-	./android-compiler compile $(debug_flags) -Ilib/jpeg -std=c++11 -c $< -o $@
+	./android-compiler compile $(debug_flags) -Ilib/jpeg -std=c++11 -MMD -c $< -o $@
 
 $(boost_objects): $(out)/%.o : %.cpp
 	@mkdir -p $(dir $@)
-	./android-compiler compile $(debug_flags) -O3 -finline-functions -Wno-inline -Wall -pthread -DBOOST_ALL_NO_LIB=1 -BOOST_SYSTEM_DYN_LINK=1 -DNDEBUG -I$(src)/boost_1_55_0 -c $< -o $@
+	./android-compiler compile $(debug_flags) -I$(src)/boost_1_55_0 -O3 -finline-functions -Wno-inline -Wall -pthread -DBOOST_ALL_NO_LIB=1 -BOOST_SYSTEM_DYN_LINK=1 -DNDEBUG -MMD -c $< -o $@
+
+-include $(include_deps)
 
 clean:
 	rm -rf $(out)
