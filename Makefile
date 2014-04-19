@@ -25,7 +25,7 @@ $(libjpeg_objects): $(out)/%.o : %.cpp
 
 $(boost_objects): $(out)/%.o : %.cpp
 	@mkdir -p $(dir $@)
-	./android-compiler compile -c -x c++ -O3 -finline-functions -Wno-inline -Wall -pthread -fPIC -DBOOST_ALL_NO_LIB=1 -BOOST_SYSTEM_DYN_LINK=1 -DNDEBUG -I$(src)/boost_1_55_0 $< -o $@
+	./android-compiler compile $(debug_flags) -O3 -finline-functions -Wno-inline -Wall -pthread -DBOOST_ALL_NO_LIB=1 -BOOST_SYSTEM_DYN_LINK=1 -DNDEBUG -I$(src)/boost_1_55_0 -c $< -o $@
 
 clean:
 	rm -rf $(out)
