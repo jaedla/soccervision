@@ -1,12 +1,56 @@
 #!/bin/bash
 
-make || exit
-echo "Uploading to Android"
+set -e
+android_home=/data/local/shell
+android_tmp=${android_home}/tmp
+dir=${android_home}/soccervision
+
+function echogreen {
+  echo -e "\e[1;32m${1}\e[0m"
+}
+
+function soccervision_exists {
+  if adb shell ls -d ${dir} | grep 'No such file or directory' >/dev/null; then
+    return 1
+  fi
+  return 0
+}
+
+function android_copy {
+  local src=$(readlink -f ${1})
+  local src_dirname=$(dirname ${src})
+  local src_basename=$(basename ${src})
+  local dst=${2}
+  local tmpdir=$(hometemp -d)
+  cd ${tmpdir}
+  tar -czf package.tar.gz -C ${src_dirname} ${src_basename} >/dev/null
+  adb push package.tar.gz ${android_tmp}/package.tar.gz
+  adb shell "cd ${dst}; tar -xzf ${android_tmp}/package.tar.gz" >/dev/null
+  adb shell rm ${android_tmp}/package.tar.gz
+  cd - >/dev/null
+  rm -r ${tmpdir}
+}
+
+function soccervision_copy {
+  echogreen 'Creating soccervision structure on Android...'
+  local tmpdir=$(hometemp -d)
+  mkdir ${tmpdir}/soccervision
+  cp -r config screenshots ${tmpdir}/soccervision
+  android_copy ${tmpdir}/soccervision ${android_home}
+  rm -r ${tmpdir}
+}
+
+function ensure_soccervision_exists {
+  if ! soccervision_exists ; then
+    soccervision_copy
+  fi
+}
+
+echogreen "Building..."
+make
+echogreen "Connecting to Android..."
 adb connect 192.168.10.2
-dir=/data/local/shell
-adb shell mkdir -p ${dir}/soccervision || exit
-adb push out/soccervision ${dir}/soccervision/soccervision || exit
-adb shell chmod 777 ${dir}/soccervision/soccervision || exit
-adb shell mkdir -p ${dir}/soccervision/screenshots || exit
-adb shell mkdir -p ${dir}/soccervision/config || exit
+ensure_soccervision_exists
+echogreen "Uploading soccervision..."
+android_copy out/soccervision ${android_home}/soccervision
 
