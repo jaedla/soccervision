@@ -1,0 +1,12 @@
+#!/bin/bash
+
+make || exit
+echo "Uploading to Android"
+adb connect 192.168.10.2
+dir=/data/local/shell
+adb shell mkdir -p ${dir}/soccervision || exit
+adb push out/soccervision ${dir}/soccervision/soccervision || exit
+adb shell chmod 777 ${dir}/soccervision/soccervision || exit
+adb shell mkdir -p ${dir}/soccervision/screenshots || exit
+adb shell mkdir -p ${dir}/soccervision/config || exit
+
