@@ -1,0 +1,8 @@
+#!/bin/bash
+
+adb connect 192.168.10.2
+
+if ! pgrep keep_wifi_awake >/dev/null; then
+  ./keep_wifi_awake
+fi
+

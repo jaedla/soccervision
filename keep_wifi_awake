@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ $(id -u) != 0 ] ; then
+  echo 'Keeping WiFi awake'
+  sudo su -c "$(pwd)/keep_wifi_awake &"
+  exit
+fi
+ping -i 0.1 192.168.10.2 >/dev/null 2>&1
+

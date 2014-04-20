@@ -1,4 +1,4 @@
 #!/bin/bash
 
-adb connect 192.168.10.2
+./ensure_adb_connected
 adb shell
