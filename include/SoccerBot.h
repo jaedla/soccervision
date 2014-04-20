@@ -5,7 +5,7 @@
 #include "Controller.h"
 #include "Server.h"
 #include "Command.h"
-#include "V4lCamera.h"
+#include "AndroidCamera.h"
 #include <string>
 
 class BaseCamera;
@@ -75,7 +75,7 @@ private:
   BaseCamera *rearCamera;
   //XimeaCamera* ximeaFrontCamera;
   //XimeaCamera* ximeaRearCamera;
-  V4lCamera *laptopCamera;
+  AndroidCamera *androidCamera;
   VirtualCamera *virtualFrontCamera;
   VirtualCamera *virtualRearCamera;
   Blobber *frontBlobber;

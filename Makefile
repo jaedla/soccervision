@@ -1,5 +1,5 @@
 out = out
-soccervision_sources_list = main.cpp SoccerBot.cpp Robot.cpp Blobber.cpp Vision.cpp Communication.cpp CameraTranslator.cpp FpsCounter.cpp ProcessThread.cpp ManualController.cpp TestController.cpp OffensiveAI.cpp SignalHandler.cpp Server.cpp Thread.cpp DebugRenderer.cpp Util.cpp ImageProcessor.cpp Dribbler.cpp Command.cpp VirtualCamera.cpp Maths.cpp Coilgun.cpp BallLocalizer.cpp ParticleFilterLocalizer.cpp OdometerLocalizer.cpp Wheel.cpp Odometer.cpp Tasks.cpp Object.cpp Canvas.cpp BaseAI.cpp DebouncedButton.cpp WebSocketServer.cpp V4lCamera.cpp
+soccervision_sources_list = main.cpp SoccerBot.cpp Robot.cpp Blobber.cpp Vision.cpp Communication.cpp CameraTranslator.cpp FpsCounter.cpp ProcessThread.cpp ManualController.cpp TestController.cpp OffensiveAI.cpp SignalHandler.cpp Server.cpp Thread.cpp DebugRenderer.cpp Util.cpp ImageProcessor.cpp Dribbler.cpp Command.cpp VirtualCamera.cpp Maths.cpp Coilgun.cpp BallLocalizer.cpp ParticleFilterLocalizer.cpp OdometerLocalizer.cpp Wheel.cpp Odometer.cpp Tasks.cpp Object.cpp Canvas.cpp BaseAI.cpp DebouncedButton.cpp WebSocketServer.cpp V4lCamera.cpp AndroidCamera.cpp
 soccervision_sources = $(soccervision_sources_list:%.cpp=src/%.cpp)
 soccervision_objects = $(soccervision_sources:%.cpp=$(out)/%.o)
 libjpeg_sources = lib/jpeg/jpge.cpp
@@ -10,7 +10,7 @@ objects = $(soccervision_objects) $(libjpeg_objects) $(boost_objects)
 include_deps = $(objects:%.o=%.d)
 
 debug_flags = -g -fno-inline-functions -fno-inline -fno-omit-frame-pointer -fno-optimize-sibling-calls
-includes = include $(src)/boost_1_55_0 $(src)/websocketpp lib/armadillo/include $(src)/libyuv/trunk/include lib/jpeg
+includes = include $(src)/boost_1_55_0 $(src)/websocketpp lib/armadillo/include $(src)/libyuv/trunk/include lib/jpeg $(src)/opencv/
 include_flags = $(includes:%=-I%)
 
 $(out)/soccervision: $(objects)

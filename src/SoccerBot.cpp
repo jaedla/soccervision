@@ -22,7 +22,7 @@
 
 SoccerBot::SoccerBot() :
   frontCamera(NULL), rearCamera(NULL),
-  laptopCamera(NULL),
+  androidCamera(NULL),
   //ximeaFrontCamera(NULL), ximeaRearCamera(NULL),
   virtualFrontCamera(NULL), virtualRearCamera(NULL),
   frontBlobber(NULL), rearBlobber(NULL),
@@ -52,8 +52,8 @@ SoccerBot::~SoccerBot() {
   robot = NULL;
   //if (ximeaFrontCamera != NULL) delete ximeaFrontCamera; ximeaFrontCamera = NULL;
   //if (ximeaRearCamera != NULL) delete ximeaRearCamera; ximeaRearCamera = NULL;
-  if (laptopCamera != NULL) delete laptopCamera;
-  laptopCamera = NULL;
+  if (androidCamera != NULL) delete androidCamera;
+  androidCamera = NULL;
   if (virtualFrontCamera != NULL) delete virtualFrontCamera;
   virtualFrontCamera = NULL;
   if (virtualRearCamera != NULL) delete virtualRearCamera;
@@ -471,17 +471,17 @@ void SoccerBot::setupGui() {
   */
 }
 
-#include "V4lCamera.h"
+#include "AndroidCamera.h"
 
 void SoccerBot::setupCameras() {
   std::cout << "! Setting up cameras" << std::endl;
   virtualFrontCamera = new VirtualCamera();
   virtualRearCamera = new VirtualCamera();
 
-  laptopCamera = new V4lCamera();
-  laptopCamera->open();
+  androidCamera = new AndroidCamera();
+  androidCamera->open();
 
-  frontCamera = laptopCamera;
+  frontCamera = androidCamera;
   rearCamera = virtualRearCamera;
 }
 
@@ -678,10 +678,10 @@ void SoccerBot::handleStreamChoiceCommand(Command::Parameters parameters) {
   if (requestedStream == "") {
     std::cout << "! Switching to live stream" << std::endl;
 
-    frontProcessor->camera = laptopCamera;
+    frontProcessor->camera = androidCamera;
     //rearProcessor->camera = ximeaRearCamera;
 
-    frontCamera = laptopCamera;
+    frontCamera = androidCamera;
     //rearCamera = ximeaRearCamera;
 
     activeStreamName = requestedStream;

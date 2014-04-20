@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include "V4lCamera.h"
 
-void check(bool condition, const char *msg) {
+static void check(bool condition, const char *msg) {
   if (!condition) {
     printf("Check failed: %s\n", msg);
     exit(1);
