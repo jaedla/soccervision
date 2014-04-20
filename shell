@@ -1,4 +1,4 @@
 #!/bin/bash
 
-./ensure_adb_connected
+ensure_adb_connected
 adb shell
