@@ -91,6 +91,7 @@ SoccerBot::~SoccerBot() {
 }
 
 void SoccerBot::setup() {
+  setupAndroid();
   setupCommunication();
   setupVision();
   setupFpsCounter();
@@ -533,6 +534,12 @@ void SoccerBot::setupSignalHandler() {
 
 void SoccerBot::setupServer() {
   server = new Server();
+}
+
+void SoccerBot::setupAndroid() {
+  std::cout << "Starting android binder thread";
+  androidBinderThread = new AndroidBinderThread();
+  androidBinderThread->start();
 }
 
 void SoccerBot::setupCommunication() {

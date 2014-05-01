@@ -1,6 +1,7 @@
 #ifndef SOCCERBOT_H
 #define SOCCERBOT_H
 
+#include "AndroidBinderThread.h"
 #include "Vision.h"
 #include "Controller.h"
 #include "Server.h"
@@ -27,6 +28,7 @@ public:
   void setup();
   void run();
 
+  void setupAndroid();
   void setupVision();
   void setupProcessors();
   void setupFpsCounter();
@@ -71,6 +73,7 @@ private:
   void broadcastFrame(unsigned char *rgb, unsigned char *classification);
   void broadcastScreenshots();
 
+  AndroidBinderThread *androidBinderThread;
   BaseCamera *frontCamera;
   BaseCamera *rearCamera;
   //XimeaCamera* ximeaFrontCamera;

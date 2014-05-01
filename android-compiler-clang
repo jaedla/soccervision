@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ndk=${src}/android-ndk-r9d
+ndk=${android_ndk}
 ndk_clang=${ndk}/toolchains/llvm-3.4/prebuilt/linux-x86_64/bin
 ndk_gcc=${ndk}/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64
 ndk_system=${ndk}/platforms/android-19/arch-arm
