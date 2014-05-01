@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "AndroidCamera.h"
-#include "modules/androidcamera/camera_wrapper/camera_wrapper.h"
 
 static void check(bool condition, const char *msg) {
   if (!condition) {

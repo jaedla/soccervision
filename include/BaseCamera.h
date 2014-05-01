@@ -18,6 +18,7 @@ public:
 
 class BaseCamera {
 public:
+  virtual ~BaseCamera() {}
   virtual Frame *getFrame() = 0;
   virtual int getSerial() {
     return -1;

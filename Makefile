@@ -1,6 +1,6 @@
 out = out
 
-soccervision_sources_list = main.cpp SoccerBot.cpp Robot.cpp Blobber.cpp Vision.cpp Communication.cpp CameraTranslator.cpp FpsCounter.cpp ProcessThread.cpp ManualController.cpp TestController.cpp OffensiveAI.cpp SignalHandler.cpp Server.cpp Thread.cpp DebugRenderer.cpp Util.cpp ImageProcessor.cpp Dribbler.cpp Command.cpp VirtualCamera.cpp Maths.cpp Coilgun.cpp BallLocalizer.cpp ParticleFilterLocalizer.cpp OdometerLocalizer.cpp Wheel.cpp Odometer.cpp Tasks.cpp Object.cpp Canvas.cpp BaseAI.cpp DebouncedButton.cpp WebSocketServer.cpp V4lCamera.cpp AndroidCamera.cpp
+soccervision_sources_list = main.cpp SoccerBot.cpp Robot.cpp Blobber.cpp Vision.cpp Communication.cpp CameraTranslator.cpp FpsCounter.cpp ProcessThread.cpp ManualController.cpp TestController.cpp OffensiveAI.cpp SignalHandler.cpp Server.cpp Thread.cpp DebugRenderer.cpp Util.cpp ImageProcessor.cpp Dribbler.cpp Command.cpp VirtualCamera.cpp Maths.cpp Coilgun.cpp BallLocalizer.cpp ParticleFilterLocalizer.cpp OdometerLocalizer.cpp Wheel.cpp Odometer.cpp Tasks.cpp Object.cpp Canvas.cpp BaseAI.cpp DebouncedButton.cpp WebSocketServer.cpp V4lCamera.cpp
 
 soccervision_sources = $(soccervision_sources_list:%.cpp=src/%.cpp)
 soccervision_objects = $(soccervision_sources:%.cpp=$(out)/%.o)
@@ -8,7 +8,7 @@ libjpeg_sources = lib/jpeg/jpge.cpp
 libjpeg_objects = $(libjpeg_sources:%.cpp=$(out)/%.o)
 boost_sources = lib/boost/error_code.cpp
 boost_objects = $(boost_sources:%.cpp=$(out)/%.o)
-android_sources = src/AndroidBinderThread.cpp
+android_sources = src/AndroidBinderThread.cpp src/AndroidCamera.cpp
 android_objects = $(android_sources:%.cpp=$(out)/%.o)
 
 objects = $(soccervision_objects) $(libjpeg_objects) $(boost_objects) $(android_objects)
