@@ -391,6 +391,7 @@ void SoccerBot::setupVision() {
   frontCameraTranslator = new CameraTranslator();
   rearCameraTranslator = new CameraTranslator();
 
+  /*
   std::cout << "  > loading front camera undistorion mappings.. ";
   fflush(stdout);
 
@@ -403,6 +404,7 @@ void SoccerBot::setupVision() {
 
   std::cout << "  > loading rear camera undistorion mappings.. ";
   fflush(stdout);
+  */
 
   rearCameraTranslator->loadUndistortionMapping(
     Config::undistortMappingFilenameRearX,
