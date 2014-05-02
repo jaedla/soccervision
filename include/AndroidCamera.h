@@ -2,11 +2,12 @@
 #define V4LCAMERA_H
 
 #include "BaseCamera.h"
+#include "utils/RefBase.h"
+
+using namespace android;
 
 namespace android {
-namespace camera3 {
 class Camera3Device;
-}
 }
 
 struct camera_module;
@@ -28,8 +29,9 @@ public:
 private:
   void getModule();
   void findBackCamera();
-  const struct camera_module *cameraModule;
-  android::camera3::Camera3Device *device;
+  void getDevice();
+  struct camera_module *cameraModule;
+  sp<Camera3Device> device;
   int cameraId;
   bool acquisitioning;
   uint32_t width;

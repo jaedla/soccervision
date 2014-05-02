@@ -4,6 +4,9 @@
 #include "device3/Camera3Device.h"
 #include "hardware/camera3.h"
 #include "hardware/hardware.h"
+#include "utils/Errors.h"
+
+using namespace android;
 
 static void check(bool condition, const char *msg) {
   if (!condition) {
@@ -49,9 +52,18 @@ void AndroidCamera::findBackCamera() {
   check(false, "Didn't find a back camera");
 }
 
+void AndroidCamera::getDevice() {
+  device = new Camera3Device(cameraId);
+  printf("initializing\n"); fflush(stdout);
+  status_t res = device->initialize(cameraModule);
+  printf("done\n"); fflush(stdout);
+  check(res == OK, "Failed to initialize camera device");
+}
+
 bool AndroidCamera::open(int serial) {
   getModule();
   findBackCamera();
+  getDevice();
   printf("Success\n");
   return true;
 }
