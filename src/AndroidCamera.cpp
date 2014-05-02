@@ -2,6 +2,8 @@
 #include <string.h>
 #include "AndroidCamera.h"
 #include "device3/Camera3Device.h"
+#include "hardware/camera3.h"
+#include "hardware/hardware.h"
 
 static void check(bool condition, const char *msg) {
   if (!condition) {
@@ -28,7 +30,14 @@ Frame *AndroidCamera::getFrame() {
   return frame;
 }
 
+void AndroidCamera::getModule() {
+  int res = hw_get_module(CAMERA_HARDWARE_MODULE_ID, (const hw_module_t **)&module);
+  check(res == 0, "Failed to get camera module");
+}
+
 bool AndroidCamera::open(int serial) {
+  getModule();
+  printf("Success\n");
   return true;
 }
 

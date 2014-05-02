@@ -21,7 +21,7 @@ android_includes = $(android_source) $(android_source)/system/core/include $(and
 android_include_flags = $(android_includes:%=-I%)
 android_compile_flags = -fexceptions -fno-rtti -Wno-psabi -fpic -funwind-tables -finline-limit=64 -fsigned-char -no-canonical-prefixes -fdata-sections -ffunction-sections -Wa,--noexecstack -fsigned-char -fdiagnostics-show-option -fomit-frame-pointer -fvisibility=hidden -fvisibility-inlines-hidden -fomit-frame-pointer -Os -fno-strict-aliasing -finline-limit=64 -fuse-cxa-atexit -fPIC -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point -Wformat -Werror=format-security -Wmissing-declarations -Wundef -Winit-self -Wpointer-arith -Wsign-promo -Wno-narrowing -Wno-delete-non-virtual-dtor -Wno-unused-local-typedefs
 android_libs_dir = $(android_source)/out/target/product/hammerhead/system/lib
-android_libs = binder
+android_libs = binder hardware
 android_linker_so_list = $(android_libs:%=$(android_libs_dir)/lib%.so)
 
 $(out)/soccervision: $(objects)

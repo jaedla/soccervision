@@ -9,6 +9,8 @@ class Camera3Device;
 }
 }
 
+struct camera_module;
+
 class AndroidCamera : public BaseCamera {
 public:
   AndroidCamera();
@@ -24,6 +26,8 @@ public:
   virtual void stopAcquisition();
   virtual void close();
 private:
+  void getModule();
+  const struct camera_module *module;
   android::camera3::Camera3Device *device;
   bool acquisitioning;
   uint32_t width;
