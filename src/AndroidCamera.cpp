@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "AndroidCamera.h"
+#include "device3/Camera3Device.h"
 
 static void check(bool condition, const char *msg) {
   if (!condition) {

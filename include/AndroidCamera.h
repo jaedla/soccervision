@@ -3,6 +3,12 @@
 
 #include "BaseCamera.h"
 
+namespace android {
+namespace camera3 {
+class Camera3Device;
+}
+}
+
 class AndroidCamera : public BaseCamera {
 public:
   AndroidCamera();
@@ -18,6 +24,7 @@ public:
   virtual void stopAcquisition();
   virtual void close();
 private:
+  android::camera3::Camera3Device *device;
   bool acquisitioning;
   uint32_t width;
   uint32_t height;

@@ -8,7 +8,7 @@ common_flags="--sysroot=${ndk_system}"
 appended_flags=
 
 if [ ${1} = compile ] ; then
-  flags="${common_flags} -march=armv5te -mtune=xscale -msoft-float -mthumb -isystem ${ndk_system}/usr/include -isystem ${ndk_libstdcpp}/include -I${ndk_libstdcpp}/libs/armeabi/include -I${ndk_libstdcpp}/include/backward -I${android_source}/system/core/include -I${android_source}/frameworks/native/include -I${android_source}/frameworks/av/include -I${android_source}/hardware/libhardware/include -I${android_source} -DANDROID -DANDROID_r4_4_2 -DNDEBUG"
+  flags="${common_flags} -march=armv5te -mtune=xscale -msoft-float -mthumb -isystem ${ndk_system}/usr/include -isystem ${ndk_libstdcpp}/include -I${ndk_libstdcpp}/libs/armeabi/include -I${ndk_libstdcpp}/include/backward -DANDROID -DANDROID_r4_4_2 -DNDEBUG -DNEEDS_VECTORIMPL_SYMBOLS=0"
 elif [ ${1} = link ] ; then
   flags="${common_flags} -Wl,-rpath-link=${ndk_system}/usr/lib"
   appended_flags="${ndk_libstdcpp}/libs/armeabi/libgnustl_static.a -lgcc -lc -lm"
