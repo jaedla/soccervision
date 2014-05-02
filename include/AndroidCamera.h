@@ -27,8 +27,10 @@ public:
   virtual void close();
 private:
   void getModule();
-  const struct camera_module *module;
+  void findBackCamera();
+  const struct camera_module *cameraModule;
   android::camera3::Camera3Device *device;
+  int cameraId;
   bool acquisitioning;
   uint32_t width;
   uint32_t height;

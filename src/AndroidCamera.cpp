@@ -31,12 +31,27 @@ Frame *AndroidCamera::getFrame() {
 }
 
 void AndroidCamera::getModule() {
-  int res = hw_get_module(CAMERA_HARDWARE_MODULE_ID, (const hw_module_t **)&module);
+  int res = hw_get_module(CAMERA_HARDWARE_MODULE_ID, (const hw_module_t **)&cameraModule);
   check(res == 0, "Failed to get camera module");
+}
+
+void AndroidCamera::findBackCamera() {
+  int numberOfCameras = (*cameraModule->get_number_of_cameras)();
+  for (int cameraId = 0; cameraId < numberOfCameras; cameraId++) {
+    camera_info_t cameraInfo;
+    int res = (*cameraModule->get_camera_info)(cameraId, &cameraInfo);
+    check(res == 0, "get_camera_info failed");
+    if (cameraInfo.facing == CAMERA_FACING_BACK) {
+      this->cameraId = cameraId;
+      return;
+    }
+  }
+  check(false, "Didn't find a back camera");
 }
 
 bool AndroidCamera::open(int serial) {
   getModule();
+  findBackCamera();
   printf("Success\n");
   return true;
 }
