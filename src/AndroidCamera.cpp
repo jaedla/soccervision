@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "AndroidCamera.h"
-#include "device3/Camera3Device.h"
-#include "gui/BufferQueue.h"
-#include "hardware/camera3.h"
 #include "hardware/hardware.h"
 #include "utils/Errors.h"
 

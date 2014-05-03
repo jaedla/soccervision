@@ -2,16 +2,12 @@
 #define V4LCAMERA_H
 
 #include "BaseCamera.h"
+#include "device3/Camera3Device.h"
+#include "gui/BufferQueue.h"
+#include "hardware/camera3.h"
 #include "utils/RefBase.h"
 
 using namespace android;
-
-namespace android {
-class Camera3Device;
-class BufferQueue;
-}
-
-struct camera_module;
 
 class AndroidCamera : public BaseCamera {
 public:
