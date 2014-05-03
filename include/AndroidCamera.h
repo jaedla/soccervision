@@ -8,6 +8,7 @@ using namespace android;
 
 namespace android {
 class Camera3Device;
+class BufferQueue;
 }
 
 struct camera_module;
@@ -30,8 +31,10 @@ private:
   void getModule();
   void findBackCamera();
   void getDevice();
+  void createStream();
   struct camera_module *cameraModule;
   sp<Camera3Device> device;
+  sp<BufferQueue> bufferQueue;
   int cameraId;
   bool acquisitioning;
   uint32_t width;

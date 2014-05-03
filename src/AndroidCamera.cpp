@@ -2,6 +2,7 @@
 #include <string.h>
 #include "AndroidCamera.h"
 #include "device3/Camera3Device.h"
+#include "gui/BufferQueue.h"
 #include "hardware/camera3.h"
 #include "hardware/hardware.h"
 #include "utils/Errors.h"
@@ -50,6 +51,11 @@ void AndroidCamera::findBackCamera() {
     }
   }
   check(false, "Didn't find a back camera");
+}
+
+void AndroidCamera::createStream() {
+  bufferQueue = new BufferQueue();
+  
 }
 
 void AndroidCamera::getDevice() {
