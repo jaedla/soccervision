@@ -307,6 +307,7 @@ typedef std::queue<Math::Position> PositionQueue;
 
 class Angle {
 public:
+  virtual ~Angle() {}
   virtual float deg() const = 0;
   virtual float rad() const = 0;
 };

@@ -149,6 +149,7 @@ public:
 
   class MapFilter {
   public:
+    virtual ~MapFilter() {}
     virtual void filterMap(unsigned int *map) = 0;
   };
 

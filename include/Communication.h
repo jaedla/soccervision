@@ -19,6 +19,7 @@ public:
   class Listener {
 
   public:
+    virtual ~Listener() {}
     virtual void handleCommunicationMessage(std::string message) = 0;
 
   };

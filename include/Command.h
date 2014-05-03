@@ -10,6 +10,7 @@ public:
   class Listener {
 
   public:
+    virtual ~Listener() {}
     virtual bool handleCommand(const Command &cmd) = 0;
 
   };

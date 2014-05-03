@@ -1,9 +1,9 @@
 out = out
 
-soccervision_sources_list = main.cpp SoccerBot.cpp Robot.cpp Blobber.cpp Vision.cpp Communication.cpp CameraTranslator.cpp FpsCounter.cpp ProcessThread.cpp ManualController.cpp TestController.cpp OffensiveAI.cpp SignalHandler.cpp Server.cpp Thread.cpp DebugRenderer.cpp Util.cpp ImageProcessor.cpp Dribbler.cpp Command.cpp VirtualCamera.cpp Maths.cpp Coilgun.cpp BallLocalizer.cpp ParticleFilterLocalizer.cpp OdometerLocalizer.cpp Wheel.cpp Odometer.cpp Tasks.cpp Object.cpp Canvas.cpp BaseAI.cpp DebouncedButton.cpp WebSocketServer.cpp V4lCamera.cpp
+soccervision_sources_list = SoccerBot.cpp Robot.cpp Blobber.cpp Vision.cpp Communication.cpp CameraTranslator.cpp FpsCounter.cpp ProcessThread.cpp ManualController.cpp TestController.cpp OffensiveAI.cpp SignalHandler.cpp Server.cpp Thread.cpp DebugRenderer.cpp Util.cpp ImageProcessor.cpp Dribbler.cpp Command.cpp VirtualCamera.cpp Maths.cpp Coilgun.cpp BallLocalizer.cpp ParticleFilterLocalizer.cpp OdometerLocalizer.cpp Wheel.cpp Odometer.cpp Tasks.cpp Object.cpp Canvas.cpp BaseAI.cpp DebouncedButton.cpp WebSocketServer.cpp V4lCamera.cpp
 libjpeg_sources = lib/jpeg/jpge.cpp
 boost_sources = lib/boost/error_code.cpp
-android_sources = src/AndroidBinderThread.cpp src/AndroidCamera.cpp
+android_sources = src/main.cpp src/AndroidBinderThread.cpp src/AndroidCamera.cpp
 
 soccervision_sources = $(soccervision_sources_list:%.cpp=src/%.cpp)
 soccervision_objects = $(soccervision_sources:%.cpp=$(out)/%.o)
@@ -41,7 +41,7 @@ $(boost_objects): $(out)/%.o : %.cpp
 
 $(android_objects): $(out)/%.o : %.cpp
 	@mkdir -p $(dir $@)
-	./android-compiler-gcc compile $(android_compile_flags) $(android_include_flags) -Iinclude -MMD -c $< -o $@
+	./android-compiler-clang compile $(android_compile_flags) -DANDROID -DANDROID_r4_4_2 -DNDEBUG -DNEEDS_VECTORIMPL_SYMBOLS=0 $(android_include_flags) $(include_flags) -std=c++11 -MMD -c $< -o $@
 
 -include $(include_deps)
 

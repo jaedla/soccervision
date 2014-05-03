@@ -14,6 +14,7 @@ public:
   class Listener {
 
   public:
+    virtual ~Listener() {}
     virtual void onSocketOpen(websocketpp::connection_hdl connection) {}
     virtual void onSocketClose(websocketpp::connection_hdl connection) {}
     virtual void onSocketMessage(std::string message, websocketpp::connection_hdl connection, websocketpp::server<websocketpp::config::asio>::message_ptr msg) {}
