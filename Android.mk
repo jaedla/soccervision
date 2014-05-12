@@ -75,6 +75,7 @@ LOCAL_LDFLAGS += \
 
 LOCAL_SDK_VERSION := 18
 LOCAL_NDK_STL_VARIANT := gnustl_static
+LOCAL_CLANG := true
 
 include $(BUILD_EXECUTABLE)
 
