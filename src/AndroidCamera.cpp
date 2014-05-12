@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "AndroidCamera.h"
+#include "device3/Camera3Device.h"
 #include "hardware/hardware.h"
 #include "utils/Errors.h"
 

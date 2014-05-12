@@ -7,6 +7,8 @@
 class Localizer {
 
 public:
+  virtual ~Localizer() {}
+
   virtual void setPosition(float x, float y, float orientation) {
     this->x = x;
     this->y = y;

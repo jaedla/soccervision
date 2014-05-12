@@ -11,6 +11,7 @@ class Robot;
 class Task {
 public:
   Task() : started(false) {}
+  virtual ~Task() {}
   virtual void onStart(Robot &robot, float dt) {};
   virtual bool onStep(Robot &robot, float dt) {
     return false;

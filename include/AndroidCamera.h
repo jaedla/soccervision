@@ -2,12 +2,10 @@
 #define V4LCAMERA_H
 
 #include "BaseCamera.h"
-#include "device3/Camera3Device.h"
+#include "common/CameraDeviceBase.h"
 #include "gui/BufferQueue.h"
 #include "hardware/camera3.h"
 #include "utils/RefBase.h"
-
-using namespace android;
 
 class AndroidCamera : public BaseCamera {
 public:
@@ -29,8 +27,8 @@ private:
   void getDevice();
   void createStream();
   struct camera_module *cameraModule;
-  sp<Camera3Device> device;
-  sp<BufferQueue> bufferQueue;
+  android::sp<android::CameraDeviceBase> device;
+  android::sp<android::BufferQueue> bufferQueue;
   int cameraId;
   bool acquisitioning;
   uint32_t width;
