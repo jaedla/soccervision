@@ -1,0 +1,9 @@
+#!/bin/bash
+
+android_mk=$(pwd)/Android.mk
+cd ${android_source}
+source build/envsetup.sh
+breakfast hammerhead
+target=${android_source}/out/target/product/hammerhead/obj/EXECUTABLES/soccervision_intermediates/LINKED/soccervision
+ONE_SHOT_MAKEFILE=${android_mk} make ${target}
+

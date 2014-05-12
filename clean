@@ -1,0 +1,4 @@
+#!/bin/bash
+
+rm -rf ${android_source}/out/target/product/hammerhead/obj/EXECUTABLES/soccervision_intermediates
+
