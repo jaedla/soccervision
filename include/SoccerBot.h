@@ -85,22 +85,22 @@ private:
   Blobber *rearBlobber;
   Vision *frontVision;
   Vision *rearVision;
-  CameraTranslator *frontCameraTranslator;
-  CameraTranslator *rearCameraTranslator;
   ProcessThread *frontProcessor;
   ProcessThread *rearProcessor;
+  CameraTranslator *frontCameraTranslator;
+  CameraTranslator *rearCameraTranslator;
   FpsCounter *fpsCounter;
   Vision::Results *visionResults;
-  Server *server;
   Robot *robot;
   Controller *activeController;
+  Server *server;
   Communication *com;
   ControllerMap controllers;
   std::string activeControllerName;
   std::string activeStreamName;
 
-  bool controllerRequested;
   bool running;
+  bool controllerRequested;
   bool stateRequested;
   bool frameRequested;
   bool useScreenshot;

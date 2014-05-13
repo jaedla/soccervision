@@ -143,10 +143,10 @@ private:
   void updateColorDistances();
   void updateColorOrder();
 
-  Dir dir;
   Canvas canvas;
   Blobber *blobber;
   CameraTranslator *cameraTranslator;
+  Dir dir;
   std::vector<std::string> validBallBgColors;
   std::vector<std::string> validBallPathColors;
   std::vector<std::string> validGoalPathColors;

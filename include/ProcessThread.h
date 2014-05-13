@@ -23,12 +23,11 @@ public:
   int height;
   Dir dir;
 
-  bool debug;
-
   BaseCamera *camera;
   Blobber *blobber;
   Vision *vision;
   Vision::Result *visionResult;
+  bool debug;
 
   bool gotFrame;
   bool faulty;

@@ -9,8 +9,8 @@ public:
   bool toggle();
 
 private:
-  double lastChangeTime;
   float period;
+  double lastChangeTime;
 
 };
 

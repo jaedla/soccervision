@@ -162,7 +162,7 @@ private:
 
 class JumpAngleTask : public Task {
 public:
-  JumpAngleTask(float angle = 0.35f, float speed = 13.0f) : Task(), angle(angle), speed(speed) {}
+  JumpAngleTask(float angle = 0.35f, float speed = 13.0f) : Task(), speed(speed), angle(angle) {}
 
   void onStart(Robot &robot, float dt);
   bool onStep(Robot &robot, float dt);
@@ -200,10 +200,10 @@ public:
   std::string toString();
 
 private:
-  float duration;
   float x;
   float y;
   float omega;
+  float duration;
   double startTime;
   double endTime;
   double currentTime;

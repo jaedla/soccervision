@@ -57,6 +57,8 @@ LOCAL_C_INCLUDES += \
 LOCAL_CPPFLAGS += \
     -std=c++11 \
     -fexceptions \
+    -Wno-unused-parameter \
+    -Wno-overloaded-virtual \
     -DHAVE_WIDE_CHAR_TYPES \
     -D_WEBSOCKETPP_NOEXCEPT_ \
     -DBOOST_ALL_NO_LIB=1 \

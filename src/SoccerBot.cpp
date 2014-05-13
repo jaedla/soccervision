@@ -21,6 +21,8 @@
 #include <algorithm>
 
 SoccerBot::SoccerBot() :
+  debugVision(false), showGui(false),
+  androidBinderThread(NULL),
   frontCamera(NULL), rearCamera(NULL),
   androidCamera(NULL),
   //ximeaFrontCamera(NULL), ximeaRearCamera(NULL),
@@ -30,10 +32,10 @@ SoccerBot::SoccerBot() :
   frontProcessor(NULL), rearProcessor(NULL),
   frontCameraTranslator(NULL), rearCameraTranslator(NULL),
   fpsCounter(NULL), visionResults(NULL), robot(NULL), activeController(NULL), server(NULL), com(NULL),
-  jpegBuffer(NULL), screenshotBufferFront(NULL), screenshotBufferRear(NULL),
-  running(false), debugVision(false), showGui(false), controllerRequested(false), stateRequested(false), frameRequested(false), useScreenshot(false),
+  running(false), controllerRequested(false), stateRequested(false), frameRequested(false), useScreenshot(false),
   dt(0.01666f), lastStepTime(0.0), totalTime(0.0f),
-  debugCameraDir(Dir::FRONT) {
+  debugCameraDir(Dir::FRONT),
+  jpegBuffer(NULL), screenshotBufferFront(NULL), screenshotBufferRear(NULL) {
 
 }
 

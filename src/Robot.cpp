@@ -12,7 +12,7 @@
 #include <map>
 #include <sstream>
 
-Robot::Robot(Communication *com) : com(com), wheelFL(NULL), wheelFR(NULL), wheelRL(NULL), wheelRR(NULL), coilgun(NULL), robotLocalizer(NULL), odometerLocalizer(NULL), ballLocalizer(NULL), odometer(NULL), visionResults(NULL) {
+Robot::Robot(Communication *com) : wheelFL(NULL), wheelFR(NULL), wheelRL(NULL), wheelRR(NULL), coilgun(NULL), robotLocalizer(NULL), ballLocalizer(NULL), odometerLocalizer(NULL), com(com), visionResults(NULL), odometer(NULL) {
   targetOmega = 0;
   targetDir = Math::Vector(0, 0);
 

@@ -45,16 +45,16 @@ private:
   std::string host;
   int port;
   char receiveBuffer[MAX_SIZE];
-  boost::asio::mutable_buffers_1 receiveBuffer2;
   //boost::array<char, 1024> receiveBuffer;
   char requestBuffer[MAX_SIZE];
   boost::asio::io_service ioService;
+  volatile bool running;
   udp::socket *socket;
+  boost::asio::mutable_buffers_1 receiveBuffer2;
   udp::endpoint endpoint;
   boost::asio::ip::udp::endpoint remoteEndpoint;
   Messages messages;
   std::queue<std::string> queuedMessages;
-  volatile bool running;
   mutable boost::mutex messagesMutex;
 };
 

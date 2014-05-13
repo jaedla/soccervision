@@ -95,7 +95,7 @@ public:
     Bgr() : red(0), green(0), blue(0) {}
     Bgr(char red, char green, char blue) : red(red), green(green), blue(blue) {}
 
-    unsigned char blue, green, red;
+    unsigned char red, green, blue;
   };
 
   struct Blob {

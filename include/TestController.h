@@ -193,10 +193,10 @@ public:
   private:
     double lastKickTime;
     double lastEscapeCornerTime;
+    TargetMode avoidBallSide;
     float searchGoalDir;
     float spinDuration;
     float reverseDuration;
-    TargetMode avoidBallSide;
     float avoidBallDuration;
     bool nearLine;
     bool escapeCornerPerformed;

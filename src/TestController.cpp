@@ -83,7 +83,7 @@
  * - on top of robot
  */
 
-TestController::TestController(Robot *robot, Communication *com) : BaseAI(robot, com), targetSide(Side::BLUE), manualSpeedX(0.0f), manualSpeedY(0.0f), manualOmega(0.0f), manualDribblerSpeed(0), manualKickStrength(0), blueGoalDistance(0.0f), yellowGoalDistance(0.0f), lastCommandTime(-1.0), lastBallTime(-1.0), lastNearLineTime(-1.0), lastInCornerTime(-1.0), lastTargetGoalAngle(0.0f), lastBall(NULL), lastTurnAroundTime(-1.0), lastClosestGoalDistance(-1.0f), lastTargetGoalDistance(-1.0f), framesRobotOutFront(0), framesRobotOutRear(0), isRobotOutFront(false), isRobotOutRear(false), isNearLine(false), isInCorner(false), inCornerFrames(0) {
+TestController::TestController(Robot *robot, Communication *com) : BaseAI(robot, com), targetSide(Side::BLUE), manualSpeedX(0.0f), manualSpeedY(0.0f), manualOmega(0.0f), manualDribblerSpeed(0), manualKickStrength(0), blueGoalDistance(0.0f), yellowGoalDistance(0.0f), lastTargetGoalAngle(0.0f), lastClosestGoalDistance(-1.0f), lastTargetGoalDistance(-1.0f), lastTurnAroundTime(-1.0), framesRobotOutFront(0), framesRobotOutRear(0), isRobotOutFront(false), isRobotOutRear(false), isNearLine(false), isInCorner(false), inCornerFrames(0), lastCommandTime(-1.0), lastBallTime(-1.0), lastNearLineTime(-1.0), lastInCornerTime(-1.0), lastBall(NULL) {
   setupStates();
 };
 
@@ -532,10 +532,10 @@ std::string TestController::getJSON() {
 
 // calculates the angle to approach the ball at to get behind it or to the side of it
 float TestController::getTargetAngle(float goalX, float goalY, float ballX, float ballY, float D, TestController::TargetMode targetMode) {
-  float targetX1;
-  float targetX2;
-  float targetY1;
-  float targetY2;
+  float targetX1 = 0.0;
+  float targetX2 = 0.0;
+  float targetY1 = 0.0;
+  float targetY2 = 0.0;
 
   if (Math::abs(ballX - goalX) < 0.001f) {
     // special case of small x difference
@@ -597,8 +597,8 @@ float TestController::getTargetAngle(float goalX, float goalY, float ballX, floa
   float target1Dist = pow(goalX - targetX1, 2) + pow(goalY - targetY1, 2);
   float target2Dist = pow(goalX - targetX2, 2) + pow(goalY - targetY2, 2);
 
-  float targetX;
-  float targetY;
+  float targetX = 0.0;
+  float targetY = 0.0;
 
   if (targetMode == TargetMode::INLINE) {
     // choose target which is farther away from goal
