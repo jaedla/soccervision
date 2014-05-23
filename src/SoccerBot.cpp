@@ -541,7 +541,7 @@ void SoccerBot::setupServer() {
 }
 
 void SoccerBot::setupAndroid() {
-  std::cout << "Starting android binder thread";
+  std::cout << "Starting android binder thread" << std::endl;
   androidBinderThread = new AndroidBinderThread();
   androidBinderThread->start();
 }

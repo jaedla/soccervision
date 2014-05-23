@@ -58,9 +58,7 @@ void AndroidCamera::createStream() {
 
 void AndroidCamera::getDevice() {
   device = new Camera3Device(cameraId);
-  printf("initializing\n"); fflush(stdout);
   status_t res = device->initialize(cameraModule);
-  printf("done\n"); fflush(stdout);
   check(res == OK, "Failed to initialize camera device");
 }
 
