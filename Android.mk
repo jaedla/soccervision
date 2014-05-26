@@ -66,6 +66,7 @@ LOCAL_CPPFLAGS += \
 LOCAL_SHARED_LIBRARIES += \
     libbinder \
     libcameraservice \
+    libgui \
     libhardware \
     libutils \
 

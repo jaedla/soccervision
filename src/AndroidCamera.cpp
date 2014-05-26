@@ -51,21 +51,29 @@ void AndroidCamera::findBackCamera() {
   check(false, "Didn't find a back camera");
 }
 
-void AndroidCamera::createStream() {
-  bufferQueue = new BufferQueue();
-  
-}
-
 void AndroidCamera::getDevice() {
   device = new Camera3Device(cameraId);
   status_t res = device->initialize(cameraModule);
   check(res == OK, "Failed to initialize camera device");
 }
 
+void AndroidCamera::createParameters() {
+  parameters.reset(new android::camera2::Parameters(cameraId, CAMERA_FACING_BACK));
+  parameters->initialize(&(device->info()));
+}
+
+void AndroidCamera::createStream() {
+  bufferQueue = new BufferQueue();
+  surface = new Surface(bufferQueue);
+  //device->createStream(surface
+}
+
 bool AndroidCamera::open(int serial) {
   getModule();
   findBackCamera();
   getDevice();
+  createParameters();
+  createStream();
   printf("Success\n");
   return true;
 }
