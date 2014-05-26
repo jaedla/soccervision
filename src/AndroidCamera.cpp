@@ -4,6 +4,7 @@
 #include "device3/Camera3Device.h"
 #include "hardware/hardware.h"
 #include "utils/Errors.h"
+#include "utils/Vector.h"
 
 using namespace android;
 
@@ -58,14 +59,41 @@ void AndroidCamera::getDevice() {
 }
 
 void AndroidCamera::createParameters() {
-  parameters.reset(new android::camera2::Parameters(cameraId, CAMERA_FACING_BACK));
+  parameters.reset(new camera2::Parameters(cameraId, CAMERA_FACING_BACK));
   parameters->initialize(&(device->info()));
 }
 
 void AndroidCamera::createStream() {
   bufferQueue = new BufferQueue();
+  bufferQueueConsumer = new CpuConsumer(bufferQueue, 6);
   surface = new Surface(bufferQueue);
-  //device->createStream(surface
+  printf("Creating camera stream %ux%u\n", parameters->previewWidth, parameters->previewHeight);
+  status_t res = device->createStream(
+    surface,
+    parameters->previewWidth,
+    parameters->previewHeight,
+    HAL_PIXEL_FORMAT_YV12,
+    0,
+    &streamId);
+  check(res == OK, "Failed to create Android camera stream");
+}
+
+void AndroidCamera::createRequest() {
+  status_t res = device->createDefaultRequest(CAMERA3_TEMPLATE_PREVIEW, &request);
+  check(res == OK, "Failed to create camera default request");
+  res = parameters->updateRequest(&request);
+  check(res == OK, "Failed to configure camera request");
+  Vector<int32_t> outputStreams;
+  outputStreams.push(streamId);
+  res = request.update(ANDROID_REQUEST_OUTPUT_STREAMS, outputStreams);
+  check(res == OK, "Failed to set camera request output streams");
+  res = request.sort();
+  check(res == OK, "Failed to sort camera request");
+}
+
+void AndroidCamera::startStream() {
+  status_t res = device->setStreamingRequest(request);
+  check(res == OK, "Failed to start camera stream");
 }
 
 bool AndroidCamera::open(int serial) {
@@ -74,6 +102,8 @@ bool AndroidCamera::open(int serial) {
   getDevice();
   createParameters();
   createStream();
+  createRequest();
+  startStream();
   printf("Success\n");
   return true;
 }

@@ -3,8 +3,10 @@
 
 #include "api1/client2/Parameters.h"
 #include "BaseCamera.h"
+#include "camera/CameraMetadata.h"
 #include "common/CameraDeviceBase.h"
 #include "gui/BufferQueue.h"
+#include "gui/CpuConsumer.h"
 #include "gui/Surface.h"
 #include "hardware/camera3.h"
 #include "utils/RefBase.h"
@@ -30,13 +32,17 @@ private:
   void getDevice();
   void createParameters();
   void createStream();
+  void createRequest();
+  void startStream();
   struct camera_module *cameraModule;
   int cameraId;
   android::sp<android::CameraDeviceBase> device;
   UniquePtr<android::camera2::Parameters> parameters;
   android::sp<android::BufferQueue> bufferQueue;
+  android::sp<android::CpuConsumer> bufferQueueConsumer;
   android::sp<ANativeWindow> surface;
   int streamId;
+  android::CameraMetadata request;
   bool acquisitioning;
   uint32_t width;
   uint32_t height;
