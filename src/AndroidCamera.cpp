@@ -15,6 +15,10 @@ static void check(bool condition, const char *msg) {
   }
 }
 
+void AndroidCamera::FrameListener::onFrameAvailable() {
+  printf("onFrameAvailable\n");
+}
+
 AndroidCamera::AndroidCamera() {
 }
 
@@ -66,6 +70,8 @@ void AndroidCamera::createParameters() {
 void AndroidCamera::createStream() {
   bufferQueue = new BufferQueue();
   bufferQueueConsumer = new CpuConsumer(bufferQueue, 6);
+  frameListener = new FrameListener(this);
+  bufferQueueConsumer->setFrameAvailableListener(frameListener);
   surface = new Surface(bufferQueue);
   printf("Creating camera stream %ux%u\n", parameters->previewWidth, parameters->previewHeight);
   status_t res = device->createStream(

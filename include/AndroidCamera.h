@@ -1,5 +1,5 @@
-#ifndef V4LCAMERA_H
-#define V4LCAMERA_H
+#ifndef ANDROIDCAMERA_H
+#define ANDROIDCAMERA_H
 
 #include "api1/client2/Parameters.h"
 #include "BaseCamera.h"
@@ -27,6 +27,14 @@ public:
   virtual void stopAcquisition();
   virtual void close();
 private:
+  class FrameListener : public android::CpuConsumer::FrameAvailableListener {
+  public:
+    FrameListener(AndroidCamera *androidCamera) : androidCamera(androidCamera) {
+    }
+    virtual void onFrameAvailable();
+  private:
+    AndroidCamera *androidCamera;
+  };
   void getModule();
   void findBackCamera();
   void getDevice();
@@ -40,6 +48,7 @@ private:
   UniquePtr<android::camera2::Parameters> parameters;
   android::sp<android::BufferQueue> bufferQueue;
   android::sp<android::CpuConsumer> bufferQueueConsumer;
+  android::sp<FrameListener> frameListener;
   android::sp<ANativeWindow> surface;
   int streamId;
   android::CameraMetadata request;
