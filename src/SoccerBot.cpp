@@ -36,7 +36,6 @@ SoccerBot::SoccerBot() :
   dt(0.01666f), lastStepTime(0.0), totalTime(0.0f),
   debugCameraDir(Dir::FRONT),
   jpegBuffer(NULL), screenshotBufferFront(NULL), screenshotBufferRear(NULL) {
-
 }
 
 SoccerBot::~SoccerBot() {
@@ -406,7 +405,6 @@ void SoccerBot::setupVision() {
 
   std::cout << "  > loading rear camera undistorion mappings.. ";
   fflush(stdout);
-  */
 
   rearCameraTranslator->loadUndistortionMapping(
     Config::undistortMappingFilenameRearX,
@@ -414,6 +412,7 @@ void SoccerBot::setupVision() {
   );
 
   std::cout << "done!" << std::endl;
+  */
 
   // TODO Add to config or load from file
   frontCameraTranslator->setConstants(

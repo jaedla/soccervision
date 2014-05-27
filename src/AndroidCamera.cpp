@@ -16,7 +16,6 @@ static void check(bool condition, const char *msg) {
 }
 
 void AndroidCamera::FrameListener::onFrameAvailable() {
-  printf("onFrameAvailable\n");
 }
 
 AndroidCamera::AndroidCamera() {
@@ -28,14 +27,14 @@ AndroidCamera::~AndroidCamera() {
 
 Frame *AndroidCamera::getFrame() {
   LockedBuffer *imageBuffer = getNewestFrame();
-  releaseFrame(imageBuffer);
-  return NULL;
-  Frame *frame = new Frame();
-  frame->data = NULL;
+  Frame *frame = new AndroidCameraFrame();
+  frame->data = new uint8_t[frameSize];
   frame->size = frameSize;
   frame->width = width;
   frame->height = height;
   frame->fresh = true;
+  convertFrameToYuyv(*imageBuffer, frame->data);
+  releaseFrame(imageBuffer);
   return frame;
 }
 
@@ -67,6 +66,11 @@ void AndroidCamera::getDevice() {
 void AndroidCamera::createParameters() {
   parameters.reset(new camera2::Parameters(cameraId, CAMERA_FACING_BACK));
   parameters->initialize(&(device->info()));
+  width = parameters->previewWidth;
+  height = parameters->previewHeight;
+  frameSize = width * height * 2;
+  check(!(width & 1), "Image width from camera not multiple of 2");
+  printf("Camera resolution %ux%u\n", width, height);
 }
 
 void AndroidCamera::createStream() {
@@ -75,11 +79,10 @@ void AndroidCamera::createStream() {
   frameListener = new FrameListener(this);
   bufferQueueConsumer->setFrameAvailableListener(frameListener);
   surface = new Surface(bufferQueue);
-  printf("Creating camera stream %ux%u\n", parameters->previewWidth, parameters->previewHeight);
   status_t res = device->createStream(
     surface,
-    parameters->previewWidth,
-    parameters->previewHeight,
+    width,
+    height,
     HAL_PIXEL_FORMAT_YCbCr_420_888,
     0,
     &streamId);
@@ -124,6 +127,11 @@ AndroidCamera::LockedBuffer *AndroidCamera::getNewestFrame() {
 void AndroidCamera::releaseFrame(LockedBuffer *frame) {
   bufferQueueConsumer->unlockBuffer(*frame);
   delete frame;
+}
+
+void AndroidCamera::convertFrameToYuyv(LockedBuffer& frame, uint8_t *yuyv) {
+  printf("filling with %02x\n", frame.data[0]);
+  memset(yuyv, frameSize, frame.data[0]);
 }
 
 bool AndroidCamera::open(int serial) {

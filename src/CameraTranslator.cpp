@@ -47,6 +47,8 @@ void CameraTranslator::setConstants(
 }
 
 CameraTranslator::CameraPosition CameraTranslator::undistort(int distortedX, int distortedY) {
+  return CameraPosition(distortedX, distortedY);
+  /*
   if (distortedX < 0) distortedX = 0;
   if (distortedX > cameraWidth - 1) distortedX = cameraWidth - 1;
   if (distortedY < 0) distortedY = 0;
@@ -59,6 +61,7 @@ CameraTranslator::CameraPosition CameraTranslator::undistort(int distortedX, int
            undistortedX,
            undistortedY
          );
+  */
 }
 
 CameraTranslator::CameraPosition CameraTranslator::distort(int undistortedX, int undistortedY) {

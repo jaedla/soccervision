@@ -7,7 +7,7 @@ class Frame {
 public:
   Frame() : data(NULL), size(0), width(0), height(0), number(0), fresh(false), timestamp(0.0) {}
   virtual ~Frame() {};
-  unsigned char *data;
+  uint8_t *data;
   int size;
   int width;
   int height;

@@ -26,6 +26,7 @@ public:
   virtual void startAcquisition();
   virtual void stopAcquisition();
   virtual void close();
+
 private:
   class FrameListener : public android::CpuConsumer::FrameAvailableListener {
   public:
@@ -35,6 +36,13 @@ private:
   private:
     AndroidCamera *androidCamera;
   };
+
+  class AndroidCameraFrame : public Frame {
+    virtual ~AndroidCameraFrame() {
+      delete data;
+    }
+  };
+
   typedef android::CpuConsumer::LockedBuffer LockedBuffer;
   void getModule();
   void findBackCamera();
@@ -45,6 +53,8 @@ private:
   void startStream();
   LockedBuffer *getNewestFrame();
   void releaseFrame(LockedBuffer *frame);
+  void convertFrameToYuyv(LockedBuffer& frame, uint8_t *yuyv);
+
   struct camera_module *cameraModule;
   int cameraId;
   android::sp<android::CameraDeviceBase> device;
