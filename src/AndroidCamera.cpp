@@ -27,6 +27,8 @@ AndroidCamera::~AndroidCamera() {
 }
 
 Frame *AndroidCamera::getFrame() {
+  LockedBuffer *imageBuffer = getNewestFrame();
+  releaseFrame(imageBuffer);
   return NULL;
   Frame *frame = new Frame();
   frame->data = NULL;
@@ -100,6 +102,28 @@ void AndroidCamera::createRequest() {
 void AndroidCamera::startStream() {
   status_t res = device->setStreamingRequest(request);
   check(res == OK, "Failed to start camera stream");
+}
+
+AndroidCamera::LockedBuffer *AndroidCamera::getNewestFrame() {
+  UniquePtr<LockedBuffer> frame;
+  do {
+    status_t res;
+    do {
+      UniquePtr<LockedBuffer> nextFrame(new CpuConsumer::LockedBuffer());
+      res = bufferQueueConsumer->lockNextBuffer(nextFrame.get());
+      if (res == OK) {
+        if (frame.get())
+          bufferQueueConsumer->unlockBuffer(*frame);
+        frame.reset(nextFrame.release());
+      }
+    } while (res == OK);
+  } while (!frame.get());
+  return frame.release();
+}
+
+void AndroidCamera::releaseFrame(LockedBuffer *frame) {
+  bufferQueueConsumer->unlockBuffer(*frame);
+  delete frame;
 }
 
 bool AndroidCamera::open(int serial) {

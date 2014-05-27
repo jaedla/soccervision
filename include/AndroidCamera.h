@@ -35,6 +35,7 @@ private:
   private:
     AndroidCamera *androidCamera;
   };
+  typedef android::CpuConsumer::LockedBuffer LockedBuffer;
   void getModule();
   void findBackCamera();
   void getDevice();
@@ -42,6 +43,8 @@ private:
   void createStream();
   void createRequest();
   void startStream();
+  LockedBuffer *getNewestFrame();
+  void releaseFrame(LockedBuffer *frame);
   struct camera_module *cameraModule;
   int cameraId;
   android::sp<android::CameraDeviceBase> device;
