@@ -72,7 +72,7 @@ void AndroidCamera::createStream() {
     surface,
     parameters->previewWidth,
     parameters->previewHeight,
-    HAL_PIXEL_FORMAT_YV12,
+    HAL_PIXEL_FORMAT_YCbCr_420_888,
     0,
     &streamId);
   check(res == OK, "Failed to create Android camera stream");
