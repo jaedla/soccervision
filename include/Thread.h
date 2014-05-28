@@ -2,11 +2,12 @@
 #define THREAD_H
 
 #include <pthread.h>
+#include <string>
 
 class Thread {
 
 public:
-  Thread();
+  Thread(std::string name);
   virtual ~Thread();
 
   int start();
@@ -20,7 +21,7 @@ private:
   pthread_t handle;
   bool running;
   bool detached;
-
+  std::string name;
 };
 
 #endif // THREAD_H

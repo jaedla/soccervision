@@ -1,7 +1,7 @@
 #include "AndroidBinderThread.h"
 #include "binder/IPCThreadState.h"
 
-AndroidBinderThread::AndroidBinderThread() {
+AndroidBinderThread::AndroidBinderThread() : Thread("AndroidBinder") {
 }
 
 AndroidBinderThread::~AndroidBinderThread() {

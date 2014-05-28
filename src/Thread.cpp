@@ -1,11 +1,12 @@
 #include "Thread.h"
 #include <stdio.h>
+#include <string>
 
 static void *runThread(void *arg) {
   return ((Thread *)arg)->run();
 }
 
-Thread::Thread() : running(0), detached(0) {}
+Thread::Thread(std::string name) : running(0), detached(0), name(name) {}
 
 Thread::~Thread() {
   if (running) {
@@ -19,8 +20,10 @@ Thread::~Thread() {
 int Thread::start() {
   int result = pthread_create(&handle, NULL, runThread, this);
 
-  if (result == 0)
+  if (result == 0) {
+    pthread_setname_np(handle, name.c_str());
     running = true;
+  }
 
   return result;
 }

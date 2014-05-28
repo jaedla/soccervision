@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-Server::Server() : ws(NULL) {
+Server::Server() : Thread("WebSocketServer"), ws(NULL) {
   ws = new WebSocketServer();
   ws->addListener(this);
 

@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-ProcessThread::ProcessThread(BaseCamera *camera, Blobber *blobber, Vision *vision) : Thread(), camera(camera), blobber(blobber), vision(vision), visionResult(NULL), debug(false), gotFrame(false), faulty(false), done(true) {
+ProcessThread::ProcessThread(std::string name, BaseCamera *camera, Blobber *blobber, Vision *vision) : Thread(name), camera(camera), blobber(blobber), vision(vision), visionResult(NULL), debug(false), gotFrame(false), faulty(false), done(true) {
   frameData = NULL;
   width = blobber->getWidth();
   height = blobber->getHeight();

@@ -1,10 +1,11 @@
 #ifndef PROCESSTHREAD_H
 #define PROCESSTHREAD_H
 
-#include "Thread.h"
-#include "Config.h"
-#include "Vision.h"
 #include "BaseCamera.h"
+#include "Config.h"
+#include <string>
+#include "Thread.h"
+#include "Vision.h"
 
 class BaseCamera;
 class Blobber;
@@ -12,7 +13,7 @@ class Blobber;
 class ProcessThread : public Thread {
 
 public:
-  ProcessThread(BaseCamera *camera, Blobber *blobber, Vision *vision);
+  ProcessThread(std::string name, BaseCamera *camera, Blobber *blobber, Vision *vision);
   ~ProcessThread();
 
   bool isDone() {

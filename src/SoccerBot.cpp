@@ -449,8 +449,8 @@ void SoccerBot::setupVision() {
 void SoccerBot::setupProcessors() {
   std::cout << "! Setting up processor threads.. ";
 
-  frontProcessor = new ProcessThread(frontCamera, frontBlobber, frontVision);
-  rearProcessor = new ProcessThread(rearCamera, rearBlobber, rearVision);
+  frontProcessor = new ProcessThread("FrontProcessor", frontCamera, frontBlobber, frontVision);
+  rearProcessor = new ProcessThread("RearProcessor", rearCamera, rearBlobber, rearVision);
 
   std::cout << "done!" << std::endl;
 }
