@@ -103,11 +103,8 @@ void *ProcessThread::run() {
 
     //Util::timerStart();
     //ImageProcessor::ARGBToBGR(
-    ImageProcessor::ARGBToRGB(
-      argb,
-      rgb,
-      width, height
-    );
+    ImageProcessor::ARGBToRGB(argb, rgb, width, height);
+    
     //std::cout << "  - ARGB > RGB: " << Util::timerEnd() << std::endl;
 
     vision->setDebugImage(rgb, width, height);

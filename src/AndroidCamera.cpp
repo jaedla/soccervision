@@ -130,8 +130,38 @@ void AndroidCamera::releaseFrame(LockedBuffer *frame) {
 }
 
 void AndroidCamera::convertFrameToYuyv(LockedBuffer& frame, uint8_t *yuyv) {
-  printf("filling with %02x\n", frame.data[0]);
-  memset(yuyv, frameSize, frame.data[0]);
+  uint8_t *yuyvDst1 = yuyv;
+  uint8_t *yuyvDst2 = yuyv + width * 2;
+  uint8_t yuyvGap = width * 2;
+  uint8_t *ySrc1 = frame.data;
+  uint8_t *ySrc2 = frame.data + frame.stride;
+  int32_t yGap = 2 * frame.stride - width;
+  uint8_t *uSrc = frame.dataCb;
+  uint8_t *vSrc = frame.dataCr;
+  int32_t uvStep = frame.chromaStep;
+  int32_t uvGap = frame.chromaStride - (width / 2) * uvStep;
+  for (uint32_t row = 0; row < height; row += 2) {
+    for (uint32_t column = 0; column < width; column += 2) {
+      uint8_t u = *uSrc;
+      uint8_t v = *vSrc;
+      uSrc += uvStep;
+      vSrc += uvStep;
+      *yuyvDst1++ = *ySrc1++;
+      *yuyvDst1++ = u;
+      *yuyvDst1++ = *ySrc1++;
+      *yuyvDst1++ = v;
+      *yuyvDst2++ = *ySrc2++;
+      *yuyvDst2++ = u;
+      *yuyvDst2++ = *ySrc2++;
+      *yuyvDst2++ = v;
+    }
+    yuyvDst1 += yuyvGap;
+    yuyvDst2 += yuyvGap;
+    ySrc1 += yGap;
+    ySrc2 += yGap;
+    uSrc += uvGap;
+    vSrc += uvGap;
+  }
 }
 
 bool AndroidCamera::open(int serial) {

@@ -31,7 +31,6 @@ public:
 
   bool gotFrame;
   bool faulty;
-  Frame *frame;
   unsigned char *frameData;
   unsigned char *dataYUYV;
   unsigned char *dataY;
@@ -42,6 +41,7 @@ public:
   unsigned char *rgb;
 
 private:
+  Frame *frame;
   void *run();
   bool fetchFrame();
 
