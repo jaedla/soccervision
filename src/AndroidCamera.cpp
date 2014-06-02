@@ -16,6 +16,7 @@ static void check(bool condition, const char *msg) {
 }
 
 void AndroidCamera::FrameListener::onFrameAvailable() {
+  printf("frame available\n");
 }
 
 AndroidCamera::AndroidCamera() {
@@ -35,6 +36,7 @@ Frame *AndroidCamera::getFrame() {
   frame->fresh = true;
   convertFrameToYuyv(*imageBuffer, frame->data);
   releaseFrame(imageBuffer);
+  printf("took frame\n");
   return frame;
 }
 
