@@ -8,7 +8,7 @@
 
 using namespace android;
 
-static void check(bool condition, const char *msg) {
+static void Check(bool condition, const char *msg) {
   if (!condition) {
     printf("Check failed: %s\n", msg);
     exit(1);
@@ -42,7 +42,7 @@ Frame *AndroidCamera::getFrame() {
 
 void AndroidCamera::getModule() {
   int res = hw_get_module(CAMERA_HARDWARE_MODULE_ID, (const hw_module_t **)&cameraModule);
-  check(res == 0, "Failed to get camera module");
+  Check(res == 0, "Failed to get camera module");
 }
 
 void AndroidCamera::findBackCamera() {
@@ -50,19 +50,19 @@ void AndroidCamera::findBackCamera() {
   for (int cameraId = 0; cameraId < numberOfCameras; cameraId++) {
     camera_info_t cameraInfo;
     int res = (*cameraModule->get_camera_info)(cameraId, &cameraInfo);
-    check(res == 0, "get_camera_info failed");
+    Check(res == 0, "get_camera_info failed");
     if (cameraInfo.facing == CAMERA_FACING_BACK) {
       this->cameraId = cameraId;
       return;
     }
   }
-  check(false, "Didn't find a back camera");
+  Check(false, "Didn't find a back camera");
 }
 
 void AndroidCamera::getDevice() {
   device = new Camera3Device(cameraId);
   status_t res = device->initialize(cameraModule);
-  check(res == OK, "Failed to initialize camera device");
+  Check(res == OK, "Failed to initialize camera device");
 }
 
 void AndroidCamera::createParameters() {
@@ -71,7 +71,7 @@ void AndroidCamera::createParameters() {
   width = parameters->previewWidth;
   height = parameters->previewHeight;
   frameSize = width * height * 2;
-  check(!(width & 1), "Image width from camera not multiple of 2");
+  Check(!(width & 1), "Image width from camera not multiple of 2");
   printf("Camera resolution %ux%u\n", width, height);
 }
 
@@ -88,25 +88,25 @@ void AndroidCamera::createStream() {
     HAL_PIXEL_FORMAT_YCbCr_420_888,
     0,
     &streamId);
-  check(res == OK, "Failed to create Android camera stream");
+  Check(res == OK, "Failed to create Android camera stream");
 }
 
 void AndroidCamera::createRequest() {
   status_t res = device->createDefaultRequest(CAMERA3_TEMPLATE_PREVIEW, &request);
-  check(res == OK, "Failed to create camera default request");
+  Check(res == OK, "Failed to create camera default request");
   res = parameters->updateRequest(&request);
-  check(res == OK, "Failed to configure camera request");
+  Check(res == OK, "Failed to configure camera request");
   Vector<int32_t> outputStreams;
   outputStreams.push(streamId);
   res = request.update(ANDROID_REQUEST_OUTPUT_STREAMS, outputStreams);
-  check(res == OK, "Failed to set camera request output streams");
+  Check(res == OK, "Failed to set camera request output streams");
   res = request.sort();
-  check(res == OK, "Failed to sort camera request");
+  Check(res == OK, "Failed to sort camera request");
 }
 
 void AndroidCamera::startStream() {
   status_t res = device->setStreamingRequest(request);
-  check(res == OK, "Failed to start camera stream");
+  Check(res == OK, "Failed to start camera stream");
 }
 
 AndroidCamera::LockedBuffer *AndroidCamera::getNewestFrame() {

@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-ProcessThread::ProcessThread(std::string name, BaseCamera *camera, Blobber *blobber, Vision *vision) : Thread(name), camera(camera), blobber(blobber), vision(vision), visionResult(NULL), debug(false), gotFrame(false), faulty(false), done(true) {
+ProcessThread::ProcessThread(std::string name, BaseCamera *camera, Blobber *blobber, Vision *vision) : Thread(name), camera(camera), blobber(blobber), vision(vision), visionResult(NULL), debug(false), gotFrame(false), faulty(false), stopRequested(false), done(true) {
   frameData = NULL;
   width = blobber->getWidth();
   height = blobber->getHeight();
@@ -41,6 +41,30 @@ ProcessThread::~ProcessThread() {
 }
 
 void *ProcessThread::run() {
+  while (true) {
+    processing.waitUntil(true);
+    if (stopRequested)
+      break;
+    process();
+    processing.set(false);
+  }
+  return NULL;
+}
+
+void ProcessThread::stopThread() {
+  stopRequested = true;
+  processing.set(true);
+}
+
+void ProcessThread::startProcessing() {
+  processing.set(true);
+}
+
+void ProcessThread::waitUntilProcessed() {
+  processing.waitUntil(false);
+}
+
+void ProcessThread::process() {
   gotFrame = fetchFrame();
 
   if (!gotFrame || frameData == NULL) {
@@ -59,7 +83,7 @@ void *ProcessThread::run() {
       //std::cout << "! Getting frame failed, using previous data" << std::endl;
     }
 
-    return NULL;
+    return;
   }
 
   if (visionResult != NULL) {
@@ -128,8 +152,6 @@ void *ProcessThread::run() {
     frame = NULL;
   }
   done = true;
-
-  return NULL;
 }
 
 bool ProcessThread::fetchFrame() {

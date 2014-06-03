@@ -6,6 +6,7 @@
 #include <string>
 #include "Thread.h"
 #include "Vision.h"
+#include "WaitableFlag.h"
 
 class BaseCamera;
 class Blobber;
@@ -19,6 +20,10 @@ public:
   bool isDone() {
     return done;
   };
+
+  void stopThread();
+  void startProcessing();
+  void waitUntilProcessed();
 
   int width;
   int height;
@@ -42,10 +47,12 @@ public:
   unsigned char *rgb;
 
 private:
-  Frame *frame;
   void *run();
   bool fetchFrame();
-
+  void process();
+  bool stopRequested;
+  Frame *frame;
+  WaitableFlag processing;
   bool done;
 };
 

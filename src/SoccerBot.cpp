@@ -142,6 +142,9 @@ void SoccerBot::run() {
   double time;
   double debugging;
 
+  frontProcessor->start();
+  rearProcessor->start();
+
   while (running) {
     //__int64 startTime = Util::timerStart();
 
@@ -168,23 +171,13 @@ void SoccerBot::run() {
 
     fpsCounter->step();
 
-    //if (gotFrontFrame) {
-    frontProcessor->start();
-    //}
+    frontProcessor->startProcessing();
+    rearProcessor->startProcessing();
+    frontProcessor->waitUntilProcessed();
+    rearProcessor->waitUntilProcessed();
 
-    //if (gotRearFrame) {
-    rearProcessor->start();
-    //}
-
-    //if (gotFrontFrame) {
-    frontProcessor->join();
     visionResults->front = frontProcessor->visionResult;
-    //}
-
-    //if (gotRearFrame) {
-    rearProcessor->join();
     visionResults->rear = rearProcessor->visionResult;
-    //}
 
     if (debugging) {
       Object *closestBall = visionResults->getClosestBall();
@@ -284,6 +277,11 @@ void SoccerBot::run() {
 
     //std::cout << "! Total time: " << Util::timerEnd(startTime) << std::endl;
   }
+
+  frontProcessor->stopThread();
+  rearProcessor->stopThread();
+  frontProcessor->join();
+  rearProcessor->join();
 
   com->send("reset");
 
