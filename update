@@ -1,8 +1,8 @@
 #!/bin/bash
 
 set -e
-android_home=/data/local/shell
-android_tmp=${android_home}/tmp
+android_home=/data/home/root
+android_tmp=/data/tmp
 dir=${android_home}/soccervision
 binary=${android_source}/out/target/product/hammerhead/obj/EXECUTABLES/soccervision_intermediates/LINKED/soccervision
 
@@ -11,7 +11,7 @@ function echogreen {
 }
 
 function soccervision_exists {
-  if adb shell ls -d ${dir} | grep 'No such file or directory' >/dev/null; then
+  if android_cmd "ls -d ${dir} 2>&1" | grep 'No such file or directory' >/dev/null; then
     return 1
   fi
   return 0
@@ -21,8 +21,8 @@ function soccervision_copy {
   echogreen 'Creating soccervision structure on Android...'
   local tmpdir=$(hometemp -d)
   mkdir ${tmpdir}/soccervision
-  cp -r config screenshots ${tmpdir}/soccervision
-  android_copy ${tmpdir}/soccervision ${android_home}
+  cp -r config screenshots sv ${tmpdir}/soccervision
+  android_copy ${tmpdir}/soccervision android:${android_home}
   rm -r ${tmpdir}
 }
 
@@ -35,8 +35,7 @@ function ensure_soccervision_exists {
 echogreen "Building..."
 ./build
 echogreen "Connecting to Android..."
-ensure_adb_connected
 ensure_soccervision_exists
 echogreen "Uploading soccervision..."
-android_copy ${binary} ${android_home}/soccervision
+android_copy ${binary} android:${android_home}/soccervision
 
