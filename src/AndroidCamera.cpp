@@ -195,5 +195,10 @@ void AndroidCamera::stopAcquisition() {
 }
 
 void AndroidCamera::close() {
+  if (device != 0) {
+    printf("Closing camera\n");
+    device->disconnect();
+    device.clear();
+  }
 }
 
