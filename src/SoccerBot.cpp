@@ -21,6 +21,7 @@
 #include <algorithm>
 
 SoccerBot::SoccerBot() :
+  Thread("SoccerBot"),
   debugVision(false), showGui(false),
   androidBinderThread(NULL),
   frontCamera(NULL), rearCamera(NULL),
@@ -216,40 +217,6 @@ void SoccerBot::run() {
         broadcastFrame(rearProcessor->rgb, rearProcessor->classification);
 
       frameRequested = false;
-    }
-
-    if (showGui) {
-      /*
-      if (gui == NULL) {
-      	setupGui();
-      }
-
-      gui->setFps(fpsCounter->getFps());
-
-      if (frontProcessor->gotFrame) {
-      	gui->setFrontImages(
-      		frontProcessor->rgb,
-      		frontProcessor->dataYUYV,
-      		frontProcessor->dataY, frontProcessor->dataU, frontProcessor->dataV,
-      		frontProcessor->classification
-      	);
-      }
-
-      if (rearProcessor->gotFrame) {
-      	gui->setRearImages(
-      		rearProcessor->rgb,
-      		rearProcessor->dataYUYV,
-      		rearProcessor->dataY, rearProcessor->dataU, rearProcessor->dataV,
-      		rearProcessor->classification
-      	);
-      }
-
-      gui->update();
-
-      if (gui->isQuitRequested()) {
-      	running = false;
-      }
-      */
     }
 
     /*if (fpsCounter->frameNumber % 60 == 0) {

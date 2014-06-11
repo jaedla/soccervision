@@ -92,7 +92,7 @@ Server::Client *Server::getClientByConnection(websocketpp::connection_hdl connec
   return NULL;
 }
 
-void *Server::run() {
+void Server::run() {
   std::cout << "! Starting web socket server on port " << port << std::endl;
 
   try {
@@ -100,8 +100,6 @@ void *Server::run() {
   } catch (std::exception &e) {
     std::cout << "- Web socket server error: " << e.what() << std::endl;
   }
-
-  return NULL;
 }
 
 void Server::onSocketOpen(websocketpp::connection_hdl connection) {

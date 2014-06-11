@@ -2,12 +2,14 @@
 #define SOCCERBOT_H
 
 #include "AndroidBinderThread.h"
-#include "Vision.h"
-#include "Controller.h"
-#include "Server.h"
-#include "Command.h"
 #include "AndroidCamera.h"
+#include "Command.h"
+#include "Controller.h"
+#include "PerfDebug.h"
+#include "Server.h"
 #include <string>
+#include "Thread.h"
+#include "Vision.h"
 
 class BaseCamera;
 class XimeaCamera;
@@ -19,7 +21,7 @@ class Robot;
 class Communication;
 class CameraTranslator;
 
-class SoccerBot {
+class SoccerBot : public Thread {
 
 public:
   SoccerBot();
@@ -39,6 +41,7 @@ public:
   void setupGui();
   void setupServer();
   void setupCommunication();
+  void setupPerfDebug();
 
   void addController(std::string name, Controller *controller);
   Controller *getController(std::string name);
@@ -78,6 +81,7 @@ private:
   BaseCamera *rearCamera;
   //XimeaCamera* ximeaFrontCamera;
   //XimeaCamera* ximeaRearCamera;
+  PerfDebug *perfDebug;
   AndroidCamera *androidCamera;
   VirtualCamera *virtualFrontCamera;
   VirtualCamera *virtualRearCamera;

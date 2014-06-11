@@ -47,7 +47,7 @@ public:
   unsigned char *rgb;
 
 private:
-  void *run();
+  void run();
   bool fetchFrame();
   void process();
   bool stopRequested;

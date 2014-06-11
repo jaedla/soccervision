@@ -7,7 +7,7 @@ class AndroidBinderThread : public Thread {
 public:
   AndroidBinderThread();
   virtual ~AndroidBinderThread();
-  virtual void *run();
+  virtual void run();
 };
 
 #endif // ANDROIDBINDERTHREAD_H

@@ -32,10 +32,12 @@ LOCAL_SRC_FILES := \
     src/OdometerLocalizer.cpp \
     src/OffensiveAI.cpp \
     src/ParticleFilterLocalizer.cpp \
+    src/PerfDebug.cpp \
     src/ProcessThread.cpp \
     src/Robot.cpp \
     src/ScopedMutex.cpp \
     src/Server.cpp \
+    src/SharedFlag.cpp \
     src/SignalHandler.cpp \
     src/SoccerBot.cpp \
     src/Tasks.cpp \

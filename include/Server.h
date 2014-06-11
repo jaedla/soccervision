@@ -46,7 +46,7 @@ public:
   Client *getClientByConnection(websocketpp::connection_hdl connection);
 
 private:
-  void *run();
+  void run();
   void onSocketOpen(websocketpp::connection_hdl connection);
   void onSocketClose(websocketpp::connection_hdl connection);
   void onSocketMessage(std::string message, websocketpp::connection_hdl connection, websocketpp::server<websocketpp::config::asio>::message_ptr msg);

@@ -1,11 +1,13 @@
-#include "Util.h"
+#include <chrono>
 #include "Config.h"
+#include "Util.h"
 #include <dirent.h>
 #include <iostream>
 #include <ctime>
 #include <stdio.h>
 #include <stdio.h>
 #include <sys/time.h>
+#include <thread>
 
 double Util::queryPerformanceFrequency = 0;
 int64_t Util::timerStartCount = 0;
@@ -85,6 +87,10 @@ std::string Util::base64Encode(const unsigned char *data, unsigned int length) {
   }
 
   return ret;
+}
+
+void Util::sleep(int milliseconds) {
+  std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
 
 double Util::millitime() {

@@ -40,7 +40,7 @@ ProcessThread::~ProcessThread() {
   delete[] rgb;
 }
 
-void *ProcessThread::run() {
+void ProcessThread::run() {
   while (true) {
     processing.waitUntil(true);
     if (stopRequested)
@@ -48,7 +48,6 @@ void *ProcessThread::run() {
     process();
     processing.set(false);
   }
-  return NULL;
 }
 
 void ProcessThread::stopThread() {

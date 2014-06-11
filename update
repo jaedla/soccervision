@@ -23,7 +23,7 @@ function soccervision_copy {
   mkdir ${tmpdir}/soccervision
   cp -r config screenshots sv ${tmpdir}/soccervision
   android_copy ${tmpdir}/soccervision android:${android_home}
-  rm -r ${tmpdir}
+  rm -rf ${tmpdir}
 }
 
 function ensure_soccervision_exists {

@@ -37,7 +37,7 @@ public:
 
 private:
   void sendNoQueue(std::string message);
-  void *run();
+  void run();
   void onReceive(const boost::system::error_code &error, size_t bytesReceived);
   void onSend(const boost::system::error_code &error, size_t bytesSent);
   void receiveNext();

@@ -77,7 +77,7 @@ std::string Communication::dequeueMessage() {
   return message;
 }
 
-void *Communication::run() {
+void Communication::run() {
   std::cout << "! Starting communication socket connection to " << host << ":" << port << std::endl;
 
   socket = new udp::socket(ioService, udp::endpoint(udp::v4(), port));
@@ -94,8 +94,6 @@ void *Communication::run() {
   running = true;
 
   receiveNext();
-
-  return NULL;
 }
 
 void Communication::receiveNext() {
