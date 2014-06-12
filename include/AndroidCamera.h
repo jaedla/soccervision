@@ -11,6 +11,7 @@
 #include "hardware/camera3.h"
 #include "utils/RefBase.h"
 #include "utils/UniquePtr.h"
+#include <string>
 
 class AndroidCamera : public BaseCamera {
 public:
@@ -28,15 +29,6 @@ public:
   virtual void close();
 
 private:
-  class FrameListener : public android::CpuConsumer::FrameAvailableListener {
-  public:
-    FrameListener(AndroidCamera *androidCamera) : androidCamera(androidCamera) {
-    }
-    virtual void onFrameAvailable();
-  private:
-    AndroidCamera *androidCamera;
-  };
-
   class AndroidCameraFrame : public Frame {
     virtual ~AndroidCameraFrame() {
       delete data;
@@ -44,11 +36,31 @@ private:
   };
 
   typedef android::CpuConsumer::LockedBuffer LockedBuffer;
+
+  class Stream : public android::CpuConsumer::FrameAvailableListener {
+  public:
+    Stream(std::string name, AndroidCamera *androidCamera);
+    void create(uint32_t width, uint32_t height, uint32_t size, int format);
+    virtual void onFrameAvailable();
+    int getId() { return streamId; }
+    LockedBuffer *getNewestFrame();
+    void releaseFrame(LockedBuffer *frame);
+  private:
+    std::string name;
+    AndroidCamera *androidCamera;
+    android::sp<android::BufferQueue> bufferQueue;
+    android::sp<android::CpuConsumer> bufferQueueConsumer;
+    android::sp<ANativeWindow> surface;
+    int streamId;
+  };
+
   void getModule();
   void findBackCamera();
   void getDevice();
   void createParameters();
-  void createStream();
+  Stream *createStream(std::string name, uint32_t width, uint32_t height, uint32_t size, int format);
+  uint32_t getMaxJpegSize();
+  void createStreams();
   void createRequest();
   void startStream();
   LockedBuffer *getNewestFrame();
@@ -59,11 +71,7 @@ private:
   int cameraId;
   android::sp<android::CameraDeviceBase> device;
   UniquePtr<android::camera2::Parameters> parameters;
-  android::sp<android::BufferQueue> bufferQueue;
-  android::sp<android::CpuConsumer> bufferQueueConsumer;
-  android::sp<FrameListener> frameListener;
-  android::sp<ANativeWindow> surface;
-  int streamId;
+  android::sp<Stream> stream;
   android::CameraMetadata request;
   bool acquisitioning;
   uint32_t width;

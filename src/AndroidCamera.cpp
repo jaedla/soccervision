@@ -15,8 +15,51 @@ static void Check(bool condition, const char *msg) {
   }
 }
 
-void AndroidCamera::FrameListener::onFrameAvailable() {
-  //printf("frame available\n");
+AndroidCamera::Stream::Stream(std::string name, AndroidCamera *androidCamera) :
+    name(name),
+    androidCamera(androidCamera),
+    streamId(0) {
+}
+
+void AndroidCamera::Stream::onFrameAvailable() {
+  printf("%s stream: frame available\n", name.c_str());
+}
+
+void AndroidCamera::Stream::create(uint32_t width, uint32_t height, uint32_t size, int format) {
+  bufferQueue = new BufferQueue();
+  bufferQueueConsumer = new CpuConsumer(bufferQueue, 6);
+  bufferQueueConsumer->setFrameAvailableListener(this);
+  surface = new Surface(bufferQueue);
+  status_t res = androidCamera->device->createStream(
+    surface,
+    width,
+    height,
+    format,
+    size,
+    &streamId);
+  Check(res == OK, "Failed to create Android camera stream");
+}
+
+AndroidCamera::LockedBuffer *AndroidCamera::Stream::getNewestFrame() {
+  UniquePtr<LockedBuffer> frame;
+  do {
+    status_t res;
+    do {
+      UniquePtr<LockedBuffer> nextFrame(new CpuConsumer::LockedBuffer());
+      res = bufferQueueConsumer->lockNextBuffer(nextFrame.get());
+      if (res == OK) {
+        if (frame.get())
+          bufferQueueConsumer->unlockBuffer(*frame);
+        frame.reset(nextFrame.release());
+      }
+    } while (res == OK);
+  } while (!frame.get());
+  return frame.release();
+}
+
+void AndroidCamera::Stream::releaseFrame(LockedBuffer *frame) {
+  bufferQueueConsumer->unlockBuffer(*frame);
+  delete frame;
 }
 
 AndroidCamera::AndroidCamera() {
@@ -27,7 +70,7 @@ AndroidCamera::~AndroidCamera() {
 }
 
 Frame *AndroidCamera::getFrame() {
-  LockedBuffer *imageBuffer = getNewestFrame();
+  LockedBuffer *imageBuffer = stream->getNewestFrame();
   Frame *frame = new AndroidCameraFrame();
   frame->data = new uint8_t[frameSize];
   frame->size = frameSize;
@@ -35,8 +78,8 @@ Frame *AndroidCamera::getFrame() {
   frame->height = height;
   frame->fresh = true;
   convertFrameToYuyv(*imageBuffer, frame->data);
-  releaseFrame(imageBuffer);
-  //printf("took frame\n");
+  stream->releaseFrame(imageBuffer);
+  printf("took frame\n");
   return frame;
 }
 
@@ -75,20 +118,20 @@ void AndroidCamera::createParameters() {
   printf("Camera resolution %ux%u\n", width, height);
 }
 
-void AndroidCamera::createStream() {
-  bufferQueue = new BufferQueue();
-  bufferQueueConsumer = new CpuConsumer(bufferQueue, 6);
-  frameListener = new FrameListener(this);
-  bufferQueueConsumer->setFrameAvailableListener(frameListener);
-  surface = new Surface(bufferQueue);
-  status_t res = device->createStream(
-    surface,
-    width,
-    height,
-    HAL_PIXEL_FORMAT_YCbCr_420_888,
-    0,
-    &streamId);
-  Check(res == OK, "Failed to create Android camera stream");
+uint32_t AndroidCamera::getMaxJpegSize() {
+  camera_metadata_ro_entry_t maxJpegSize = parameters->staticInfo(ANDROID_JPEG_MAX_SIZE);
+  Check(maxJpegSize.count != 0, "Failed to get max jpeg size");
+  return maxJpegSize.data.i32[0];
+}
+
+AndroidCamera::Stream *AndroidCamera::createStream(std::string name, uint32_t width, uint32_t height, uint32_t size, int format) {
+  Stream *stream = new Stream(name, this);
+  stream->create(width, height, size, format);
+  return stream;
+}
+
+void AndroidCamera::createStreams() {
+  stream = createStream("Full", width, height, 0, HAL_PIXEL_FORMAT_YCbCr_420_888);
 }
 
 void AndroidCamera::createRequest() {
@@ -97,7 +140,7 @@ void AndroidCamera::createRequest() {
   res = parameters->updateRequest(&request);
   Check(res == OK, "Failed to configure camera request");
   Vector<int32_t> outputStreams;
-  outputStreams.push(streamId);
+  outputStreams.push(stream->getId());
   res = request.update(ANDROID_REQUEST_OUTPUT_STREAMS, outputStreams);
   Check(res == OK, "Failed to set camera request output streams");
   res = request.sort();
@@ -107,28 +150,6 @@ void AndroidCamera::createRequest() {
 void AndroidCamera::startStream() {
   status_t res = device->setStreamingRequest(request);
   Check(res == OK, "Failed to start camera stream");
-}
-
-AndroidCamera::LockedBuffer *AndroidCamera::getNewestFrame() {
-  UniquePtr<LockedBuffer> frame;
-  do {
-    status_t res;
-    do {
-      UniquePtr<LockedBuffer> nextFrame(new CpuConsumer::LockedBuffer());
-      res = bufferQueueConsumer->lockNextBuffer(nextFrame.get());
-      if (res == OK) {
-        if (frame.get())
-          bufferQueueConsumer->unlockBuffer(*frame);
-        frame.reset(nextFrame.release());
-      }
-    } while (res == OK);
-  } while (!frame.get());
-  return frame.release();
-}
-
-void AndroidCamera::releaseFrame(LockedBuffer *frame) {
-  bufferQueueConsumer->unlockBuffer(*frame);
-  delete frame;
 }
 
 void AndroidCamera::convertFrameToYuyv(LockedBuffer& frame, uint8_t *yuyv) {
@@ -171,7 +192,7 @@ bool AndroidCamera::open(int serial) {
   findBackCamera();
   getDevice();
   createParameters();
-  createStream();
+  createStreams();
   createRequest();
   startStream();
   printf("Success\n");
