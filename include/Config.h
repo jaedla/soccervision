@@ -22,8 +22,8 @@ const std::string communicationHost = "192.168.4.1";
 const int communicationPort = 8042;
 
 // camera resolution
-const int cameraWidth = 1280;
-const int cameraHeight = 720;
+const int cameraWidth = 640;
+const int cameraHeight = 512;
 const float cameraFovDistance = 5.0f;
 //const float cameraFovAngle = 56.0f * 3.14f / 180.0f;
 const float cameraFovAngle = 40.0f * 3.14f / 180.0f;

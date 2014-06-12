@@ -93,6 +93,8 @@ SoccerBot::~SoccerBot() {
 }
 
 void SoccerBot::setup() {
+  perfDebug = new PerfDebug();
+  perfDebug->start();
   setupAndroid();
   setupCommunication();
   setupVision();
@@ -147,6 +149,7 @@ void SoccerBot::run() {
   rearProcessor->start();
 
   while (running) {
+    printf("new cycle\n");
     //__int64 startTime = Util::timerStart();
 
     time = Util::millitime();
@@ -249,6 +252,8 @@ void SoccerBot::run() {
   rearProcessor->stopThread();
   frontProcessor->join();
   rearProcessor->join();
+  perfDebug->requestStop();
+  perfDebug->join();
 
   com->send("reset");
 
@@ -280,6 +285,7 @@ void SoccerBot::run() {
 }*/
 
 void SoccerBot::broadcastFrame(unsigned char *rgb, unsigned char *classification) {
+  printf("broadcastFrame\n");
   int jpegBufferSize = Config::jpegBufferSize;
 
   if (jpegBuffer == NULL) {
@@ -288,26 +294,32 @@ void SoccerBot::broadcastFrame(unsigned char *rgb, unsigned char *classification
     std::cout << "done!" << std::endl;
   }
 
+  printf("to jpeg\n");
   if (!ImageProcessor::rgbToJpeg(rgb, jpegBuffer, jpegBufferSize, Config::cameraWidth, Config::cameraHeight)) {
     std::cout << "- Converting RGB image to JPEG failed, probably need to increase buffer size" << std::endl;
 
     return;
   }
 
+  printf("to base64 %d bytes\n", jpegBufferSize);
   std::string base64Rgb = Util::base64Encode(jpegBuffer, jpegBufferSize);
 
   jpegBufferSize = Config::jpegBufferSize;
 
+  printf("to jpeg\n");
   if (!ImageProcessor::rgbToJpeg(classification, jpegBuffer, jpegBufferSize, Config::cameraWidth, Config::cameraHeight)) {
     std::cout << "- Converting classification image to JPEG failed, probably need to increase buffer size" << std::endl;
 
     return;
   }
 
+  printf("to base64 %d bytes\n", jpegBufferSize);
   std::string base64Classification = Util::base64Encode(jpegBuffer, jpegBufferSize);
   std::string frameResponse = Util::json("frame", "{\"rgb\": \"" + base64Rgb + "\",\"classification\": \"" + base64Classification + "\",\"activeStream\":\"" + activeStreamName + "\",\"cameraK\":" + Util::toString(Util::cameraCorrectionK) + ",\"cameraZoom\":" + Util::toString(Util::cameraCorrectionZoom) + "}");
 
+  printf("server->broadcast\n");
   server->broadcast(frameResponse);
+  printf("broadcastFrame done\n");
 }
 
 void SoccerBot::broadcastScreenshots() {
