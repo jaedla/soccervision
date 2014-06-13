@@ -1,26 +1,25 @@
-#include "ProcessThread.h"
-#include "Blobber.h"
-#include "ImageProcessor.h"
-#include "DebugRenderer.h"
-#include "Canvas.h"
 #include "BaseCamera.h"
-#include "Util.h"
+#include "Blobber.h"
+#include "Canvas.h"
 #include "Config.h"
-
+#include "DebugRenderer.h"
+#include "ImageProcessor.h"
 #include <iostream>
+#include "ProcessThread.h"
+#include "Util.h"
 
-ProcessThread::ProcessThread(std::string name, BaseCamera *camera, Blobber *blobber, Vision *vision) : Thread(name), camera(camera), blobber(blobber), vision(vision), visionResult(NULL), debug(false), gotFrame(false), faulty(false), stopRequested(false), done(true) {
-  frameData = NULL;
+ProcessThread::ProcessThread(std::string name, BaseCamera *camera, Blobber *blobber, Vision *vision) :
+    Thread(name),
+    camera(camera),
+    blobber(blobber),
+    vision(vision),
+    debug(false),
+    stopRequested(false) {
   width = blobber->getWidth();
   height = blobber->getHeight();
-  dataY = new unsigned char[width * height];
-  dataU = new unsigned char[(width / 2) * (height / 2)];
-  dataV = new unsigned char[(width / 2) * (height / 2)];
-  //dataYUYV = new unsigned char[width * height * 3];
   classification = new unsigned char[width * height * 3];
   argb = new unsigned char[width * height * 4];
   rgb = new unsigned char[width * height * 3];
-
   visionResult = new Vision::Result();
   visionResult->vision = vision;
 }
@@ -30,11 +29,6 @@ ProcessThread::~ProcessThread() {
     delete visionResult;
     visionResult = NULL;
   }
-
-  delete[] dataY;
-  delete[] dataU;
-  delete[] dataV;
-  //delete dataYUYV;
   delete[] classification;
   delete[] argb;
   delete[] rgb;
@@ -64,75 +58,24 @@ void ProcessThread::waitUntilProcessed() {
 }
 
 void ProcessThread::process() {
-  gotFrame = fetchFrame();
-
-  if (!gotFrame || frameData == NULL) {
-    if (faulty) {
-      if (visionResult != NULL) {
-        delete visionResult;
-        visionResult = NULL;
-      }
-
-      // fetching frame failed, create empty result set
-      visionResult = new Vision::Result();
-      visionResult->vision = vision;
-
-      std::cout << "- Getting frame failed and faulty camera detected, creating blank results" << std::endl;
-    } else {
-      //std::cout << "! Getting frame failed, using previous data" << std::endl;
-    }
-
+  if (!fetchFrame())
     return;
-  }
 
   if (visionResult != NULL) {
     delete visionResult;
     visionResult = NULL;
   }
 
-  done = false;
-
-  //Util::timerStart();
-  /*
-  ImageProcessor::bayerRGGBToI420(
-  	frameData,
-  	dataY, dataU, dataV,
-  	width, height
-  );
-  //std::cout << "  - RGGB > I420: " << Util::timerEnd() << std::endl;
-
-  //Util::timerStart();
-  ImageProcessor::I420ToYUYV(
-  	dataY, dataU, dataV,
-  	dataYUYV,
-  	width, height
-  );
-  */
-  //std::cout << "  - I420 > YUYV: " << Util::timerEnd() << std::endl;
-
-  //Util::timerStart();
-  dataYUYV = frameData;
-  blobber->processFrame((Blobber::Pixel *)dataYUYV);
-  //std::cout << "  - Process:     " << Util::timerEnd() << " (" << blobber->getBlobCount("ball") << " ball blobs)" << std::endl;
+  blobber->processFrame((Blobber::Pixel *)yuyv);
 
   if (debug) {
-    //Util::timerStart();
-    blobber->classify((Blobber::Rgb *)classification, (Blobber::Pixel *)dataYUYV);
-    //std::cout << "  - Blobber classify: " << Util::timerEnd() << std::endl;
-
-    //Util::timerStart();
-    ImageProcessor::YUYVToARGB(dataYUYV, argb, width, height);
-    //std::cout << "  - YUYV > ARGB: " << Util::timerEnd() << std::endl;
-
-    //Util::timerStart();
-    //ImageProcessor::ARGBToBGR(
+    blobber->classify((Blobber::Rgb *)classification, (Blobber::Pixel *)yuyv);
+    ImageProcessor::YUYVToARGB(yuyv, argb, width, height);
     ImageProcessor::ARGBToRGB(argb, rgb, width, height);
-    
-    //std::cout << "  - ARGB > RGB: " << Util::timerEnd() << std::endl;
-
     vision->setDebugImage(rgb, width, height);
-  } else
+  } else {
     vision->setDebugImage(NULL, 0, 0);
+  }
 
   visionResult = vision->process();
 
@@ -141,7 +84,7 @@ void ProcessThread::process() {
     DebugRenderer::renderBlobs(classification, blobber);
     DebugRenderer::renderBalls(rgb, vision, visionResult->balls);
     DebugRenderer::renderGoals(rgb, visionResult->goals);
-    //DebugRenderer::renderObstructions(rgb, visionResult->obstructionSide);
+    // DebugRenderer::renderObstructions(rgb, visionResult->obstructionSide);
     DebugRenderer::renderObstructions(rgb, visionResult->goalPathObstruction);
     // TODO Show whether a ball is in the way
   }
@@ -150,46 +93,16 @@ void ProcessThread::process() {
     delete frame;
     frame = NULL;
   }
-  done = true;
 }
 
 bool ProcessThread::fetchFrame() {
   if (camera->isAcquisitioning()) {
-    double startTime = Util::millitime();
-
     frame = camera->getFrame();
-
-    double timeTaken = Util::duration(startTime);
-
-    if (false) { //timeTaken > 0.03) {
-      std::cout << "- Fetching camera #" << camera->getSerial() << " frame took: " << timeTaken << std::endl;
-
-      faulty = true;
-
-      //frameData = NULL;
-
-      // don't use this invalid frame
-      return false;
-
-      // camera has failed
-      /*if (timeTaken > 0.031) {
-      	int serial = camera->getSerial();
-
-      	std::cout << "! Attempting to revive camera #" << serial << std::endl;
-
-      	camera->close();
-      	camera->open(serial);
-      	camera->startAcquisition();
-
-      	return false;
-      }*/
-    }
-
     if (frame != NULL && frame->fresh) {
-      frameData = frame->data;
+      yuyv = frame->data;
       return true;
     }
   }
-
   return false;
 }
+

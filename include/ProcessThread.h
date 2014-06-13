@@ -16,44 +16,36 @@ class ProcessThread : public Thread {
 public:
   ProcessThread(std::string name, BaseCamera *camera, Blobber *blobber, Vision *vision);
   ~ProcessThread();
-
-  bool isDone() {
-    return done;
-  };
-
   void stopThread();
   void startProcessing();
   void waitUntilProcessed();
-
-  int width;
-  int height;
-  Dir dir;
-
-  BaseCamera *camera;
-  Blobber *blobber;
-  Vision *vision;
-  Vision::Result *visionResult;
-  bool debug;
-
-  bool gotFrame;
-  bool faulty;
-  unsigned char *frameData;
-  unsigned char *dataYUYV;
-  unsigned char *dataY;
-  unsigned char *dataU;
-  unsigned char *dataV;
-  unsigned char *classification;
-  unsigned char *argb;
-  unsigned char *rgb;
+  void setDebug(bool newDebug) { debug = newDebug; }
+  void setCamera(BaseCamera *newCamera) { camera = newCamera; }
+  uint8_t *getYuyv() { return yuyv; }
+  uint8_t *getRgb() { return rgb; }
+  uint8_t *getClassification() { return classification; }
+  Vision::Result *getVisionResult() { return visionResult; }
 
 private:
   void run();
   bool fetchFrame();
   void process();
-  bool stopRequested;
-  Frame *frame;
+
+  BaseCamera *camera;
+  Blobber *blobber;
+  Vision *vision;
+  Vision::Result *visionResult;
   WaitableFlag processing;
-  bool done;
+  bool debug;
+  bool stopRequested;
+  int width;
+  int height;
+  Dir dir;
+  Frame *frame;
+  uint8_t *yuyv;
+  uint8_t *argb;
+  uint8_t *rgb;
+  uint8_t *classification;
 };
 
 #endif // PROCESSTHREAD_H
