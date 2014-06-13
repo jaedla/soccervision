@@ -66,19 +66,22 @@ void ProcessThread::process() {
     visionResult = NULL;
   }
 
-  blobber->processFrame((Blobber::Pixel *)yuyv);
+  //blobber->processFrame((Blobber::Pixel *)yuyv);
 
   if (debug) {
-    blobber->classify((Blobber::Rgb *)classification, (Blobber::Pixel *)yuyv);
+    printf("to rgb\n");
+    //blobber->classify((Blobber::Rgb *)classification, (Blobber::Pixel *)yuyv);
     ImageProcessor::YUYVToARGB(yuyv, argb, width, height);
     ImageProcessor::ARGBToRGB(argb, rgb, width, height);
-    vision->setDebugImage(rgb, width, height);
+    printf("to rgb done\n");
+    //vision->setDebugImage(rgb, width, height);
   } else {
-    vision->setDebugImage(NULL, 0, 0);
+    //vision->setDebugImage(NULL, 0, 0);
   }
 
-  visionResult = vision->process();
+  //visionResult = vision->process();
 
+  /*
   if (debug) {
     DebugRenderer::renderGrid(rgb, vision);
     DebugRenderer::renderBlobs(classification, blobber);
@@ -88,6 +91,7 @@ void ProcessThread::process() {
     DebugRenderer::renderObstructions(rgb, visionResult->goalPathObstruction);
     // TODO Show whether a ball is in the way
   }
+  */
 
   if (frame != NULL) {
     delete frame;

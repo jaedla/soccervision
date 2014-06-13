@@ -121,14 +121,14 @@ void SoccerBot::run() {
     totalTime += dt;
     lastTime = time;
 
-    frontProcessor->setDebug(frameRequested);
     fpsCounter->step();
+    frontProcessor->setDebug(frameRequested);
     frontProcessor->startProcessing();
     frontProcessor->waitUntilProcessed();
-    visionResults->front = frontProcessor->getVisionResult();
+    //visionResults->front = frontProcessor->getVisionResult();
 
     if (frameRequested) {
-      renderDebugObjects();
+      //renderDebugObjects();
       broadcastFrame();
       frameRequested = false;
     }
@@ -136,9 +136,11 @@ void SoccerBot::run() {
     handleServerMessages();
     handleCommunicationMessages();
 
+    /*
     if (activeController != NULL)
       activeController->step(dt, visionResults);
     robot->step(dt, visionResults);
+    */
 
     if (server != NULL && stateRequested) {
       server->broadcast(Util::json("state", getStateJSON()));
@@ -187,6 +189,7 @@ void SoccerBot::broadcastFrame() {
   printf("to base64 %d bytes\n", jpegBufferSize);
   std::string base64Rgb = Util::base64Encode(jpegBuffer, jpegBufferSize);
 
+  /*
   jpegBufferSize = Config::jpegBufferSize;
 
   printf("to jpeg\n");
@@ -197,6 +200,10 @@ void SoccerBot::broadcastFrame() {
 
   printf("to base64 %d bytes\n", jpegBufferSize);
   std::string base64Classification = Util::base64Encode(jpegBuffer, jpegBufferSize);
+  */
+
+  std::string base64Classification;
+
   std::string frameResponse = Util::json("frame", "{\"rgb\": \"" + base64Rgb + "\",\"classification\": \"" + base64Classification + "\",\"activeStream\":\"" + activeStreamName + "\",\"cameraK\":" + Util::toString(Util::cameraCorrectionK) + ",\"cameraZoom\":" + Util::toString(Util::cameraCorrectionZoom) + "}");
 
   printf("server->broadcast\n");

@@ -15,7 +15,7 @@ void PerfDebug::run() {
   while (!isStopRequested()) {
     //printInfo();
     printf(".\n");
-    Util::sleep(10);
+    Util::sleep(1);
   }
 }
 

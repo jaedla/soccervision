@@ -70,6 +70,7 @@ AndroidCamera::~AndroidCamera() {
 }
 
 Frame *AndroidCamera::getFrame() {
+  printf("waiting frame\n");
   LockedBuffer *imageBuffer = stream->getNewestFrame();
   Frame *frame = new AndroidCameraFrame();
   frame->data = new uint8_t[frameSize];
@@ -77,9 +78,10 @@ Frame *AndroidCamera::getFrame() {
   frame->width = width;
   frame->height = height;
   frame->fresh = true;
+  printf("making yuyv\n");
   convertFrameToYuyv(*imageBuffer, frame->data);
   stream->releaseFrame(imageBuffer);
-  printf("took frame\n");
+  printf("got frame\n");
   return frame;
 }
 
