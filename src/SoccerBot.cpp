@@ -23,7 +23,6 @@
 
 SoccerBot::SoccerBot() :
   Thread("SoccerBot"),
-  debugVision(false),
   androidBinderThread(NULL),
   frontCamera(NULL),
   androidCamera(NULL),
@@ -34,7 +33,7 @@ SoccerBot::SoccerBot() :
   frontCameraTranslator(NULL),
   fpsCounter(NULL), visionResults(NULL), robot(NULL), activeController(NULL), server(NULL), com(NULL),
   controllerRequested(false), stateRequested(false), frameRequested(false), useScreenshot(false),
-  dt(0.01666f), lastStepTime(0.0), totalTime(0.0f),
+  dt(0.01666f), totalTime(0.0f),
   jpegBuffer(NULL), screenshotBufferFront(NULL) {
 }
 
@@ -72,9 +71,7 @@ SoccerBot::~SoccerBot() {
   com = NULL;
   if (jpegBuffer != NULL) delete[] jpegBuffer;
   jpegBuffer = NULL;
-
   frontCamera = NULL;
-
   std::cout << "! Resources freed" << std::endl;
 }
 
@@ -98,7 +95,6 @@ void SoccerBot::run() {
 
   com->start();
   server->start();
-
   com->send("reset");
 
   setController(Config::defaultController);
@@ -114,46 +110,26 @@ void SoccerBot::run() {
     return;
   }
 
-  double time;
-  bool debugging;
-
   frontProcessor->start();
+  double lastTime = 0;
 
   while (!SignalHandler::exitRequested) {
     printf("new cycle\n");
-    time = Util::millitime();
 
-    if (lastStepTime != 0.0)
-      dt = (float)(time - lastStepTime);
-    else
-      dt = 1.0f / 60.0f;
-
+    double time = Util::millitime();
+    dt = lastTime ? (time - lastTime) : (1.0f / 60.0f);
     totalTime += dt;
-    debugging = debugVision || frameRequested;
-    frontProcessor->setDebug(debugging);
+    lastTime = time;
+
+    frontProcessor->setDebug(frameRequested);
     fpsCounter->step();
     frontProcessor->startProcessing();
     frontProcessor->waitUntilProcessed();
     visionResults->front = frontProcessor->getVisionResult();
 
-    if (debugging) {
-      Object *closestBall = visionResults->getClosestBall();
-
-      if (closestBall != NULL)
-        DebugRenderer::renderObjectHighlight(frontProcessor->getRgb(), closestBall, 255, 0, 0);
-
-      Object *largestBlueGoal = visionResults->getLargestGoal(Side::BLUE);
-      Object *largestYellowGoal = visionResults->getLargestGoal(Side::YELLOW);
-
-      if (largestBlueGoal != NULL)
-        DebugRenderer::renderObjectHighlight(frontProcessor->getRgb(), largestBlueGoal, 0, 0, 255);
-
-      if (largestYellowGoal != NULL)
-        DebugRenderer::renderObjectHighlight(frontProcessor->getRgb(), largestYellowGoal, 255, 255, 0);
-    }
-
     if (frameRequested) {
-      broadcastFrame(frontProcessor->getRgb(), frontProcessor->getClassification());
+      renderDebugObjects();
+      broadcastFrame();
       frameRequested = false;
     }
 
@@ -162,15 +138,12 @@ void SoccerBot::run() {
 
     if (activeController != NULL)
       activeController->step(dt, visionResults);
-
     robot->step(dt, visionResults);
 
     if (server != NULL && stateRequested) {
       server->broadcast(Util::json("state", getStateJSON()));
       stateRequested = false;
     }
-
-    lastStepTime = time;
   }
 
   frontProcessor->stopThread();
@@ -181,8 +154,22 @@ void SoccerBot::run() {
   std::cout << "! Main loop ended" << std::endl;
 }
 
-void SoccerBot::broadcastFrame(unsigned char *rgb, unsigned char *classification) {
+void SoccerBot::renderDebugObjects() {
+  Object *closestBall = visionResults->getClosestBall();
+  Object *largestBlueGoal = visionResults->getLargestGoal(Side::BLUE);
+  Object *largestYellowGoal = visionResults->getLargestGoal(Side::YELLOW);
+  if (closestBall != NULL)
+    DebugRenderer::renderObjectHighlight(frontProcessor->getRgb(), closestBall, 255, 0, 0);
+  if (largestBlueGoal != NULL)
+    DebugRenderer::renderObjectHighlight(frontProcessor->getRgb(), largestBlueGoal, 0, 0, 255);
+  if (largestYellowGoal != NULL)
+    DebugRenderer::renderObjectHighlight(frontProcessor->getRgb(), largestYellowGoal, 255, 255, 0);
+}
+
+void SoccerBot::broadcastFrame() {
   printf("broadcastFrame\n");
+  uint8_t *rgb = frontProcessor->getRgb();
+  uint8_t *classification = frontProcessor->getClassification();
   int jpegBufferSize = Config::jpegBufferSize;
 
   if (jpegBuffer == NULL) {

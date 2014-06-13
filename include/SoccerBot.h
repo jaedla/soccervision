@@ -42,6 +42,7 @@ public:
   void setupCommunication();
   void setupPerfDebug();
 
+  void renderDebugObjects();
   void addController(std::string name, Controller *controller);
   Controller *getController(std::string name);
   bool setController(std::string name);
@@ -66,12 +67,10 @@ public:
 
   std::string getStateJSON();
 
-  bool debugVision;
-
 private:
   void setupXimeaCamera(std::string name, XimeaCamera *camera);
   //bool fetchFrame(BaseCamera* camera, ProcessThread* processor);
-  void broadcastFrame(unsigned char *rgb, unsigned char *classification);
+  void broadcastFrame();
   void broadcastScreenshots();
 
   AndroidBinderThread *androidBinderThread;
@@ -99,7 +98,6 @@ private:
   bool frameRequested;
   bool useScreenshot;
   float dt;
-  double lastStepTime;
   float totalTime;
 
   unsigned char *jpegBuffer;
