@@ -143,15 +143,13 @@ void SoccerBot::run() {
 
   //bool gotFrontFrame, gotRearFrame;
   double time;
-  double debugging;
+  bool debugging;
 
   frontProcessor->start();
   rearProcessor->start();
 
   while (running) {
     printf("new cycle\n");
-    //__int64 startTime = Util::timerStart();
-
     time = Util::millitime();
 
     if (lastStepTime != 0.0)
@@ -161,17 +159,7 @@ void SoccerBot::run() {
 
     totalTime += dt;
 
-    //gotFrontFrame = gotRearFrame = false;
     debugging = frontProcessor->debug = rearProcessor->debug = debugVision || showGui || frameRequested;
-
-    /*gotFrontFrame = fetchFrame(frontCamera, frontProcessor);
-    gotRearFrame = fetchFrame(rearCamera, rearProcessor);
-
-    if (!gotFrontFrame && !gotRearFrame && fpsCounter->frameNumber > 0) {
-    	//std::cout << "- Didn't get any frames from either of the cameras" << std::endl;
-
-    	continue;
-    }*/
 
     fpsCounter->step();
 
@@ -209,22 +197,15 @@ void SoccerBot::run() {
         else
           DebugRenderer::renderObjectHighlight(rearProcessor->rgb, largestYellowGoal, 255, 255, 0);
       }
-      //DebugRenderer::highlightObject(
     }
 
     if (frameRequested) {
-      // TODO Add camera choice
       if (debugCameraDir == Dir::FRONT)
         broadcastFrame(frontProcessor->rgb, frontProcessor->classification);
       else
         broadcastFrame(rearProcessor->rgb, rearProcessor->classification);
-
       frameRequested = false;
     }
-
-    /*if (fpsCounter->frameNumber % 60 == 0) {
-    	std::cout << "! FPS: " << fpsCounter->getFps() << std::endl;
-    }*/
 
     handleServerMessages();
     handleCommunicationMessages();
@@ -236,7 +217,6 @@ void SoccerBot::run() {
 
     if (server != NULL && stateRequested) {
       server->broadcast(Util::json("state", getStateJSON()));
-
       stateRequested = false;
     }
 
@@ -244,8 +224,6 @@ void SoccerBot::run() {
 
     if (SignalHandler::exitRequested)
       running = false;
-
-    //std::cout << "! Total time: " << Util::timerEnd(startTime) << std::endl;
   }
 
   frontProcessor->stopThread();
@@ -259,30 +237,6 @@ void SoccerBot::run() {
 
   std::cout << "! Main loop ended" << std::endl;
 }
-
-/*bool SoccerBot::fetchFrame(BaseCamera* camera, ProcessThread* processor) {
-	if (camera->isAcquisitioning()) {
-		double startTime = Util::millitime();
-
-		const BaseCamera::Frame* frame = camera->getFrame();
-
-		double timeTaken = Util::duration(startTime);
-
-		if (timeTaken > 0.02) {
-			std::cout << "- Fetching " << (camera == frontCamera ? "front" : "rear") << " camera frame took: " << timeTaken << std::endl;
-		}
-
-		if (frame != NULL) {
-			if (frame->fresh) {
-				processor->setFrame(frame->data);
-
-				return true;
-			}
-		}
-	}
-
-	return false;
-}*/
 
 void SoccerBot::broadcastFrame(unsigned char *rgb, unsigned char *classification) {
   printf("broadcastFrame\n");
@@ -441,15 +395,6 @@ void SoccerBot::setupFpsCounter() {
 }
 
 void SoccerBot::setupGui() {
-  /*
-  std::cout << "! Setting up GUI" << std::endl;
-
-  gui = new Gui(
-  	GetModuleHandle(0),
-  	frontBlobber, rearBlobber,
-  	Config::cameraWidth, Config::cameraHeight
-  );
-  */
 }
 
 #include "AndroidCamera.h"
@@ -468,11 +413,8 @@ void SoccerBot::setupCameras() {
 
 void SoccerBot::setupRobot() {
   std::cout << "! Setting up the robot.. ";
-
   robot = new Robot(com);
-
   robot->setup();
-
   std::cout << "done!" << std::endl;
 }
 
@@ -485,28 +427,6 @@ void SoccerBot::setupControllers() {
 
   std::cout << "done!" << std::endl;
 }
-
-/*
-void SoccerBot::setupXimeaCamera(std::string name, XimeaCamera* camera) {
-	camera->setGain(8);
-	//camera->setGain(4);
-	camera->setExposure(10000);
-	camera->setFormat(XI_RAW8);
-	camera->setAutoWhiteBalance(false);
-	camera->setAutoExposureGain(false);
-	camera->setQueueSize(12); // TODO Affects anything?
-
-	std::cout << "! " << name << " camera info:" << std::endl;
-	std::cout << "  > Name: " << camera->getName() << std::endl;
-	std::cout << "  > Type: " << camera->getDeviceType() << std::endl;
-	std::cout << "  > API version: " << camera->getApiVersion() << std::endl;
-	std::cout << "  > Driver version: " << camera->getDriverVersion() << std::endl;
-	std::cout << "  > Serial number: " << camera->getSerialNumber() << std::endl;
-	std::cout << "  > Color: " << (camera->supportsColor() ? "yes" : "no") << std::endl;
-	std::cout << "  > Framerate: " << camera->getFramerate() << std::endl;
-	std::cout << "  > Available bandwidth: " << camera->getAvailableBandwidth() << std::endl;
-}
-*/
 
 void SoccerBot::setupSignalHandler() {
   SignalHandler::setup();
@@ -532,10 +452,8 @@ void SoccerBot::addController(std::string name, Controller *controller) {
 
 Controller *SoccerBot::getController(std::string name) {
   std::map<std::string, Controller *>::iterator result = controllers.find(name);
-
   if (result == controllers.end())
     return NULL;
-
   return result->second;
 }
 
@@ -543,28 +461,22 @@ bool SoccerBot::setController(std::string name) {
   if (name == "") {
     if (activeController != NULL)
       activeController->onExit();
-
     activeController = NULL;
     activeControllerName = "";
     controllerRequested = true;
-
     return true;
   } else {
     std::map<std::string, Controller *>::iterator result = controllers.find(name);
-
     if (result != controllers.end()) {
       if (activeController != NULL)
         activeController->onExit();
-
       activeController = result->second;
       activeControllerName = name;
       activeController->onEnter();
-
       controllerRequested = true;
-
       return true;
-    } else
-      return false;
+    }
+    return false;
   }
 }
 
@@ -574,10 +486,8 @@ std::string SoccerBot::getActiveControllerName() {
 
 void SoccerBot::handleServerMessages() {
   Server::Message *message;
-
   while ((message = server->dequeueMessage()) != NULL) {
     handleServerMessage(message);
-
     delete message;
   }
 }
@@ -617,24 +527,22 @@ void SoccerBot::handleServerMessage(Server::Message *message) {
       else
         std::cout << "- Unsupported command: " << command.name << " " << Util::toString(command.parameters) << std::endl;
     }
-  } else
+  } else {
     std::cout << "- Message '" << message->content << "' is not a valid command" << std::endl;
+  }
 }
 
 void SoccerBot::handleGetControllerCommand(Server::Message *message) {
   std::cout << "! Client #" << message->client->id << " requested controller, sending: " << activeControllerName << std::endl;
-
   message->respond(Util::json("controller", activeControllerName));
 }
 
 void SoccerBot::handleSetControllerCommand(Command::Parameters parameters, Server::Message *message) {
   std::string name = parameters[0];
-
   if (setController(name))
     std::cout << "+ Changed controller to: '" << name << "'" << std::endl;
   else
     std::cout << "- Failed setting controller to '" << name << "'" << std::endl;
-
   message->respond(Util::json("controller", activeControllerName));
 }
 
@@ -648,14 +556,12 @@ void SoccerBot::handleGetFrameCommand() {
 
 void SoccerBot::handleCameraChoiceCommand(Command::Parameters parameters) {
   debugCameraDir = Util::toInt(parameters[0]) == 2 ? Dir::REAR : Dir::FRONT;
-
   std::cout << "! Debugging now from " << (debugCameraDir == Dir::FRONT ? "front" : "rear") << " camera" << std::endl;
 }
 
 void SoccerBot::handleCameraAdjustCommand(Command::Parameters parameters) {
   Util::cameraCorrectionK = Util::toFloat(parameters[0]);
   Util::cameraCorrectionZoom = Util::toFloat(parameters[1]);
-
   std::cout << "! Adjust camera correction k: " << Util::cameraCorrectionK << ", zoom: " << Util::cameraCorrectionZoom << std::endl;
 }
 
@@ -664,13 +570,8 @@ void SoccerBot::handleStreamChoiceCommand(Command::Parameters parameters) {
 
   if (requestedStream == "") {
     std::cout << "! Switching to live stream" << std::endl;
-
     frontProcessor->camera = androidCamera;
-    //rearProcessor->camera = ximeaRearCamera;
-
     frontCamera = androidCamera;
-    //rearCamera = ximeaRearCamera;
-
     activeStreamName = requestedStream;
   } else {
     try {
@@ -759,22 +660,14 @@ void SoccerBot::handleListScreenshotsCommand(Server::Message *message) {
 
 void SoccerBot::handleCommunicationMessages() {
   std::string message;
-
   while ((message = com->dequeueMessage()) != "")
     handleCommunicationMessage(message);
 }
 
 void SoccerBot::handleCommunicationMessage(std::string message) {
   robot->handleCommunicationMessage(message);
-
   if (activeController != NULL)
     activeController->handleCommunicationMessage(message);
-
-  /*if (Command::isValid(message)) {
-        Command command = Command::parse(message);
-
-  	// do something?
-  }*/
 }
 
 std::string SoccerBot::getStateJSON() {
@@ -784,31 +677,10 @@ std::string SoccerBot::getStateJSON() {
 
   stream << "{";
 
-
   stream << "\"robot\":{" << robot->getJSON() << "},";
   stream << "\"dt\":" << dt << ",";
   stream << "\"totalTime\":" << totalTime << ",";
   stream << "\"gotBall\":" << (robot->dribbler->gotBall() ? "true" : "false") << ",";
-
-  /*
-  stream << "\"measurements\": {";
-
-  const Measurements measurements = robot->getMeasurements();
-
-  first = true;
-
-  for (Measurements::const_iterator it = measurements.begin(); it != measurements.end(); it++) {
-  	if (!first) {
-  		stream << ",";
-  	} else {
-  		first = false;
-  	}
-
-  	stream << "\"" + it->first + "\": \"" + Util::toString(it->second) + "\"";
-  }
-
-  stream << "},";
-  */
 
   if (activeController != NULL) {
     stream << "\"controllerName\": \"" + activeControllerName + "\",";
@@ -829,8 +701,7 @@ std::string SoccerBot::getStateJSON() {
   }
 
   stream << "\"fps\":" << fpsCounter->getFps();
-
   stream << "}";
-
   return stream.str();
 }
+
