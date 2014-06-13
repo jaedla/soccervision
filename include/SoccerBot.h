@@ -78,21 +78,13 @@ private:
 
   AndroidBinderThread *androidBinderThread;
   BaseCamera *frontCamera;
-  BaseCamera *rearCamera;
-  //XimeaCamera* ximeaFrontCamera;
-  //XimeaCamera* ximeaRearCamera;
   PerfDebug *perfDebug;
   AndroidCamera *androidCamera;
   VirtualCamera *virtualFrontCamera;
-  VirtualCamera *virtualRearCamera;
   Blobber *frontBlobber;
-  Blobber *rearBlobber;
   Vision *frontVision;
-  Vision *rearVision;
   ProcessThread *frontProcessor;
-  ProcessThread *rearProcessor;
   CameraTranslator *frontCameraTranslator;
-  CameraTranslator *rearCameraTranslator;
   FpsCounter *fpsCounter;
   Vision::Results *visionResults;
   Robot *robot;
@@ -111,11 +103,9 @@ private:
   float dt;
   double lastStepTime;
   float totalTime;
-  Dir debugCameraDir;
 
   unsigned char *jpegBuffer;
   unsigned char *screenshotBufferFront;
-  unsigned char *screenshotBufferRear;
 };
 
 #endif // SOCCERBOT_H

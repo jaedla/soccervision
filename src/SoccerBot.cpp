@@ -1,3 +1,4 @@
+#include "AndroidCamera.h"
 #include "SoccerBot.h"
 #include "VirtualCamera.h"
 #include "CameraTranslator.h"
@@ -24,19 +25,17 @@ SoccerBot::SoccerBot() :
   Thread("SoccerBot"),
   debugVision(false), showGui(false),
   androidBinderThread(NULL),
-  frontCamera(NULL), rearCamera(NULL),
+  frontCamera(NULL),
   androidCamera(NULL),
-  //ximeaFrontCamera(NULL), ximeaRearCamera(NULL),
-  virtualFrontCamera(NULL), virtualRearCamera(NULL),
-  frontBlobber(NULL), rearBlobber(NULL),
-  frontVision(NULL), rearVision(NULL),
-  frontProcessor(NULL), rearProcessor(NULL),
-  frontCameraTranslator(NULL), rearCameraTranslator(NULL),
+  virtualFrontCamera(NULL),
+  frontBlobber(NULL),
+  frontVision(NULL),
+  frontProcessor(NULL),
+  frontCameraTranslator(NULL),
   fpsCounter(NULL), visionResults(NULL), robot(NULL), activeController(NULL), server(NULL), com(NULL),
   controllerRequested(false), stateRequested(false), frameRequested(false), useScreenshot(false),
   dt(0.01666f), lastStepTime(0.0), totalTime(0.0f),
-  debugCameraDir(Dir::FRONT),
-  jpegBuffer(NULL), screenshotBufferFront(NULL), screenshotBufferRear(NULL) {
+  jpegBuffer(NULL), screenshotBufferFront(NULL) {
 }
 
 SoccerBot::~SoccerBot() {
@@ -52,42 +51,29 @@ SoccerBot::~SoccerBot() {
   server = NULL;
   if (robot != NULL) delete robot;
   robot = NULL;
-  //if (ximeaFrontCamera != NULL) delete ximeaFrontCamera; ximeaFrontCamera = NULL;
-  //if (ximeaRearCamera != NULL) delete ximeaRearCamera; ximeaRearCamera = NULL;
   if (androidCamera != NULL) delete androidCamera;
   androidCamera = NULL;
   if (virtualFrontCamera != NULL) delete virtualFrontCamera;
   virtualFrontCamera = NULL;
-  if (virtualRearCamera != NULL) delete virtualRearCamera;
-  virtualRearCamera = NULL;
   if (frontCameraTranslator != NULL) delete frontCameraTranslator;
   frontCameraTranslator = NULL;
-  if (rearCameraTranslator != NULL) delete rearCameraTranslator;
-  rearCameraTranslator = NULL;
   if (fpsCounter != NULL) delete fpsCounter;
   fpsCounter = NULL;
   if (frontProcessor != NULL) frontBlobber->saveOptions(Config::blobberConfigFilename);
   delete frontProcessor;
   frontProcessor = NULL;
-  if (rearProcessor != NULL) delete rearProcessor;
-  rearProcessor = NULL;
   if (visionResults != NULL) delete visionResults;
   visionResults = NULL;
   if (frontVision != NULL) delete frontVision;
   frontVision = NULL;
-  if (rearVision != NULL) delete rearVision;
-  rearVision = NULL;
   if (frontBlobber != NULL) delete frontBlobber;
   frontBlobber = NULL;
-  if (rearBlobber != NULL) delete rearBlobber;
-  rearBlobber = NULL;
   if (com != NULL) delete com;
   com = NULL;
   if (jpegBuffer != NULL) delete[] jpegBuffer;
   jpegBuffer = NULL;
 
   frontCamera = NULL;
-  rearCamera = NULL;
 
   std::cout << "! Resources freed" << std::endl;
 }
@@ -123,23 +109,18 @@ void SoccerBot::run() {
   if (frontCamera->isOpened())
     frontCamera->startAcquisition();
 
-  if (rearCamera->isOpened())
-    rearCamera->startAcquisition();
-
-  if (!frontCamera->isOpened() && !rearCamera->isOpened()) {
-    std::cout << "! Neither of the cameras was opened, running in test mode" << std::endl;
+  if (!frontCamera->isOpened()) {
+    std::cout << "! Camera wasn't opened, running in test mode" << std::endl;
     while (!SignalHandler::exitRequested) {
       sleep(100);
     }
     return;
   }
 
-  //bool gotFrontFrame, gotRearFrame;
   double time;
   bool debugging;
 
   frontProcessor->start();
-  rearProcessor->start();
 
   while (!SignalHandler::exitRequested) {
     printf("new cycle\n");
@@ -153,49 +134,29 @@ void SoccerBot::run() {
     totalTime += dt;
     debugging = debugVision || showGui || frameRequested;
     frontProcessor->setDebug(debugging);
-    rearProcessor->setDebug(debugging);
     fpsCounter->step();
     frontProcessor->startProcessing();
-    rearProcessor->startProcessing();
     frontProcessor->waitUntilProcessed();
-    rearProcessor->waitUntilProcessed();
-
     visionResults->front = frontProcessor->getVisionResult();
-    visionResults->rear = rearProcessor->getVisionResult();
 
     if (debugging) {
       Object *closestBall = visionResults->getClosestBall();
 
-      if (closestBall != NULL) {
-        if (!closestBall->behind)
-          DebugRenderer::renderObjectHighlight(frontProcessor->getRgb(), closestBall, 255, 0, 0);
-        else
-          DebugRenderer::renderObjectHighlight(rearProcessor->getRgb(), closestBall, 255, 0, 0);
-      }
+      if (closestBall != NULL)
+        DebugRenderer::renderObjectHighlight(frontProcessor->getRgb(), closestBall, 255, 0, 0);
 
       Object *largestBlueGoal = visionResults->getLargestGoal(Side::BLUE);
       Object *largestYellowGoal = visionResults->getLargestGoal(Side::YELLOW);
 
-      if (largestBlueGoal != NULL) {
-        if (!largestBlueGoal->behind)
-          DebugRenderer::renderObjectHighlight(frontProcessor->getRgb(), largestBlueGoal, 0, 0, 255);
-        else
-          DebugRenderer::renderObjectHighlight(rearProcessor->getRgb(), largestBlueGoal, 0, 0, 255);
-      }
+      if (largestBlueGoal != NULL)
+        DebugRenderer::renderObjectHighlight(frontProcessor->getRgb(), largestBlueGoal, 0, 0, 255);
 
-      if (largestYellowGoal != NULL) {
-        if (!largestYellowGoal->behind)
-          DebugRenderer::renderObjectHighlight(frontProcessor->getRgb(), largestYellowGoal, 255, 255, 0);
-        else
-          DebugRenderer::renderObjectHighlight(rearProcessor->getRgb(), largestYellowGoal, 255, 255, 0);
-      }
+      if (largestYellowGoal != NULL)
+        DebugRenderer::renderObjectHighlight(frontProcessor->getRgb(), largestYellowGoal, 255, 255, 0);
     }
 
     if (frameRequested) {
-      if (debugCameraDir == Dir::FRONT)
-        broadcastFrame(frontProcessor->getRgb(), frontProcessor->getClassification());
-      else
-        broadcastFrame(rearProcessor->getRgb(), rearProcessor->getClassification());
+      broadcastFrame(frontProcessor->getRgb(), frontProcessor->getClassification());
       frameRequested = false;
     }
 
@@ -216,14 +177,10 @@ void SoccerBot::run() {
   }
 
   frontProcessor->stopThread();
-  rearProcessor->stopThread();
   frontProcessor->join();
-  rearProcessor->join();
   perfDebug->requestStop();
   perfDebug->join();
-
   com->send("reset");
-
   std::cout << "! Main loop ended" << std::endl;
 }
 
@@ -240,7 +197,6 @@ void SoccerBot::broadcastFrame(unsigned char *rgb, unsigned char *classification
   printf("to jpeg\n");
   if (!ImageProcessor::rgbToJpeg(rgb, jpegBuffer, jpegBufferSize, Config::cameraWidth, Config::cameraHeight)) {
     std::cout << "- Converting RGB image to JPEG failed, probably need to increase buffer size" << std::endl;
-
     return;
   }
 
@@ -252,7 +208,6 @@ void SoccerBot::broadcastFrame(unsigned char *rgb, unsigned char *classification
   printf("to jpeg\n");
   if (!ImageProcessor::rgbToJpeg(classification, jpegBuffer, jpegBufferSize, Config::cameraWidth, Config::cameraHeight)) {
     std::cout << "- Converting classification image to JPEG failed, probably need to increase buffer size" << std::endl;
-
     return;
   }
 
@@ -301,16 +256,9 @@ void SoccerBot::setupVision() {
   std::cout << "! Setting up vision.. " << std::endl;
 
   frontBlobber = new Blobber();
-  rearBlobber = new Blobber();
-
   frontBlobber->initialize(Config::cameraWidth, Config::cameraHeight);
-  rearBlobber->initialize(Config::cameraWidth, Config::cameraHeight);
-
   frontBlobber->loadOptions(Config::blobberConfigFilename);
-  rearBlobber->loadOptions(Config::blobberConfigFilename);
-
   frontCameraTranslator = new CameraTranslator();
-  rearCameraTranslator = new CameraTranslator();
 
   /*
   std::cout << "  > loading front camera undistorion mappings.. ";
@@ -319,16 +267,6 @@ void SoccerBot::setupVision() {
   frontCameraTranslator->loadUndistortionMapping(
     Config::undistortMappingFilenameFrontX,
     Config::undistortMappingFilenameFrontY
-  );
-
-  std::cout << "done!" << std::endl;
-
-  std::cout << "  > loading rear camera undistorion mappings.. ";
-  fflush(stdout);
-
-  rearCameraTranslator->loadUndistortionMapping(
-    Config::undistortMappingFilenameRearX,
-    Config::undistortMappingFilenameRearY
   );
 
   std::cout << "done!" << std::endl;
@@ -343,61 +281,31 @@ void SoccerBot::setupVision() {
     Config::cameraWidth, Config::cameraHeight
   );
 
-  rearCameraTranslator->setConstants(
-    27.0f, 191500.0f, 143.3f,
-    -2.0971206246161431e-001f, 1.3804267164342868e-001f, -1.2815466847742417e-002f,
-    -30.5f, 1.2402373257077263e+003f,
-    Config::cameraWidth, Config::cameraHeight
-  );
-
-  // TODO Remove this test
-  /*for (int x = 0; x <= Config::cameraWidth; x += Config::cameraWidth / 2) {
-  	for (int y = 0; y <= Config::cameraHeight; y+= Config::cameraHeight / 2) {
-  		CameraTranslator::CameraPosition distorted = rearCameraTranslator->distort(x, y);
-  		CameraTranslator::CameraPosition undistorted = rearCameraTranslator->undistort(x, y);
-
-  		//std::cout << "@ " << x << "x" << y << " DISTORTED: " << distorted.x << "x" << distorted.y << " UNDISTORTED: " << undistorted.x << "x" << undistorted.y << std::endl;
-  	}
-  }*/
-
   frontVision = new Vision(frontBlobber, frontCameraTranslator, Dir::FRONT, Config::cameraWidth, Config::cameraHeight);
-  rearVision = new Vision(rearBlobber, rearCameraTranslator, Dir::REAR, Config::cameraWidth, Config::cameraHeight);
-
   visionResults = new Vision::Results();
 }
 
 void SoccerBot::setupProcessors() {
-  std::cout << "! Setting up processor threads.. ";
-
+  std::cout << "! Setting up processor thread.. ";
   frontProcessor = new ProcessThread("FrontProcessor", frontCamera, frontBlobber, frontVision);
-  rearProcessor = new ProcessThread("RearProcessor", rearCamera, rearBlobber, rearVision);
-
   std::cout << "done!" << std::endl;
 }
 
 void SoccerBot::setupFpsCounter() {
   std::cout << "! Setting up fps counter.. ";
-
   fpsCounter = new FpsCounter();
-
   std::cout << "done!" << std::endl;
 }
 
 void SoccerBot::setupGui() {
 }
 
-#include "AndroidCamera.h"
-
 void SoccerBot::setupCameras() {
   std::cout << "! Setting up cameras" << std::endl;
   virtualFrontCamera = new VirtualCamera();
-  virtualRearCamera = new VirtualCamera();
-
   androidCamera = new AndroidCamera();
   androidCamera->open();
-
   frontCamera = androidCamera;
-  rearCamera = virtualRearCamera;
 }
 
 void SoccerBot::setupRobot() {
@@ -544,8 +452,6 @@ void SoccerBot::handleGetFrameCommand() {
 }
 
 void SoccerBot::handleCameraChoiceCommand(Command::Parameters parameters) {
-  debugCameraDir = Util::toInt(parameters[0]) == 2 ? Dir::REAR : Dir::FRONT;
-  std::cout << "! Debugging now from " << (debugCameraDir == Dir::FRONT ? "front" : "rear") << " camera" << std::endl;
 }
 
 void SoccerBot::handleCameraAdjustCommand(Command::Parameters parameters) {
@@ -565,22 +471,15 @@ void SoccerBot::handleStreamChoiceCommand(Command::Parameters parameters) {
   } else {
     try {
       bool frontSuccess = virtualFrontCamera->loadImage(Config::screenshotsDirectory + "/" + requestedStream + "-front.scr", Config::cameraWidth * Config::cameraHeight * 2);
-      bool rearSuccess = virtualRearCamera->loadImage(Config::screenshotsDirectory + "/" + requestedStream + "-rear.scr", Config::cameraWidth * Config::cameraHeight * 2);
 
-      if (!frontSuccess || !rearSuccess) {
+      if (!frontSuccess) {
         std::cout << "- Loading screenshot '" << requestedStream << "' failed" << std::endl;
-
         return;
       }
 
       std::cout << "! Switching to screenshot stream: " << requestedStream << std::endl;
-
       frontProcessor->setCamera(virtualFrontCamera);
-      rearProcessor->setCamera(virtualRearCamera);
-
       frontCamera = virtualFrontCamera;
-      rearCamera = virtualRearCamera;
-
       activeStreamName = requestedStream;
     } catch (std::exception &e) {
       std::cout << "- Failed to load screenshot: " << requestedStream << " (" << e.what() << ")" << std::endl;
@@ -598,16 +497,11 @@ void SoccerBot::handleBlobberThresholdCommand(Command::Parameters parameters) {
   int brushRadius = Util::toInt(parameters[4]);
   float stdDev = Util::toFloat(parameters[5]);
 
-  unsigned char *yuyv = debugCameraDir == Dir::FRONT ? frontProcessor->getYuyv() : rearProcessor->getYuyv();
+  unsigned char *yuyv = frontProcessor->getYuyv();
 
   ImageProcessor::YUYVRange yuyvRange = ImageProcessor::extractColorRange(yuyv, Config::cameraWidth, Config::cameraHeight, centerX, centerY, brushRadius, stdDev);
 
   frontBlobber->getColor(selectedColorName)->addThreshold(
-    yuyvRange.minY, yuyvRange.maxY,
-    yuyvRange.minU, yuyvRange.maxU,
-    yuyvRange.minV, yuyvRange.maxV
-  );
-  rearBlobber->getColor(selectedColorName)->addThreshold(
     yuyvRange.minY, yuyvRange.maxY,
     yuyvRange.minU, yuyvRange.maxU,
     yuyvRange.minV, yuyvRange.maxV
@@ -617,12 +511,9 @@ void SoccerBot::handleBlobberThresholdCommand(Command::Parameters parameters) {
 void SoccerBot::handleBlobberClearCommand(Command::Parameters parameters) {
   if (parameters.size() == 1) {
     std::string color = parameters[0];
-
     frontBlobber->clearColor(color);
-    rearBlobber->clearColor(color);
   } else {
     frontBlobber->clearColors();
-    rearBlobber->clearColors();
   }
 }
 
@@ -631,14 +522,24 @@ void SoccerBot::handleScreenshotCommand(Command::Parameters parameters) {
 
   std::cout << "! Storing screenshot: " << name << std::endl;
 
-  ImageProcessor::saveBitmap(frontProcessor->getYuyv(), Config::screenshotsDirectory + "/" + name + "-front.scr", Config::cameraWidth * Config::cameraHeight * 2);
-  ImageProcessor::saveBitmap(rearProcessor->getYuyv(), Config::screenshotsDirectory + "/" + name + "-rear.scr", Config::cameraWidth * Config::cameraHeight * 2);
+  ImageProcessor::saveBitmap(
+      frontProcessor->getYuyv(),
+      Config::screenshotsDirectory + "/" + name + "-front.scr",
+      Config::cameraWidth * Config::cameraHeight * 2);
 
-  ImageProcessor::saveJPEG(frontProcessor->getRgb(), Config::screenshotsDirectory + "/" + name + "-rgb-front.jpeg", Config::cameraWidth, Config::cameraHeight, 3);
-  ImageProcessor::saveJPEG(frontProcessor->getClassification(), Config::screenshotsDirectory + "/" + name + "-classification-front.jpeg", Config::cameraWidth, Config::cameraHeight, 3);
+  ImageProcessor::saveJPEG(
+      frontProcessor->getRgb(),
+      Config::screenshotsDirectory + "/" + name + "-rgb-front.jpeg",
+      Config::cameraWidth,
+      Config::cameraHeight,
+      3);
 
-  ImageProcessor::saveJPEG(rearProcessor->getRgb(), Config::screenshotsDirectory + "/" + name + "-rgb-rear.jpeg", Config::cameraWidth, Config::cameraHeight, 3);
-  ImageProcessor::saveJPEG(rearProcessor->getClassification(), Config::screenshotsDirectory + "/" + name + "-classification-rear.jpeg", Config::cameraWidth, Config::cameraHeight, 3);
+  ImageProcessor::saveJPEG(
+      frontProcessor->getClassification(),
+      Config::screenshotsDirectory + "/" + name + "-classification-front.jpeg",
+      Config::cameraWidth,
+      Config::cameraHeight,
+      3);
 
   broadcastScreenshots();
 }
