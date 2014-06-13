@@ -38,7 +38,6 @@ public:
   void setupRobot();
   void setupControllers();
   void setupSignalHandler();
-  void setupGui();
   void setupServer();
   void setupCommunication();
   void setupPerfDebug();
@@ -68,7 +67,6 @@ public:
   std::string getStateJSON();
 
   bool debugVision;
-  bool showGui;
 
 private:
   void setupXimeaCamera(std::string name, XimeaCamera *camera);

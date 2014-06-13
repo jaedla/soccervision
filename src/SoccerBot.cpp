@@ -23,7 +23,7 @@
 
 SoccerBot::SoccerBot() :
   Thread("SoccerBot"),
-  debugVision(false), showGui(false),
+  debugVision(false),
   androidBinderThread(NULL),
   frontCamera(NULL),
   androidCamera(NULL),
@@ -91,9 +91,6 @@ void SoccerBot::setup() {
   setupControllers();
   setupSignalHandler();
   setupServer();
-
-  if (showGui)
-    setupGui();
 }
 
 void SoccerBot::run() {
@@ -132,7 +129,7 @@ void SoccerBot::run() {
       dt = 1.0f / 60.0f;
 
     totalTime += dt;
-    debugging = debugVision || showGui || frameRequested;
+    debugging = debugVision || frameRequested;
     frontProcessor->setDebug(debugging);
     fpsCounter->step();
     frontProcessor->startProcessing();
@@ -295,9 +292,6 @@ void SoccerBot::setupFpsCounter() {
   std::cout << "! Setting up fps counter.. ";
   fpsCounter = new FpsCounter();
   std::cout << "done!" << std::endl;
-}
-
-void SoccerBot::setupGui() {
 }
 
 void SoccerBot::setupCameras() {
