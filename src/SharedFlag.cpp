@@ -5,6 +5,9 @@
 SharedFlag::SharedFlag() : flag(false) {
 }
 
+SharedFlag::SharedFlag(bool value) : flag(value) {
+}
+
 SharedFlag::~SharedFlag() {
 }
 
@@ -16,5 +19,10 @@ bool SharedFlag::get() {
 void SharedFlag::set(bool newValue) {
   ScopedMutex lock(&mutex);
   flag = newValue;
+}
+
+bool SharedFlag::is(bool value) {
+  ScopedMutex lock(&mutex);
+  return flag == value;
 }
 

@@ -4,7 +4,8 @@
 #include "ScopedMutex.h"
 #include "Util.h"
 
-PerfDebug::PerfDebug() : Thread("PerfDebug") {
+PerfDebug::PerfDebug() : Thread() {
+  setName("PerfDebug");
   setPerfDebugger(this);
 }
 

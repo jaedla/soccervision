@@ -67,6 +67,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #undef min
 #undef max
 
+struct Rgb {
+  Rgb() : red(0), green(0), blue(0) {}
+  Rgb(char red, char green, char blue) : red(red), green(green), blue(blue) {}
+
+  unsigned char red, green, blue;
+  //unsigned char blue, green, red;
+};
+
 class Blobber {
 public:
   struct FormatYUV {
@@ -82,14 +90,6 @@ public:
   };
 
   typedef struct FormatYUV422 Pixel;
-
-  struct Rgb {
-    Rgb() : red(0), green(0), blue(0) {}
-    Rgb(char red, char green, char blue) : red(red), green(green), blue(blue) {}
-
-    unsigned char red, green, blue;
-    //unsigned char blue, green, red;
-  };
 
   struct Bgr {
     Bgr() : red(0), green(0), blue(0) {}

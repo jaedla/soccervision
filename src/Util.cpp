@@ -93,10 +93,14 @@ void Util::sleep(int milliseconds) {
   std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
 
-double Util::millitime() {
+uint64_t Util::microtime() {
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  return (double)tv.tv_sec * 1000.0 + (double)tv.tv_usec / 1000.0;
+  return (uint64_t)tv.tv_sec * (uint64_t)1000000 + (uint64_t)tv.tv_usec;
+}
+
+double Util::millitime() {
+  return microtime() / 1000.0;
 }
 
 double Util::duration(double start) {

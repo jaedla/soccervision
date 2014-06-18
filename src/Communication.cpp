@@ -3,8 +3,8 @@
 
 #include <boost/bind.hpp>
 
-Communication::Communication(std::string host, int port) : Thread("Communication"), host(host), port(port), running(false), socket(NULL), receiveBuffer2(boost::asio::buffer(receiveBuffer, MAX_SIZE)) {
-
+Communication::Communication(std::string host, int port) : Thread(), host(host), port(port), running(false), socket(NULL), receiveBuffer2(boost::asio::buffer(receiveBuffer, MAX_SIZE)) {
+  setName("Communication");
 }
 
 Communication::~Communication() {

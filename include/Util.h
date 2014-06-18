@@ -12,6 +12,7 @@ class Util {
 
 public:
   static std::string base64Encode(const unsigned char *data, unsigned int len);
+  static uint64_t microtime();
   static double millitime();
   static double duration(double start);
   static float signum(float value);

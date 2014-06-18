@@ -3,20 +3,24 @@
 #include "Config.h"
 #include "Util.h"
 
-VirtualCamera::VirtualCamera() : data(NULL), bufferSize(0), frameNr(0) {
+VirtualCamera::VirtualCamera()/* : data(NULL), bufferSize(0), frameNr(0)*/ {
 
 }
 
 bool VirtualCamera::loadImage(std::string filename, int size) {
+  /*
   if (data == NULL)
     data = new unsigned char[size];
 
   bufferSize = size;
 
   return ImageProcessor::loadBitmap(filename, data, size);
+  */
+  return false;
 }
 
 Frame *VirtualCamera::getFrame() {
+  /*
   Frame *frame = new Frame();
   frame->data = data;
   frame->size = bufferSize;
@@ -27,4 +31,6 @@ Frame *VirtualCamera::getFrame() {
   frame->fresh = true;
 
   return frame;
+  */
+  return NULL;
 }

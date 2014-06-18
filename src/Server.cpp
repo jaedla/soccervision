@@ -2,10 +2,10 @@
 
 #include <iostream>
 
-Server::Server() : Thread("WebSocketServer"), ws(NULL) {
+Server::Server() : Thread(), ws(NULL) {
+  setName("WebSocketServer");
   ws = new WebSocketServer();
   ws->addListener(this);
-
   port = 8000;
   clientCounter = 0;
 }

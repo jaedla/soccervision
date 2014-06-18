@@ -26,10 +26,9 @@ void Thread::setPerfDebugger(PerfDebug *newPerfDebugger) {
   perfDebugger = newPerfDebugger;
 }
 
-Thread::Thread(std::string name) :
+Thread::Thread() :
     running(0),
-    detached(0),
-    name(name) {
+    detached(0) {
   registerThread(this);
 }
 
@@ -40,6 +39,10 @@ Thread::~Thread() {
     printf("Warning: pthread_cancel not implemented\n");
     //pthread_cancel(handle);
   }
+}
+
+void Thread::setName(std::string name) {
+  this->name = name;
 }
 
 std::string Thread::getName() {
@@ -81,6 +84,11 @@ int Thread::detach() {
   }
 
   return result;
+}
+
+void Thread::stop() {
+  requestStop();
+  join();
 }
 
 pthread_t Thread::self() {

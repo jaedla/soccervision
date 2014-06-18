@@ -3,23 +3,22 @@
 
 #include "BaseCamera.h"
 #include "Config.h"
+#include "Frame.h"
+#include "SharedFlag.h"
 #include <string>
 #include "Thread.h"
 #include "Vision.h"
-#include "WaitableFlag.h"
+#include "Worker.h"
 
 class BaseCamera;
 class Blobber;
 
-class ProcessThread : public Thread {
+class ProcessThread : public Worker<Frame> {
 
 public:
   ProcessThread(std::string name, BaseCamera *camera, Blobber *blobber, Vision *vision);
   ~ProcessThread();
   void stopThread();
-  void startProcessing();
-  void waitUntilProcessed();
-  void setDebug(bool newDebug) { debug = newDebug; }
   void setCamera(BaseCamera *newCamera) { camera = newCamera; }
   uint8_t *getYuyv() { return yuyv; }
   uint8_t *getRgb() { return rgb; }
@@ -27,21 +26,15 @@ public:
   Vision::Result *getVisionResult() { return visionResult; }
 
 private:
-  void run();
-  bool fetchFrame();
-  void process();
-
+  virtual void doWork(sp<Frame> frame);
+  void nextFrame();
   BaseCamera *camera;
   Blobber *blobber;
   Vision *vision;
   Vision::Result *visionResult;
-  WaitableFlag processing;
-  bool debug;
-  bool stopRequested;
+  SharedFlag stopRequested;
   int width;
   int height;
-  Dir dir;
-  Frame *frame;
   uint8_t *yuyv;
   uint8_t *argb;
   uint8_t *rgb;

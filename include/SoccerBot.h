@@ -7,12 +7,12 @@
 #include "Controller.h"
 #include "PerfDebug.h"
 #include "Server.h"
+#include "sp.h"
 #include <string>
 #include "Thread.h"
 #include "Vision.h"
 
 class BaseCamera;
-class XimeaCamera;
 class VirtualCamera;
 class Blobber;
 class ProcessThread;
@@ -68,7 +68,6 @@ public:
   std::string getStateJSON();
 
 private:
-  void setupXimeaCamera(std::string name, XimeaCamera *camera);
   //bool fetchFrame(BaseCamera* camera, ProcessThread* processor);
   void broadcastFrame();
   void broadcastScreenshots();
@@ -80,7 +79,7 @@ private:
   VirtualCamera *virtualFrontCamera;
   Blobber *frontBlobber;
   Vision *frontVision;
-  ProcessThread *frontProcessor;
+  sp<ProcessThread> frontProcessor;
   CameraTranslator *frontCameraTranslator;
   FpsCounter *fpsCounter;
   Vision::Results *visionResults;

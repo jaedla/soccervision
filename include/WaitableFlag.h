@@ -10,6 +10,7 @@ public:
   ~WaitableFlag();
   void set(bool newFlag);
   void waitUntil(bool untilFlag);
+  bool waitUntil(bool untilFlag, uint32_t timeoutMs);
 private:
   ConditionSignal signal;
   bool flag;

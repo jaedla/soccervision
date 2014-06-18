@@ -22,19 +22,20 @@
 #include <algorithm>
 
 SoccerBot::SoccerBot() :
-  Thread("SoccerBot"),
-  androidBinderThread(NULL),
-  frontCamera(NULL),
-  androidCamera(NULL),
-  virtualFrontCamera(NULL),
-  frontBlobber(NULL),
-  frontVision(NULL),
-  frontProcessor(NULL),
-  frontCameraTranslator(NULL),
-  fpsCounter(NULL), visionResults(NULL), robot(NULL), activeController(NULL), server(NULL), com(NULL),
-  controllerRequested(false), stateRequested(false), frameRequested(false), useScreenshot(false),
-  dt(0.01666f), totalTime(0.0f),
-  jpegBuffer(NULL), screenshotBufferFront(NULL) {
+    Thread(),
+    androidBinderThread(NULL),
+    frontCamera(NULL),
+    androidCamera(NULL),
+    virtualFrontCamera(NULL),
+    frontBlobber(NULL),
+    frontVision(NULL),
+    frontProcessor(NULL),
+    frontCameraTranslator(NULL),
+    fpsCounter(NULL), visionResults(NULL), robot(NULL), activeController(NULL), server(NULL), com(NULL),
+    controllerRequested(false), stateRequested(false), frameRequested(false), useScreenshot(false),
+    dt(0.01666f), totalTime(0.0f),
+    jpegBuffer(NULL), screenshotBufferFront(NULL) {
+  setName("SoccerBot");
 }
 
 SoccerBot::~SoccerBot() {
@@ -59,8 +60,6 @@ SoccerBot::~SoccerBot() {
   if (fpsCounter != NULL) delete fpsCounter;
   fpsCounter = NULL;
   if (frontProcessor != NULL) frontBlobber->saveOptions(Config::blobberConfigFilename);
-  delete frontProcessor;
-  frontProcessor = NULL;
   if (visionResults != NULL) delete visionResults;
   visionResults = NULL;
   if (frontVision != NULL) delete frontVision;
@@ -82,8 +81,6 @@ void SoccerBot::setup() {
   setupCommunication();
   setupVision();
   setupFpsCounter();
-  setupCameras();
-  setupProcessors();
   setupRobot();
   setupControllers();
   setupSignalHandler();
@@ -114,18 +111,13 @@ void SoccerBot::run() {
   double lastTime = 0;
 
   while (!SignalHandler::exitRequested) {
-    printf("new cycle\n");
-
     double time = Util::millitime();
     dt = lastTime ? (time - lastTime) : (1.0f / 60.0f);
     totalTime += dt;
     lastTime = time;
 
     fpsCounter->step();
-    frontProcessor->setDebug(frameRequested);
-    frontProcessor->startProcessing();
-    frontProcessor->waitUntilProcessed();
-    //visionResults->front = frontProcessor->getVisionResult();
+    // get frame here
 
     if (frameRequested) {
       //renderDebugObjects();
@@ -274,11 +266,16 @@ void SoccerBot::setupVision() {
 
   frontVision = new Vision(frontBlobber, frontCameraTranslator, Dir::FRONT, Config::cameraWidth, Config::cameraHeight);
   visionResults = new Vision::Results();
+
+  setupProcessors();
+  setupCameras();
+
+  androidCamera->addWorker(frontProcessor);
 }
 
 void SoccerBot::setupProcessors() {
   std::cout << "! Setting up processor thread.. ";
-  frontProcessor = new ProcessThread("FrontProcessor", frontCamera, frontBlobber, frontVision);
+  frontProcessor = make_sp<ProcessThread>("FrontProcessor", frontCamera, frontBlobber, frontVision);
   std::cout << "done!" << std::endl;
 }
 

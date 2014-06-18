@@ -9,12 +9,11 @@
 #include "Util.h"
 
 ProcessThread::ProcessThread(std::string name, BaseCamera *camera, Blobber *blobber, Vision *vision) :
-    Thread(name),
     camera(camera),
     blobber(blobber),
     vision(vision),
-    debug(false),
     stopRequested(false) {
+  setName(name);
   width = blobber->getWidth();
   height = blobber->getHeight();
   classification = new unsigned char[width * height * 3];
@@ -34,52 +33,29 @@ ProcessThread::~ProcessThread() {
   delete[] rgb;
 }
 
-void ProcessThread::run() {
-  while (true) {
-    processing.waitUntil(true);
-    if (stopRequested)
-      break;
-    process();
-    processing.set(false);
-  }
-}
-
 void ProcessThread::stopThread() {
-  stopRequested = true;
-  processing.set(true);
+  stopRequested.set(true);
 }
 
-void ProcessThread::startProcessing() {
-  processing.set(true);
-}
-
-void ProcessThread::waitUntilProcessed() {
-  processing.waitUntil(false);
-}
-
-void ProcessThread::process() {
-  if (!fetchFrame())
-    return;
-
+void ProcessThread::nextFrame() {
+  // dequeue camera frame
+  // frame = camera->getFrame();
+  /*
   if (visionResult != NULL) {
     delete visionResult;
     visionResult = NULL;
   }
+  visionResult = vision->process();
+  */
+  // post visionResult
 
-  //blobber->processFrame((Blobber::Pixel *)yuyv);
-
+  /*
   if (debug) {
-    printf("to rgb\n");
-    //blobber->classify((Blobber::Rgb *)classification, (Blobber::Pixel *)yuyv);
-    ImageProcessor::YUYVToARGB(yuyv, argb, width, height);
-    ImageProcessor::ARGBToRGB(argb, rgb, width, height);
-    printf("to rgb done\n");
-    //vision->setDebugImage(rgb, width, height);
+    vision->setDebugImage(rgb, width, height);
   } else {
-    //vision->setDebugImage(NULL, 0, 0);
+    vision->setDebugImage(NULL, 0, 0);
   }
-
-  //visionResult = vision->process();
+  */
 
   /*
   if (debug) {
@@ -92,21 +68,9 @@ void ProcessThread::process() {
     // TODO Show whether a ball is in the way
   }
   */
-
-  if (frame != NULL) {
-    delete frame;
-    frame = NULL;
-  }
 }
 
-bool ProcessThread::fetchFrame() {
-  if (camera->isAcquisitioning()) {
-    frame = camera->getFrame();
-    if (frame != NULL && frame->fresh) {
-      yuyv = frame->data;
-      return true;
-    }
-  }
-  return false;
+void ProcessThread::doWork(sp<Frame> frame) {
+  printf("ProcessThread got frame\n");
 }
 

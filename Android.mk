@@ -8,6 +8,8 @@ LOCAL_SRC_FILES := \
     lib/jpeg/jpge.cpp \
     src/AndroidBinderThread.cpp \
     src/AndroidCamera.cpp \
+    src/AndroidCameraStream.cpp \
+    src/AndroidFrame.cpp \
     src/BallLocalizer.cpp \
     src/BaseAI.cpp \
     src/Blobber.cpp \
@@ -43,8 +45,8 @@ LOCAL_SRC_FILES := \
     src/Tasks.cpp \
     src/TestController.cpp \
     src/Thread.cpp \
+    src/Timer.cpp \
     src/Util.cpp \
-    src/V4lCamera.cpp \
     src/VirtualCamera.cpp \
     src/Vision.cpp \
     src/WaitableFlag.cpp \

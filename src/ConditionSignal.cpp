@@ -22,12 +22,18 @@ Mutex *ConditionSignal::mutex() {
 }
 
 void ConditionSignal::signal() {
-  // must hold the lock
   Check(pthread_cond_broadcast(&internalCond) == 0, "pthread_cond_broadcast failed");
 }
 
 void ConditionSignal::wait() {
-  // must hold the lock
+  waitInternal(false, 0);
+}
+
+void ConditionSignal::wait(uint32_t timeoutMs) {
+  waitInternal(true, timeoutMs);
+}
+
+void ConditionSignal::waitInternal(bool withTimeout, uint32_t timeoutMs) {
   Check(pthread_cond_wait(&internalCond, internalMutex.getInternalMutex()) == 0, "pthread_cond_wait failed");
 }
 

@@ -12,18 +12,20 @@ class PerfDebug;
 class Thread {
 
 public:
-  Thread(std::string name);
+  Thread();
   virtual ~Thread();
 
   static void setPerfDebugger(PerfDebug *newPerfDebugger);
   static std::vector<Thread *> getAllThreads();
 
+  void setName(std::string name);
   std::string getName();
   int start();
   int join();
   int detach();
   void requestStop() { stopRequested.set(true); }
   bool isStopRequested() { return stopRequested.get(); }
+  void stop();
   pthread_t self();
   void debugPerf(std::string msg);
 
