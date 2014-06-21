@@ -29,7 +29,7 @@ Robot::Robot(Communication *com) : wheelFL(NULL), wheelFR(NULL), wheelRL(NULL), 
   frameTargetSpeedSet = false;
   coilgunCharged = false;
 
-  json = "null";
+  json = "";
 }
 
 Robot::~Robot() {

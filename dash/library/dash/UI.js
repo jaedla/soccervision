@@ -890,10 +890,12 @@ Dash.UI.prototype.handleFrameMessage = function(frame) {
 	}
 
 	$('#frame-img').attr('src', '');
-	$('#frame-img').attr('width', '0');
-	$('#frame-img').attr('height', '0');
-	$('#frame-img').attr('width', '640');
-	$('#frame-img').attr('height', '360');
+	$('#frame-img').css({width: frame.width, height: frame.height});
+  $('#frame-classification').css({width: frame.width, height: frame.height, left: frame.width});
+	//$('#frame-images').css({width: frame.width * 2, height: frame.height});
+  //$('#camera-view').css({width: 170 + $('#frame-images').width()});
+	$('#frame-images').css({width: frame.width * 2, height: frame.height});
+  $('#camera-view').css({width: frame.width * 2 + 170, height: frame.height + 20});
 
 	$('#frame-img').attr('src', 'data:image/jpeg;base64,' + frame.rgb);
   /*

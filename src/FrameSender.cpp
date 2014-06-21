@@ -28,11 +28,15 @@ void FrameSender::doWork(sp<Frame> frame) {
     return;
   uint32_t wholeWidth = frame->getWidth();
   uint32_t wholeHeight = frame->getHeight();
-  uint32_t width = std::min(200u, wholeWidth);
+  uint32_t width = std::min(300u, wholeWidth);
   uint32_t height = (width * wholeHeight) / wholeWidth;
   uint8_t *rgbPreview = frame->getRgbPreview(width, height);
   std::string base64Jpeg = rgbToJpeg(rgbPreview, width, height);
-  std::string json = Util::json("frame", "{\"rgb\": \"" + base64Jpeg + "\"}");
+  std::string json = Util::json(
+      "frame",
+      "{\"rgb\": \"" + base64Jpeg + "\", "
+      "\"width\": " + Util::toString(width) + ", "
+      "\"height\": " + Util::toString(height) + "}");
   server->broadcast(json);
   printf("broadcast done\n");
 }
