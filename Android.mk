@@ -24,6 +24,7 @@ LOCAL_SRC_FILES := \
     src/DebugRenderer.cpp \
     src/Dribbler.cpp \
     src/FpsCounter.cpp \
+    src/FrameSender.cpp \
     src/ImageProcessor.cpp \
     src/main.cpp \
     src/ManualController.cpp \

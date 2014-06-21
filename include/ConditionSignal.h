@@ -14,7 +14,6 @@ public:
   void wait(uint32_t timeoutMs);
   Mutex *mutex();
 private:
-  void waitInternal(bool withTimeout, uint32_t timeoutMs);
   Mutex internalMutex;
   pthread_cond_t internalCond;
 };

@@ -1,5 +1,7 @@
 #include "Check.h"
 #include "ConditionSignal.h"
+#include "errno.h"
+#include <time.h>
 
 ConditionSignal::ConditionSignal() {
   Check(pthread_cond_init(&internalCond, NULL) == 0, "pthread_cond_init_failed");
@@ -26,14 +28,23 @@ void ConditionSignal::signal() {
 }
 
 void ConditionSignal::wait() {
-  waitInternal(false, 0);
+  Check(pthread_cond_wait(&internalCond, internalMutex.getInternalMutex()) == 0, "pthread_cond_wait failed");
 }
 
 void ConditionSignal::wait(uint32_t timeoutMs) {
-  waitInternal(true, timeoutMs);
-}
+  // slightly ridiculous
+  struct timeval current;
+  struct timeval timeout;
+  struct timeval timeoutAbsolute;
+  struct timespec timespec;
+  gettimeofday(&current, NULL);
+  timeout.tv_sec = timeoutMs / 1000;
+  timeout.tv_usec = (timeoutMs % 1000) * 1000;
+  timeradd(&current, &timeout, &timeoutAbsolute);
+  timespec.tv_sec = timeoutAbsolute.tv_sec;
+  timespec.tv_nsec = timeoutAbsolute.tv_usec * 1000;
 
-void ConditionSignal::waitInternal(bool withTimeout, uint32_t timeoutMs) {
-  Check(pthread_cond_wait(&internalCond, internalMutex.getInternalMutex()) == 0, "pthread_cond_wait failed");
+  int ret = pthread_cond_timedwait(&internalCond, internalMutex.getInternalMutex(), &timespec);
+  Check(!ret || ret == ETIMEDOUT, "pthread_cond_wait failed");
 }
 

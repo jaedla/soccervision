@@ -47,8 +47,6 @@ SoccerBot::~SoccerBot() {
   controllers.clear();
   activeController = NULL;
 
-  if (server != NULL) delete server;
-  server = NULL;
   if (robot != NULL) delete robot;
   robot = NULL;
   if (androidCamera != NULL) delete androidCamera;
@@ -107,7 +105,6 @@ void SoccerBot::run() {
     return;
   }
 
-  frontProcessor->start();
   double lastTime = 0;
 
   while (!SignalHandler::exitRequested) {
@@ -121,7 +118,7 @@ void SoccerBot::run() {
 
     if (frameRequested) {
       //renderDebugObjects();
-      broadcastFrame();
+      //broadcastFrame();
       frameRequested = false;
     }
 
@@ -140,8 +137,6 @@ void SoccerBot::run() {
     }
   }
 
-  frontProcessor->stopThread();
-  frontProcessor->join();
   perfDebug->requestStop();
   perfDebug->join();
   com->send("reset");
@@ -267,10 +262,12 @@ void SoccerBot::setupVision() {
   frontVision = new Vision(frontBlobber, frontCameraTranslator, Dir::FRONT, Config::cameraWidth, Config::cameraHeight);
   visionResults = new Vision::Results();
 
-  setupProcessors();
   setupCameras();
+  setupProcessors();
+  frameSender = make_sp<FrameSender>();
 
   androidCamera->addWorker(frontProcessor);
+  androidCamera->addWorker(frameSender);
 }
 
 void SoccerBot::setupProcessors() {
@@ -315,7 +312,8 @@ void SoccerBot::setupSignalHandler() {
 }
 
 void SoccerBot::setupServer() {
-  server = new Server();
+  server = make_sp<Server>();
+  frameSender->setServer(server);
 }
 
 void SoccerBot::setupAndroid() {

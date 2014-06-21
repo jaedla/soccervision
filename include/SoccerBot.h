@@ -5,6 +5,7 @@
 #include "AndroidCamera.h"
 #include "Command.h"
 #include "Controller.h"
+#include "FrameSender.h"
 #include "PerfDebug.h"
 #include "Server.h"
 #include "sp.h"
@@ -80,12 +81,13 @@ private:
   Blobber *frontBlobber;
   Vision *frontVision;
   sp<ProcessThread> frontProcessor;
+  sp<FrameSender> frameSender;
   CameraTranslator *frontCameraTranslator;
   FpsCounter *fpsCounter;
   Vision::Results *visionResults;
   Robot *robot;
   Controller *activeController;
-  Server *server;
+  sp<Server> server;
   Communication *com;
   ControllerMap controllers;
   std::string activeControllerName;

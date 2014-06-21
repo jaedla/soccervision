@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+
 android_home=/data/home/root
 android_tmp=/data/tmp
 dir=${android_home}/soccervision

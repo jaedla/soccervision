@@ -2,9 +2,11 @@
 #define ANDROIDFRAME_H
 
 #include "AndroidCameraStream.h"
+#include "Check.h"
 #include <cstdint>
 #include "Frame.h"
 #include "gui/CpuConsumer.h"
+#include "ImageProcessor.h"
 #include <memory>
 #include "sp.h"
 #include "utils/RefBase.h"
@@ -20,16 +22,19 @@ public:
   virtual double getTimestamp();
   virtual uint32_t getFrameNumber();
   virtual uint32_t *classify(Blobber *blobber);
-  virtual uint8_t *getPreview();
+  virtual uint8_t *getRgbPreview(uint32_t previewWidth, uint32_t previewHeight);
 private:
+  void createPreviewYuyv(uint8_t *previewYuyv, uint32_t width, uint32_t height);
   void convertFrameToYuyv();
 
   android::sp<AndroidCameraStream> stream;
   sp<LockedBuffer> buffer;
   uint32_t width;
   uint32_t height;
-  uint32_t frameSize;
+  uint32_t rawWidth;
+  uint32_t rawHeight;
   std::unique_ptr<uint8_t[]> yuyv;
+  std::unique_ptr<uint8_t[]> preview;
 };
 
 #endif

@@ -896,6 +896,7 @@ Dash.UI.prototype.handleFrameMessage = function(frame) {
 	$('#frame-img').attr('height', '360');
 
 	$('#frame-img').attr('src', 'data:image/jpeg;base64,' + frame.rgb);
+  /*
 	$('#frame-classification').attr('src', 'data:image/jpeg;base64,' + frame.classification);
 	$('#stream-choice OPTION.selected').attr('selected', false);
 	$('#stream-choice OPTION[value=' + frame.activeStream + ']').attr('selected', 'selected');
@@ -904,6 +905,7 @@ Dash.UI.prototype.handleFrameMessage = function(frame) {
 		$('#camera-k').val(parseInt(parseFloat(frame.cameraK) * 1000000000)).attr('disabled', false);
 		$('#camera-zoom').val(parseFloat(parseInt(parseFloat(frame.cameraZoom) * 1000))).attr('disabled', false);
 	}
+  */
 
 	this.applyScreenshotState();
 

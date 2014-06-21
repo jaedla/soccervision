@@ -1,3 +1,4 @@
+#include "ScopedMutex.h"
 #include "WebSocketServer.h"
 
 WebSocketServer::WebSocketServer() : server(NULL) {
@@ -40,7 +41,7 @@ void WebSocketServer::listen(int port) {
 void WebSocketServer::stop() {
   if (server == NULL)
     return;
-
+  ScopedMutex lock(&mutex);
   server->stop();
 }
 
@@ -55,6 +56,7 @@ void WebSocketServer::broadcast(std::string message) {
 
 void WebSocketServer::send(websocketpp::connection_hdl connection, std::string message) {
   try {
+    ScopedMutex lock(&mutex);
     server->send(connection, message, websocketpp::frame::opcode::TEXT);
   } catch (...) {
     std::cout << "! Sending server message '" << message << "' failed" << std::endl;

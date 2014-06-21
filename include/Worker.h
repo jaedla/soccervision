@@ -8,7 +8,12 @@
 template<typename T>
 class Worker : public Thread {
 public:
+  Worker() {
+    start();
+  }
+
   virtual ~Worker() {
+    stop();
   }
 
   void addWork(sp<T> work) {
@@ -21,6 +26,14 @@ public:
       if (work)
         doWork(work);
     }
+  }
+
+  uint32_t queueSize() {
+    return workQueue.queueSize();
+  }
+
+  void setSkipToLatest(bool value) {
+    workQueue.setSkipToLatest(value);
   }
 private:
   virtual void doWork(sp<T> work) = 0;

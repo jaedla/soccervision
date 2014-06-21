@@ -20,7 +20,7 @@ public:
     ScopedMutex lock(signal.mutex());
     while (queue.empty())
       signal.wait();
-    return getNextWork();
+    return getWork();
   }
 
   sp<T> waitForWork(uint32_t timeoutMs) {
@@ -29,10 +29,23 @@ public:
     ScopedMutex lock(signal.mutex());
     while (queue.empty() && !timer.isExpired())
       signal.wait(timer.remaining());
-    return queue.empty() ? NULL : getNextWork();
+    return queue.empty() ? NULL : getWork();
+  }
+
+  uint32_t queueSize() {
+    ScopedMutex lock(signal.mutex());
+    return queue.size(); 
+  }
+
+  void setSkipToLatest(bool value) {
+    skipToLatest.set(value);
   }
 private:
-  sp<T> getNextWork() {
+  sp<T> getWork() {
+    if (skipToLatest.is(true)) {
+      while (queue.size() > 1)
+        queue.pop();
+    }
     sp<T> work = queue.front();
     queue.pop();
     return work;
@@ -40,6 +53,7 @@ private:
 
   ConditionSignal signal;
   std::queue<sp<T>> queue;
+  SharedFlag skipToLatest;
 };
 
 #endif

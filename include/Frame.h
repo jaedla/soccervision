@@ -12,7 +12,7 @@ public:
   virtual double getTimestamp();
   virtual uint32_t getFrameNumber();
   virtual uint32_t *classify(Blobber *blobber);
-  virtual uint8_t *getPreview();
+  virtual uint8_t *getRgbPreview(uint32_t previewWidth, uint32_t previewHeight);
 private:
 };
 

@@ -1,12 +1,12 @@
 #ifndef WEBSOCKETSERVER_H
 #define WEBSOCKETSERVER_H
 
-#include <websocketpp/config/asio_no_tls.hpp>
-#include <websocketpp/server.hpp>
-
 #include <iostream>
+#include <Mutex.h>
 #include <string>
 #include <vector>
+#include <websocketpp/config/asio_no_tls.hpp>
+#include <websocketpp/server.hpp>
 
 class WebSocketServer {
 
@@ -43,7 +43,7 @@ private:
   websocketpp::server<websocketpp::config::asio> *server;
   Listeners listeners;
   Connections connections;
-
+  Mutex mutex;
 };
 
 #endif
