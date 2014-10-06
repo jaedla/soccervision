@@ -8,6 +8,7 @@ Communication::Communication(std::string host, int port) : Thread(), host(host),
 }
 
 Communication::~Communication() {
+  /*
   std::cout << "! Closing communication link.. ";
 
   close();
@@ -17,9 +18,11 @@ Communication::~Communication() {
 
   if (socket != NULL) delete socket;
   socket = NULL;
+  */
 }
 
 void Communication::sendNoQueue(std::string message) {
+  /*
   message += "\n";
 
   memcpy(requestBuffer, message.c_str(), message.size());
@@ -33,9 +36,11 @@ void Communication::sendNoQueue(std::string message) {
   } catch (std::exception &e) {
     std::cout << "- Communication send error: " << e.what() << std::endl;
   }
+  */
 }
 
 void Communication::send(std::string message) {
+  /*
   if (message.size() >= MAX_SIZE) {
     std::cout << "- Too big socket message" << std::endl;
     return;
@@ -56,15 +61,20 @@ void Communication::send(std::string message) {
   }
 
   sendNoQueue(message);
+  */
 }
 
 bool Communication::gotMessages() {
+  /*
   boost::mutex::scoped_lock lock(messagesMutex);
 
   return messages.size() > 0;
+  */
+  return false;
 }
 
 std::string Communication::dequeueMessage() {
+  /*
   boost::mutex::scoped_lock lock(messagesMutex);
 
   if (messages.size() == 0)
@@ -75,9 +85,12 @@ std::string Communication::dequeueMessage() {
   messages.pop();
 
   return message;
+  */
+  return "";
 }
 
 void Communication::run() {
+  /*
   std::cout << "! Starting communication socket connection to " << host << ":" << port << std::endl;
 
   socket = new udp::socket(ioService, udp::endpoint(udp::v4(), port));
@@ -94,9 +107,11 @@ void Communication::run() {
   running = true;
 
   receiveNext();
+  */
 }
 
 void Communication::receiveNext() {
+  /*
   try {
     socket->async_receive_from(
       //boost::asio::buffer(message, MAX_SIZE), endpoint,
@@ -113,9 +128,11 @@ void Communication::receiveNext() {
   } catch (std::exception &e) {
     std::cout << "- Communication receive error: " << e.what() << std::endl;
   }
+  */
 }
 
 void Communication::onReceive(const boost::system::error_code &error, size_t bytesReceived) {
+  /*
   if (bytesReceived >= MAX_SIZE)
     std::cout << "- Too large socket message received: " << bytesReceived << std::endl;
 
@@ -135,17 +152,21 @@ void Communication::onReceive(const boost::system::error_code &error, size_t byt
 
   if (running)
     receiveNext();
+  */
 }
 
 void Communication::onSend(const boost::system::error_code &error, size_t bytesSent) {
+  /*
   if (error)
     std::cout << "- Socket send error: " << error << ", bytesSent: " << bytesSent << std::endl;
 
   if (running)
     receiveNext();
+  */
 }
 
 void Communication::close() {
+  /*
   running = false;
 
   if (socket != NULL) {
@@ -157,4 +178,5 @@ void Communication::close() {
       std::cout << "- Communication close error: " << e.what() << std::endl;
     }
   }
+  */
 }
